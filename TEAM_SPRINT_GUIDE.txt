@@ -1,8 +1,28 @@
 ================================================================================
-                    GENZCINEMA HOTEL - 1-DAY SPRINT GUIDE
+          GENZCINEMA HOTEL - SPRINT GUIDE & PROJECT PROGRESS TRACKER
 ================================================================================
-Tài liệu hướng dẫn phân công và triển khai tính năng cho 5 thành viên (Full-stack).
-Mỗi thành viên làm trọn gói từ Database/Backend đến Frontend (Mobile App) cho luồng của mình.
+Tài liệu hướng dẫn phân công và cập nhật tiến độ cho 5 thành viên (Full-stack).
+
+--------------------------------------------------------------------------------
+📊 TIẾN ĐỘ HIỆN TẠI CỦA DỰ ÁN (ĐÃ HOÀN THÀNH)
+--------------------------------------------------------------------------------
+1. Backend (Spring Boot):
+   - Đã cấu hình kết nối SQL Server (Database GenzCinemaHotel) và JPA/Hibernate.
+   - Đã hoàn thiện hệ thống xác thực JWT (Login, Register, Quên/Đổi mật khẩu).
+   - Đã hoàn thiện các API quản lý Khách sạn (Hotel), Phòng (Room), và Đặt phòng (Booking).
+   - Đã cấu hình Spring Security (`SecurityConfig`) và Global Exception Handling.
+
+2. Mobile App (Flutter):
+   - Đã cấu hình Riverpod State Management, GoRouter (định tuyến theo role).
+   - Đã hoàn thiện Dio API Client tự động đính kèm Bearer Token.
+   - Đã hoàn thiện các màn hình:
+     + Xác thực: Login, Register, Request Reset, Reset Password.
+     + Khách hàng: Trang chủ (Home), Danh sách phòng (Room List), Chi tiết phòng (Room Detail), Đặt phòng (Booking với Combo & Voucher), Phòng đã lưu (Saved/Favorites).
+     + Quản trị: Admin Dashboard cơ bản.
+
+--------------------------------------------------------------------------------
+🚀 PHÂN CÔNG 5 THÀNH VIÊN HOÀN THIỆN CÁC TÍNH NĂNG HOÀN HẢO (FULL-STACK)
+--------------------------------------------------------------------------------
 
 --------------------------------------------------------------------------------
 THÀNH VIÊN 1: LUỒNG XÁC THỰC, HỒ SƠ & UPLOAD CCCD (AUTH & PROFILE)
@@ -17,16 +37,7 @@ THÀNH VIÊN 1: LUỒNG XÁC THỰC, HỒ SƠ & UPLOAD CCCD (AUTH & PROFILE)
    - Tích hợp package `image_picker` để chụp/chọn ảnh CCCD và gửi lên API profile.
 
 --------------------------------------------------------------------------------
-THÀNH VIÊN 2: LUỒNG KHÁM PHÁ & TÌM KIẾM PHÒNG (ROOM DISCOVERY)
---------------------------------------------------------------------------------
-1. Backend (Spring Boot):
-   - Đảm bảo các API lấy danh sách phòng (/api/rooms) và chi nhánh (/api/rooms/hotel/{hotelId}) hoạt động ổn định, trả về kèm thông tin Hotel và TypeRoom.
-2. Frontend (Flutter):
-   - Hoàn thiện HomeScreen.dart, RoomListScreen.dart với thanh tìm kiếm và bộ lọc (Chi nhánh, Loại phòng, Giá).
-   - Hoàn thiện RoomDetailScreen.dart (hiển thị thông tin chi tiết phòng, giá tiền).
-
---------------------------------------------------------------------------------
-THÀNH VIÊN 3: LUỒNG ĐẶT PHÒNG, VOUCHER, THANH TOÁN & LỊCH SỬ (BOOKING & HISTORY)
+THÀNH VIÊN 2: LUỒNG ĐẶT PHÒNG, VOUCHER, THANH TOÁN & LỊCH SỬ (BOOKING & HISTORY)
 --------------------------------------------------------------------------------
 1. Backend (Spring Boot):
    - Tạo bảng Voucher trong SQL Server:
@@ -45,18 +56,19 @@ THÀNH VIÊN 3: LUỒNG ĐẶT PHÒNG, VOUCHER, THANH TOÁN & LỊCH SỬ (BOOKI
    - BookingHistoryScreen.dart: TabBar chia 3 tab (Sắp tới, Đã qua, Đã hủy) gọi API GET /api/bookings/user/{userId} kèm nút Hủy đơn.
 
 --------------------------------------------------------------------------------
-THÀNH VIÊN 4: LUỒNG VẬN HÀNH CỦA NHÂN VIÊN (STAFF OPERATIONS & QR)
+THÀNH VIÊN 3: LUỒNG VẬN HÀNH CỦA NHÂN VIÊN & TÌM KIẾM NHANH (STAFF OPERATIONS)
 --------------------------------------------------------------------------------
 1. Backend (Spring Boot):
    - Đảm bảo API PUT /api/bookings/{id}/status hoạt động để duyệt/từ chối đơn và cập nhật trạng thái phòng.
+   - Hỗ trợ query lọc/tìm kiếm booking theo SĐT khách hàng.
 2. Frontend (Flutter):
    - StaffDashboardScreen.dart:
-     + Tab 1: Danh sách đơn chờ duyệt (Duyệt / Từ chối).
+     + Tab 1: Danh sách đơn chờ duyệt (kèm ô tìm kiếm nhanh theo SĐT/Mã booking, nút Duyệt / Từ chối).
      + Tab 2: Sơ đồ phòng trực quan (Room Grid) dạng lưới đổi màu theo trạng thái.
-   - Tích hợp package `mobile_scanner` để quét mã QR của khách hàng thực hiện check-in nhanh.
+   - Tích hợp package `mobile_scanner` để quét mã QR check-in nhanh.
 
 --------------------------------------------------------------------------------
-THÀNH VIÊN 5: LUỒNG QUẢN TRỊ ADMIN, ĐÁNH GIÁ & THÔNG BÁO (ADMIN, REVIEW & NOTIFICATION)
+THÀNH VIÊN 4: LUỒNG QUẢN TRỊ ADMIN, ĐÁNH GIÁ & THÔNG BÁO (ADMIN & NOTIFICATION)
 --------------------------------------------------------------------------------
 1. Backend (Spring Boot):
    - Tạo bảng Review và Notification trong SQL Server:
@@ -82,4 +94,27 @@ THÀNH VIÊN 5: LUỒNG QUẢN TRỊ ADMIN, ĐÁNH GIÁ & THÔNG BÁO (ADMIN, RE
    - AdminDashboardScreen.dart: Tích hợp `fl_chart` vẽ biểu đồ doanh thu.
    - ReviewScreen.dart: Giao diện đánh giá phòng (1-5 sao).
    - Notification widget: Icon chuông trên AppBar có badge số chưa đọc và màn hình danh sách thông báo.
+
+--------------------------------------------------------------------------------
+THÀNH VIÊN 5: LUỒNG CHỌN PHIM, COMBO BẮP NƯỚC & TIỆN NGHI PHÒNG (CINEMA HOTEL USP)
+--------------------------------------------------------------------------------
+1. Backend (Spring Boot):
+   - Tạo bảng `Movie` (Phim), bảng `ServiceItem` (Combo bắp nước) và cấu hình tiện ích phòng (Amenities):
+     CREATE TABLE Movie (
+         MovieId VARCHAR(50) PRIMARY KEY,
+         Title NVARCHAR(255) NOT NULL,
+         Description NVARCHAR(MAX) NULL,
+         PosterUrl VARCHAR(MAX) NULL,
+         DurationMinutes INT NULL
+     );
+     CREATE TABLE ServiceItem (
+         ServiceId VARCHAR(50) PRIMARY KEY,
+         Name NVARCHAR(255) NOT NULL,
+         Price DECIMAL(18,2) NOT NULL,
+         ImageUrl VARCHAR(MAX) NULL
+     );
+   - Viết API: GET /api/movies và GET /api/services.
+2. Frontend (Flutter):
+   - Màn hình BookingScreen: Bổ sung bước chọn phim chiếu riêng tư và chọn combo bắp nước/snack đi kèm.
+   - Màn hình RoomDetailScreen: Bổ sung hiển thị danh sách **Tiện nghi phòng** (Ví dụ: Máy chiếu 4K, Âm thanh vòm Dolby, Netflix miễn phí, Ghế sofa Bed...) để làm nổi bật trải nghiệm Cinema.
 ================================================================================
