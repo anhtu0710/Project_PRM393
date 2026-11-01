@@ -25,7 +25,7 @@ Tài liệu hướng dẫn phân công và cập nhật tiến độ cho 5 thàn
 --------------------------------------------------------------------------------
 
 --------------------------------------------------------------------------------
-THÀNH VIÊN 1: LUỒNG XÁC THỰC, HỒ SƠ & UPLOAD CCCD (AUTH & PROFILE)
+THÀNH VIÊN 1: LUỒNG XÁC THỰC, HỒ SƠ & UPLOAD CCCD (AUTH & PROFILE) hoàng anh
 --------------------------------------------------------------------------------
 1. Backend (Spring Boot):
    - Chạy lệnh SQL bổ sung cột:
