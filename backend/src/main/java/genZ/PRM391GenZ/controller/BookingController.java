@@ -1,5 +1,6 @@
 package genZ.PRM391GenZ.controller;
 
+import genZ.PRM391GenZ.constant.BookingStatus;
 import genZ.PRM391GenZ.dto.ApiResponse;
 import genZ.PRM391GenZ.entity.Booking;
 import genZ.PRM391GenZ.repository.BookingRepository;
@@ -18,7 +19,7 @@ public class BookingController {
     private final BookingRepository bookingRepository;
 
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
     public ResponseEntity<ApiResponse<List<Booking>>> getAllBookings() {
         return ResponseEntity.ok(
                 ApiResponse.success("Danh sách booking", bookingRepository.findAll())
@@ -40,12 +41,13 @@ public class BookingController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<Booking>> createBooking(@RequestBody Booking booking) {
+        booking.setStatus(BookingStatus.PENDING); // booking mới luôn chờ duyệt
         Booking saved = bookingRepository.save(booking);
         return ResponseEntity.ok(ApiResponse.success("Đặt phòng thành công", saved));
     }
 
     @PutMapping("/{id}/status")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
     public ResponseEntity<ApiResponse<Booking>> updateStatus(
             @PathVariable Integer id, @RequestParam String status) {
         return bookingRepository.findById(id).map(b -> {

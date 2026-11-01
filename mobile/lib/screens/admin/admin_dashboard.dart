@@ -20,6 +20,10 @@ class AdminDashboard extends ConsumerWidget {
         foregroundColor: Colors.white,
         actions: [
           IconButton(
+            icon: const Icon(Icons.people),
+            onPressed: () => context.push('/admin/users'),
+          ),
+          IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () async {
               await ref.read(authProvider.notifier).logout();

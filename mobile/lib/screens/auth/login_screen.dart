@@ -45,6 +45,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         case AppConfig.roleAdmin:
           context.go('/admin');
           break;
+        case AppConfig.roleStaff:
+          context.go('/staff');
+          break;
         default:
           context.go('/home');
       }

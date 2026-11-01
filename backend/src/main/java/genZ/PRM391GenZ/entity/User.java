@@ -1,5 +1,6 @@
 package genZ.PRM391GenZ.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -24,6 +25,7 @@ public class User {
     @Column(name = "email", length = 255)
     private String email;
 
+    @JsonIgnore // không trả mật khẩu ra JSON
     @Column(name = "password", nullable = false)
     private String password;
 
@@ -33,4 +35,7 @@ public class User {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "RoleId")
     private Role role;
+
+    @Column(name = "IsLocked", nullable = false)
+    private boolean locked; // true = tài khoản bị khoá
 }

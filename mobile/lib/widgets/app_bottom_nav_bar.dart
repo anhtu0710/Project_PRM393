@@ -69,6 +69,22 @@ class AppBottomNavBar extends ConsumerWidget {
                   onTap: () => Navigator.pop(ctx),
                 ),
                 ListTile(
+                  leading: const Icon(Icons.history, color: AppTheme.primary),
+                  title: const Text('Lịch sử đặt phòng'),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    context.push('/bookings');
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.notifications, color: AppTheme.primary),
+                  title: const Text('Thông báo'),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    context.push('/notifications');
+                  },
+                ),
+                ListTile(
                   leading: const Icon(Icons.logout, color: AppTheme.primaryDark),
                   title: const Text('Đăng xuất'),
                   onTap: () async {

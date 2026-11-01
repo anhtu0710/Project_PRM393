@@ -80,19 +80,22 @@ GET   /api/rooms                   # authenticated
 GET   /api/rooms/available
 GET   /api/rooms/hotel/{hotelId}
 GET   /api/rooms/{id}
-POST  /api/rooms                   # ADMIN only
-PUT   /api/rooms/{id}              # ADMIN only
-DELETE /api/rooms/{id}             # ADMIN only
+POST  /api/rooms                   # ADMIN, STAFF
+PUT   /api/rooms/{id}              # ADMIN, STAFF
+DELETE /api/rooms/{id}             # ADMIN, STAFF
 
-GET   /api/bookings                # ADMIN only
+GET   /api/bookings                # ADMIN, STAFF
 GET   /api/bookings/user/{userId}
 GET   /api/bookings/{id}
-POST  /api/bookings
-PUT   /api/bookings/{id}/status    # ADMIN only
+POST  /api/bookings                # status is always set to PENDING
+PUT   /api/bookings/{id}/status    # ADMIN, STAFF
 ```
 
 ## Development Notes
 
 - Error messages and email templates are in Vietnamese (UTF-8)
-- `spring.jpa.hibernate.ddl-auto=update` — schema auto-updates on startup; no manual migrations needed in dev
+- `spring.jpa.hibernate.ddl-auto=none` — Hibernate does not change the schema. Run `SQLQuery1.sql`, then `database/sprint_foundation.sql` once (tables Voucher/Review/Notification, `User.IsLocked`, test accounts, sample data).
+- The team is new to Spring/Java: keep code simple (plain entities, derived repository methods, `FetchType.EAGER`, no custom JPQL or advanced annotations).
+- Booking statuses: `constant/BookingStatus` / `AppConfig.booking*` — `PENDING, CONFIRMED, REJECTED, CHECKED_IN, COMPLETED, CANCELLED`. Room statuses: `constant/RoomStatus` / `AppConfig.room*` — `Trống, Đang dùng, Đang dọn`.
+- `@EnableMethodSecurity` is on, so `@PreAuthorize("hasRole(...)")` works (`ROLE_` + RoleId). SecurityConfig paths are relative to the `/api` context path: `/auth/**`, not `/api/auth/**`.
 - After modifying any Riverpod `@riverpod`-annotated provider, run `build_runner build` to regenerate `.g.dart` files

@@ -1,5 +1,6 @@
 package genZ.PRM391GenZ.controller;
 
+import genZ.PRM391GenZ.constant.RoomStatus;
 import genZ.PRM391GenZ.dto.ApiResponse;
 import genZ.PRM391GenZ.entity.Room;
 import genZ.PRM391GenZ.repository.RoomRepository;
@@ -33,7 +34,7 @@ public class RoomController {
 
     @GetMapping("/available")
     public ResponseEntity<ApiResponse<List<Room>>> getAvailableRooms() {
-        List<Room> rooms = roomRepository.findByStatus("Trống");
+        List<Room> rooms = roomRepository.findByStatus(RoomStatus.AVAILABLE);
         return ResponseEntity.ok(ApiResponse.success("Phòng trống", rooms));
     }
 
@@ -44,14 +45,14 @@ public class RoomController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
     public ResponseEntity<ApiResponse<Room>> createRoom(@RequestBody Room room) {
         Room saved = roomRepository.save(room);
         return ResponseEntity.ok(ApiResponse.success("Tạo phòng thành công", saved));
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
     public ResponseEntity<ApiResponse<Room>> updateRoom(
             @PathVariable String id, @RequestBody Room room) {
         if (!roomRepository.existsById(id)) {
@@ -63,7 +64,7 @@ public class RoomController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
     public ResponseEntity<ApiResponse<Void>> deleteRoom(@PathVariable String id) {
         if (!roomRepository.existsById(id)) {
             return ResponseEntity.notFound().build();

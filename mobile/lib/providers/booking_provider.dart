@@ -1,6 +1,7 @@
 // lib/providers/booking_provider.dart
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../config/app_config.dart';
 import '../models/booking_model.dart';
 import '../models/room_model.dart';
 import '../services/booking_service.dart';
@@ -276,7 +277,7 @@ class BookingNotifier extends StateNotifier<BookingState> {
         checkIn: state.checkIn!,
         checkOut: state.checkOut,
         totalPrice: state.totalPayment,
-        status: 'Chưa thanh toán',
+        status: AppConfig.bookingPending,
         voucherCode: state.appliedVoucher?.code,
         discountAmount: state.voucherDiscount > 0
             ? state.voucherDiscount
