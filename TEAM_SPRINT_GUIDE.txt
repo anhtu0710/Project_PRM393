@@ -1,0 +1,85 @@
+================================================================================
+                    GENZCINEMA HOTEL - 1-DAY SPRINT GUIDE
+================================================================================
+Tài liệu hướng dẫn phân công và triển khai tính năng cho 5 thành viên (Full-stack).
+Mỗi thành viên làm trọn gói từ Database/Backend đến Frontend (Mobile App) cho luồng của mình.
+
+--------------------------------------------------------------------------------
+THÀNH VIÊN 1: LUỒNG XÁC THỰC, HỒ SƠ & UPLOAD CCCD (AUTH & PROFILE)
+--------------------------------------------------------------------------------
+1. Backend (Spring Boot):
+   - Chạy lệnh SQL bổ sung cột:
+     ALTER TABLE [User] ADD ImageCccd VARCHAR(MAX) NULL, IsLocked BIT DEFAULT 0;
+   - Viết API cập nhật thông tin cá nhân & upload ảnh CCCD:
+     PUT /api/users/{id}/profile
+2. Frontend (Flutter):
+   - Hoàn thiện màn hình ProfileScreen.dart (sửa họ tên, SĐT).
+   - Tích hợp package `image_picker` để chụp/chọn ảnh CCCD và gửi lên API profile.
+
+--------------------------------------------------------------------------------
+THÀNH VIÊN 2: LUỒNG KHÁM PHÁ & TÌM KIẾM PHÒNG (ROOM DISCOVERY)
+--------------------------------------------------------------------------------
+1. Backend (Spring Boot):
+   - Đảm bảo các API lấy danh sách phòng (/api/rooms) và chi nhánh (/api/rooms/hotel/{hotelId}) hoạt động ổn định, trả về kèm thông tin Hotel và TypeRoom.
+2. Frontend (Flutter):
+   - Hoàn thiện HomeScreen.dart, RoomListScreen.dart với thanh tìm kiếm và bộ lọc (Chi nhánh, Loại phòng, Giá).
+   - Hoàn thiện RoomDetailScreen.dart (hiển thị thông tin chi tiết phòng, giá tiền).
+
+--------------------------------------------------------------------------------
+THÀNH VIÊN 3: LUỒNG ĐẶT PHÒNG, VOUCHER, THANH TOÁN & LỊCH SỬ (BOOKING & HISTORY)
+--------------------------------------------------------------------------------
+1. Backend (Spring Boot):
+   - Tạo bảng Voucher trong SQL Server:
+     CREATE TABLE Voucher (
+         VoucherId VARCHAR(50) PRIMARY KEY,
+         Code VARCHAR(50) UNIQUE NOT NULL,
+         DiscountPercent FLOAT NULL,
+         DiscountAmount DECIMAL(18,2) NULL,
+         MinOrderAmount DECIMAL(18,2) NOT NULL,
+         ExpiryDate DATETIME NOT NULL
+     );
+   - Viết API: GET /api/vouchers và kiểm tra POST /api/bookings.
+2. Frontend (Flutter):
+   - BookingScreen.dart: Thêm ô nhập mã Voucher, tính toán giảm giá.
+   - PaymentScreen.dart: Chọn hình thức thanh toán (Sandbox VNPay/MoMo) và xác nhận đặt phòng.
+   - BookingHistoryScreen.dart: TabBar chia 3 tab (Sắp tới, Đã qua, Đã hủy) gọi API GET /api/bookings/user/{userId} kèm nút Hủy đơn.
+
+--------------------------------------------------------------------------------
+THÀNH VIÊN 4: LUỒNG VẬN HÀNH CỦA NHÂN VIÊN (STAFF OPERATIONS & QR)
+--------------------------------------------------------------------------------
+1. Backend (Spring Boot):
+   - Đảm bảo API PUT /api/bookings/{id}/status hoạt động để duyệt/từ chối đơn và cập nhật trạng thái phòng.
+2. Frontend (Flutter):
+   - StaffDashboardScreen.dart:
+     + Tab 1: Danh sách đơn chờ duyệt (Duyệt / Từ chối).
+     + Tab 2: Sơ đồ phòng trực quan (Room Grid) dạng lưới đổi màu theo trạng thái.
+   - Tích hợp package `mobile_scanner` để quét mã QR của khách hàng thực hiện check-in nhanh.
+
+--------------------------------------------------------------------------------
+THÀNH VIÊN 5: LUỒNG QUẢN TRỊ ADMIN, ĐÁNH GIÁ & THÔNG BÁO (ADMIN, REVIEW & NOTIFICATION)
+--------------------------------------------------------------------------------
+1. Backend (Spring Boot):
+   - Tạo bảng Review và Notification trong SQL Server:
+     CREATE TABLE Review (
+         ReviewId INT IDENTITY(1,1) PRIMARY KEY,
+         RoomId VARCHAR(50) NOT NULL FOREIGN KEY REFERENCES Room(RoomId),
+         UserId VARCHAR(50) NOT NULL FOREIGN KEY REFERENCES [User](UserId),
+         Rating INT NOT NULL,
+         Comment NVARCHAR(MAX) NULL,
+         CreatedAt DATETIME DEFAULT GETDATE()
+     );
+     CREATE TABLE Notification (
+         NotificationId INT IDENTITY(1,1) PRIMARY KEY,
+         UserId VARCHAR(50) NOT NULL FOREIGN KEY REFERENCES [User](UserId),
+         Title NVARCHAR(255) NOT NULL,
+         Message NVARCHAR(MAX) NOT NULL,
+         IsRead BIT DEFAULT 0,
+         CreatedAt DATETIME DEFAULT GETDATE()
+     );
+   - Viết API Quản lý User (GET /api/users, PUT /api/users/{id}/role, PUT /api/users/{id}/lock) và API Notification.
+2. Frontend (Flutter):
+   - AdminUserScreen.dart: Quản lý user, đổi role (Customer <-> Staff), khóa tài khoản.
+   - AdminDashboardScreen.dart: Tích hợp `fl_chart` vẽ biểu đồ doanh thu.
+   - ReviewScreen.dart: Giao diện đánh giá phòng (1-5 sao).
+   - Notification widget: Icon chuông trên AppBar có badge số chưa đọc và màn hình danh sách thông báo.
+================================================================================
