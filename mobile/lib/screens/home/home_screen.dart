@@ -151,7 +151,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       height: 167,
       child: PageView.builder(
         controller: _bannerController,
-        itemCount: banners.length * _kInfiniteMultiplier, // "giả vô hạn"
+        // itemCount = null → vô hạn thật sự. Không dùng số lớn (banners.length * 10000)
+        // vì PageView là sliver fixed-extent: maxScrollOffset = itemCount * chiều rộng,
+        // chiều rộng lẻ (vd 360.727) nhân số lớn gây sai số dấu phẩy động → assertion
+        // "computeMaxScrollOffset() returned a value that is not an even multiple of its itemExtent".
+        itemCount: null,
         itemBuilder: (context, index) {
           final int realIndex = index % banners.length;
           return Container(

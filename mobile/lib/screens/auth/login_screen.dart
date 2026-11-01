@@ -39,7 +39,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     if (!mounted) return;
 
     if (success) {
-      final role = ref.read(authProvider).user?.role.toLowerCase() ?? '';
+      // So sánh theo RoleId (ADMIN/STAFF/CUSTOMER), không theo RoleName ("Administrator")
+      final role = ref.read(authProvider).user?.roleId.toUpperCase() ?? '';
       switch (role) {
         case AppConfig.roleAdmin:
           context.go('/admin');
