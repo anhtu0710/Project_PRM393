@@ -36,6 +36,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         // Không ghi "/api" ở đây: server đã tự thêm "/api" phía trước
                         .requestMatchers("/auth/**").permitAll()
+                        // Cho phép /error để lỗi thật (400/404/500) không bị biến thành 403
+                        .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session ->
