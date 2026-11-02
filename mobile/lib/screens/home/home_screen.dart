@@ -108,10 +108,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   onViewMore: () => context.push('/rooms')),
               const SizedBox(height: 12),
               _buildRoomTypesCard(context),
-              const SizedBox(height: 12),
-              _buildPlaceholderCard(context),
-              const SizedBox(height: 12),
-              _buildPlaceholderCard(context),
               const SizedBox(height: 16),
             ],
           ),
@@ -352,21 +348,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             Text(feature,
                 style: TextStyle(fontSize: 11, color: Colors.grey.shade500)),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPlaceholderCard(BuildContext context) {
-    return GestureDetector(
-      onTap: () => _onComingSoon(context),
-      child: Container(
-        width: double.infinity,
-        height: 70,
-        decoration: BoxDecoration(
-          color: AppTheme.surface,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: const Color(0xFFE5E7EB)),
         ),
       ),
     );
