@@ -230,6 +230,7 @@ class _StaffRoomManageScreenState extends ConsumerState<StaffRoomManageScreen> {
                         _buildFieldLabel('Chi nhánh'),
                         const SizedBox(height: 4),
                         DropdownButtonFormField<HotelModel>(
+                          isExpanded: true,
                           initialValue: selectedHotel,
                           decoration: InputDecoration(
                             prefixIcon: const Icon(Icons.storefront, size: 20),
@@ -247,6 +248,7 @@ class _StaffRoomManageScreenState extends ConsumerState<StaffRoomManageScreen> {
                         _buildFieldLabel('Loại phòng'),
                         const SizedBox(height: 4),
                         DropdownButtonFormField<TypeRoomModel>(
+                          isExpanded: true,
                           initialValue: selectedType,
                           decoration: InputDecoration(
                             prefixIcon: const Icon(Icons.category, size: 20),
@@ -254,7 +256,7 @@ class _StaffRoomManageScreenState extends ConsumerState<StaffRoomManageScreen> {
                             contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                           ),
                           items: typeRooms
-                              .map((t) => DropdownMenuItem(value: t, child: Text(t.typeRoom)))
+                              .map((t) => DropdownMenuItem(value: t, child: Text(t.typeRoom, overflow: TextOverflow.ellipsis)))
                               .toList(),
                           onChanged: (val) => setModalState(() => selectedType = val),
                         ),
@@ -263,6 +265,7 @@ class _StaffRoomManageScreenState extends ConsumerState<StaffRoomManageScreen> {
                       _buildFieldLabel('Trạng thái'),
                       const SizedBox(height: 4),
                       DropdownButtonFormField<String>(
+                        isExpanded: true,
                         initialValue: selectedStatus,
                         decoration: InputDecoration(
                           prefixIcon: const Icon(Icons.info_outline, size: 20),
