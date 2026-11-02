@@ -23,7 +23,6 @@ import '../screens/admin/admin_user_screen.dart';
 import '../screens/staff/staff_home_screen.dart';
 import '../screens/staff/staff_booking_screen.dart';
 import '../screens/staff/staff_room_map_screen.dart';
-import '../screens/staff/staff_room_manage_screen.dart';
 import '../screens/staff/staff_price_screen.dart';
 import '../screens/staff/staff_voucher_screen.dart';
 import '../screens/staff/staff_hotel_screen.dart';
@@ -140,11 +139,11 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/staff/room-map',
-        builder: (_, __) => const StaffRoomMapScreen(), // TV4
+        builder: (_, __) => const StaffRoomMapScreen(initialTabIndex: 0),
       ),
       GoRoute(
         path: '/staff/rooms',
-        builder: (_, __) => const StaffRoomManageScreen(), // TV5
+        builder: (_, __) => const StaffRoomMapScreen(initialTabIndex: 1),
       ),
       GoRoute(
         path: '/staff/prices',
@@ -278,4 +277,4 @@ class _RoomBookingLoader extends ConsumerWidget {
     }
     return BookingScreen(room: detailState.room!);
   }
-}
+}
