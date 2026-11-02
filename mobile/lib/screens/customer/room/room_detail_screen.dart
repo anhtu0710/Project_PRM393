@@ -22,44 +22,6 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen> {
   int _currentImageIndex = 0;
   final PageController _imageController = PageController();
 
-  final List<Map<String, dynamic>> _mockReviews = [
-    {
-      'userName': 'Nguyễn Văn Minh',
-      'rating': 5,
-      'comment':
-          'Phòng rất đẹp, máy chiếu sắc nét, âm thanh cực hay. Không gian riêng tư, lý tưởng cho buổi xem phim lãng mạn. Nhân viên phục vụ nhiệt tình!',
-      'date': '20/06/2025',
-    },
-    {
-      'userName': 'Trần Thị Hương',
-      'rating': 5,
-      'comment':
-          'Trải nghiệm tuyệt vời! Combo 2 giờ giá hợp lý mà chất lượng không thua gì rạp lớn. Điều hòa mát, ghế sofa êm, chắc chắn quay lại.',
-      'date': '15/06/2025',
-    },
-    {
-      'userName': 'Lê Hoàng Nam',
-      'rating': 4,
-      'comment':
-          'Phòng sạch sẽ, setup đẹp. Máy chiếu tốt, nhìn chung rất đáng tiền. Phù hợp cho nhóm bạn 3-4 người xem phim cuối tuần.',
-      'date': '10/06/2025',
-    },
-    {
-      'userName': 'Phạm Thu Trang',
-      'rating': 5,
-      'comment':
-          'Đặt phòng để tổ chức sinh nhật bí mật cho người yêu, nhân viên hỗ trợ chu đáo. Không gian ấm cúng, thích hợp cho các dịp đặc biệt.',
-      'date': '05/06/2025',
-    },
-    {
-      'userName': 'Bùi Anh Khoa',
-      'rating': 4,
-      'comment':
-          'Âm thanh vòm rất đỉnh, cảm giác như đang xem tại rạp chuẩn. Netflix load nhanh, không bị giật lag. Chỉ tiếc là bãi giữ xe hơi chật.',
-      'date': '01/06/2025',
-    },
-  ];
-
   @override
   void dispose() {
     _imageController.dispose();
@@ -118,11 +80,17 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen> {
                 const SizedBox(height: 10),
                 _buildRoomTitle(room),
                 const SizedBox(height: 14),
+                _buildPriceOptions(room),
+                const SizedBox(height: 16),
                 _buildAmenities(room),
                 const SizedBox(height: 16),
-                _buildRatingHeader(),
+                _buildRatingHeader(room),
                 const SizedBox(height: 12),
-                ..._mockReviews.map(_buildReviewCard),
+                if (room.reviews.isEmpty)
+                  const Text('Chưa có đánh giá nào cho phòng này.',
+                      style: TextStyle(fontSize: 13, color: AppTheme.textGray))
+                else
+                  ...room.reviews.map(_buildReviewCard),
                 const SizedBox(height: 24),
               ],
             ),
@@ -285,9 +253,8 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
           decoration: BoxDecoration(
-            color: isAvailable
-                ? const Color(0xFFE8F5E9)
-                : const Color(0xFFFCE4EC),
+            color:
+                isAvailable ? const Color(0xFFE8F5E9) : const Color(0xFFFCE4EC),
             borderRadius: BorderRadius.circular(20),
           ),
           child: Text(
@@ -333,8 +300,7 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen> {
           Row(
             children: [
               ShaderMask(
-                shaderCallback: (b) =>
-                    AppTheme.primaryGradient.createShader(b),
+                shaderCallback: (b) => AppTheme.primaryGradient.createShader(b),
                 child: const Icon(Icons.location_on_outlined,
                     size: 14, color: Colors.white),
               ),
@@ -401,17 +367,44 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen> {
     );
   }
 
-  // ── Rating header ──────────────────────────────────────────────────────────
-  Widget _buildRatingHeader() {
-    final avg = _mockReviews
-            .map((r) => r['rating'] as int)
-            .reduce((a, b) => a + b) /
-        _mockReviews.length;
+  Widget _buildPriceOptions(RoomModel room) {
+    if (room.priceOptions.isEmpty) return const SizedBox.shrink();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Giá theo kiểu đặt',
+            style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                color: AppTheme.textPrimary)),
+        const SizedBox(height: 8),
+        ...room.priceOptions.map((option) => Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(option.typeName,
+                        style: const TextStyle(
+                            fontSize: 13, color: AppTheme.textPrimary)),
+                  ),
+                  Text('${_formatVND(option.price)} đ',
+                      style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: AppTheme.primary)),
+                ],
+              ),
+            )),
+      ],
+    );
+  }
 
+  // ── Rating header ──────────────────────────────────────────────────────────
+  Widget _buildRatingHeader(RoomModel room) {
     return Row(
       children: [
         Text(
-          avg.toStringAsFixed(1),
+          room.averageRating.toStringAsFixed(1),
           style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -422,7 +415,7 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen> {
         const Icon(Icons.star, color: Color(0xFFFFC107), size: 20),
         const SizedBox(width: 6),
         Text(
-          'Đánh giá (${_mockReviews.length})',
+          'Đánh giá (${room.reviewCount})',
           style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
@@ -434,7 +427,7 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen> {
   }
 
   // ── Review card ────────────────────────────────────────────────────────────
-  Widget _buildReviewCard(Map<String, dynamic> review) {
+  Widget _buildReviewCard(ReviewModel review) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(14),
@@ -461,8 +454,8 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen> {
                 child: ShaderMask(
                   shaderCallback: (b) =>
                       AppTheme.primaryGradient.createShader(b),
-                  child: const Icon(Icons.person,
-                      size: 20, color: Colors.white),
+                  child:
+                      const Icon(Icons.person, size: 20, color: Colors.white),
                 ),
               ),
               const SizedBox(width: 10),
@@ -471,7 +464,7 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      review['userName'] as String,
+                      review.reviewerName,
                       style: const TextStyle(
                         fontWeight: FontWeight.w600,
                         fontSize: 14,
@@ -479,7 +472,7 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen> {
                       ),
                     ),
                     Text(
-                      review['date'] as String,
+                      _formatReviewDate(review.createdAt),
                       style: const TextStyle(
                           fontSize: 11, color: AppTheme.textGray),
                     ),
@@ -490,9 +483,7 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen> {
                 children: List.generate(
                   5,
                   (i) => Icon(
-                    i < (review['rating'] as int)
-                        ? Icons.star
-                        : Icons.star_border,
+                    i < review.rating ? Icons.star : Icons.star_border,
                     color: const Color(0xFFFFC107),
                     size: 14,
                   ),
@@ -501,13 +492,17 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen> {
             ],
           ),
           const SizedBox(height: 8),
-          Text(
-            review['comment'] as String,
-            style: const TextStyle(fontSize: 13, color: AppTheme.textGray),
-          ),
+          if (review.comment != null && review.comment!.isNotEmpty)
+            Text(review.comment!,
+                style: const TextStyle(fontSize: 13, color: AppTheme.textGray)),
         ],
       ),
     );
+  }
+
+  String _formatReviewDate(DateTime? date) {
+    if (date == null) return '';
+    return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
   }
 
   // ── Book button ────────────────────────────────────────────────────────────
@@ -543,6 +538,17 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen> {
             onPressed: () {
               final room = ref.read(roomDetailProvider(widget.roomId)).room;
               if (room != null) {
+                final isAvailable = room.status?.toLowerCase() == 'trống' ||
+                    room.status?.toLowerCase() == 'available';
+                if (!isAvailable) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Phòng đang ${room.status?.toLowerCase() ?? "bận"}, tạm thời khóa đặt phòng!'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                  return;
+                }
                 context.push('/rooms/${room.roomId}/booking', extra: room);
               }
             },

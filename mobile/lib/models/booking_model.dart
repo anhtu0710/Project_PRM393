@@ -73,6 +73,8 @@ class BookingModel {
   final String? hotelName;
   final String? hotelAddress;
   final String? typeBookingName;
+  final String? userFullName;
+  final String? userPhone;
 
   const BookingModel({
     this.bookingId,
@@ -91,7 +93,18 @@ class BookingModel {
     this.hotelName,
     this.hotelAddress,
     this.typeBookingName,
+    this.userFullName,
+    this.userPhone,
   });
+
+  String get formattedCheckIn {
+    return '${checkIn.day.toString().padLeft(2, '0')}/${checkIn.month.toString().padLeft(2, '0')}/${checkIn.year} ${checkIn.hour.toString().padLeft(2, '0')}:${checkIn.minute.toString().padLeft(2, '0')}';
+  }
+
+  String get formattedCheckOut {
+    if (checkOut == null) return 'N/A';
+    return '${checkOut!.day.toString().padLeft(2, '0')}/${checkOut!.month.toString().padLeft(2, '0')}/${checkOut!.year} ${checkOut!.hour.toString().padLeft(2, '0')}:${checkOut!.minute.toString().padLeft(2, '0')}';
+  }
 
   factory BookingModel.fromJson(Map<String, dynamic> json) {
     final room = json['room'] as Map<String, dynamic>?;
@@ -120,6 +133,8 @@ class BookingModel {
       hotelName: hotel?['name'] as String?,
       hotelAddress: hotel?['address'] as String?,
       typeBookingName: typeBooking?['typeName'] as String?,
+      userFullName: user?['full_name'] as String? ?? user?['fullName'] as String?,
+      userPhone: user?['phone'] as String?,
     );
   }
 

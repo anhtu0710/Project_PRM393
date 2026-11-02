@@ -29,6 +29,7 @@ import '../screens/staff/staff_voucher_screen.dart';
 import '../screens/staff/staff_hotel_screen.dart';
 import '../providers/room_provider.dart';
 import '../models/room_model.dart';
+import '../models/review_eligible_booking_model.dart';
 
 // ── Listenable bridge: Riverpod → GoRouter ────────────────────────────────────
 // GoRouter cần một ChangeNotifier để biết khi nào chạy lại redirect.
@@ -50,7 +51,8 @@ final routerProvider = Provider<GoRouter>((ref) {
 
   final router = GoRouter(
     initialLocation: '/login',
-    refreshListenable: notifier, // GoRouter tự gọi lại redirect khi auth thay đổi
+    refreshListenable:
+        notifier, // GoRouter tự gọi lại redirect khi auth thay đổi
     redirect: (context, state) {
       final isResetWithToken =
           state.matchedLocation.startsWith('/reset-password') &&
@@ -159,7 +161,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/bookings/:id/review',
         builder: (_, state) {
           final id = int.parse(state.pathParameters['id']!);
-          return ReviewScreen(bookingId: id); // TV2
+          return ReviewBookingLoader(bookingId: id); // TV2
         },
       ),
       GoRoute(
@@ -172,6 +174,21 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/saved',
         name: 'saved',
         builder: (_, __) => const SavedScreen(),
+      ),
+
+      GoRoute(
+        path: '/reviews',
+        name: 'eligible-reviews',
+        builder: (_, __) => const EligibleReviewsScreen(),
+      ),
+      GoRoute(
+        path: '/reviews/:bookingId',
+        name: 'create-review',
+        builder: (_, state) {
+          final booking = state.extra as ReviewEligibleBookingModel?;
+          if (booking == null) return const EligibleReviewsScreen();
+          return ReviewFormScreen(booking: booking);
+        },
       ),
 
       // ── Room routes ───────────────────────────────────────────────────

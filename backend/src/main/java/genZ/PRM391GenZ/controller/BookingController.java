@@ -105,6 +105,13 @@ public class BookingController {
 
         Room room = roomRepository.findById(booking.getRoom().getRoomId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy phòng"));
+
+        // Chặn đặt phòng nếu trạng thái phòng đang 'Đang dùng' hoặc 'Đang dọn'
+        String roomStatus = room.getStatus();
+        if (!RoomStatus.AVAILABLE.equalsIgnoreCase(roomStatus) && !"available".equalsIgnoreCase(roomStatus)) {
+            throw new RuntimeException("Phòng đang " + (roomStatus != null ? roomStatus.toLowerCase() : "bận") + ", tạm thời khóa đặt phòng!");
+        }
+
         TypeBooking typeBooking = typeBookingRepository.findById(booking.getTypeBooking().getTypeBookingId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy hình thức thuê"));
 

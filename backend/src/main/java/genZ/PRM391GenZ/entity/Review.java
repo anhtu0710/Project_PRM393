@@ -1,11 +1,14 @@
 package genZ.PRM391GenZ.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.*;
+
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "Review")
+@Table(name = "Review", uniqueConstraints = @UniqueConstraint(columnNames = "BookingId"))
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -17,22 +20,33 @@ public class Review {
     @Column(name = "ReviewId")
     private Integer reviewId;
 
-    @Column(name = "BookingId", nullable = false)
-    private Integer bookingId; // mỗi booking chỉ đánh giá 1 lần
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "BookingId", nullable = false, unique = true)
+    private Booking booking;
 
-    @Column(name = "RoomId", nullable = false)
-    private String roomId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "RoomId", nullable = false)
+    private Room room;
 
-    @Column(name = "UserId", nullable = false)
-    private String userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "UserId", nullable = false)
+    private User user;
 
+    @Min(1)
+    @Max(5)
     @Column(name = "Rating", nullable = false)
-    private Integer rating; // 1 đến 5 sao
+    private Integer rating;
 
-    @Column(name = "Comment")
+    @Column(name = "Comment", columnDefinition = "NVARCHAR(MAX)")
     private String comment;
 
-    // Database tự điền giờ tạo, Java không cần gán
-    @Column(name = "CreatedAt", insertable = false, updatable = false)
+    @Column(name = "CreatedAt", nullable = false)
     private LocalDateTime createdAt;
+
+    @PrePersist
+    void setCreatedAtIfMissing() {
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
+    }
 }

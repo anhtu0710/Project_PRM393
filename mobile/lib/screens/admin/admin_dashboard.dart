@@ -485,7 +485,8 @@ class _MenuTile extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
 
-  const _MenuTile({required this.icon, required this.label, required this.onTap});
+  const _MenuTile(
+      {required this.icon, required this.label, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -494,7 +495,8 @@ class _MenuTile extends StatelessWidget {
       child: ListTile(
         leading: Icon(icon, color: AppTheme.primary),
         title: Text(label),
-        trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: AppTheme.textGray),
+        trailing: const Icon(Icons.arrow_forward_ios,
+            size: 16, color: AppTheme.textGray),
         onTap: onTap,
       ),
     );

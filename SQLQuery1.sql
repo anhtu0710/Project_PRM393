@@ -1,3 +1,9 @@
+IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = 'GenzCinemaHotel')
+    CREATE DATABASE GenzCinemaHotel;
+GO
+USE GenzCinemaHotel;
+GO
+
 -- Bảng Hotel
 CREATE TABLE Hotel (
     HotelId VARCHAR(50) PRIMARY KEY,
