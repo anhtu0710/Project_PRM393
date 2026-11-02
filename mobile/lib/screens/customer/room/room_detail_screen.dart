@@ -543,6 +543,17 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen> {
             onPressed: () {
               final room = ref.read(roomDetailProvider(widget.roomId)).room;
               if (room != null) {
+                final isAvailable = room.status?.toLowerCase() == 'trống' ||
+                    room.status?.toLowerCase() == 'available';
+                if (!isAvailable) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Phòng đang ${room.status?.toLowerCase() ?? "bận"}, tạm thời khóa đặt phòng!'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                  return;
+                }
                 context.push('/rooms/${room.roomId}/booking', extra: room);
               }
             },
