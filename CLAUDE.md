@@ -55,7 +55,7 @@ JWT claims embed: `userId`, `fullName`, `role`, `roleId`. Routes under `/api/aut
 - `providers/auth_provider.dart` — `StateNotifierProvider<AuthNotifier, AuthState>`; holds user, isLoading, error, isInitialized flags
 - `screens/` — Organized by role: `auth/`, `customer/room/`, `admin/`, `home/`
 
-State flow: login → `authProvider` updates → GoRouter redirects based on role.
+State flow: login → `authProvider` updates → GoRouter redirects based on role. The app opens on `/home`; guests may visit `/home`, `/rooms`, `/rooms/:id`, `/saved` — every other route (including `/rooms/:id/booking`) redirects guests to `/login`.
 
 ## Key Configuration
 
@@ -76,7 +76,7 @@ POST  /api/auth/request-reset      # public
 GET   /api/auth/verify-token       # public
 POST  /api/auth/reset-password     # public
 
-GET   /api/rooms                   # authenticated
+GET   /api/rooms                   # public (guests can browse; see SecurityConfig GET permitAll list)
 GET   /api/rooms/available
 GET   /api/rooms/hotel/{hotelId}
 GET   /api/rooms/{id}
@@ -96,7 +96,7 @@ PUT   /api/admin/users/{id}/role?roleId=CUSTOMER|STAFF   # cannot touch ADMIN ac
 PUT   /api/admin/users/{id}/lock?locked=true|false       # locked users cannot log in; old tokens stop working
 GET   /api/admin/stats?period=day|week|month             # StatsService: 7 days / 8 weeks / 6 months, revenue = COMPLETED bookings by checkIn date
 
-GET   /api/hotels                  # authenticated
+GET   /api/hotels                  # public (also GET /type-rooms, /type-bookings, /price-configs)
 GET   /api/hotels/{id}
 POST  /api/hotels                  # ADMIN, STAFF
 PUT   /api/hotels/{id}             # ADMIN, STAFF

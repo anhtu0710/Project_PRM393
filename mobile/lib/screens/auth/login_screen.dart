@@ -233,6 +233,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       ),
                     ),
 
+                    // ── Xem phòng không cần đăng nhập ──────────────────
+                    TextButton(
+                      onPressed: () => context.go('/home'),
+                      child: const Text('Xem phòng trước, đăng nhập sau'),
+                    ),
+
                     const SizedBox(height: 16),
                   ],
                 ),
