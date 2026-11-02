@@ -65,7 +65,7 @@ State flow: login → `authProvider` updates → GoRouter redirects based on rol
 - JWT expiry: 24 hours (`app.jwt.expiration=86400000`)
 - Password reset token expiry: 15 minutes
 
-**Mobile** — API base URL and role constants are in `mobile/lib/config/app_config.dart`. Update the base URL here when switching environments (local vs device vs emulator — emulator uses `10.0.2.2` to reach host localhost).
+**Mobile** — API base URL and role constants are in `mobile/lib/config/app_config.dart`. Update the base URL here when switching environments (local vs device vs emulator — emulator uses `10.0.2.2` to reach host localhost). `baseUrl` can also be overridden without editing code: `flutter run -d chrome --dart-define=API_URL=http://localhost:8080/api` (Chrome must run on port 3000 to pass the backend CORS list: `--web-port 3000`).
 
 ## API Surface
 
@@ -90,6 +90,11 @@ GET   /api/bookings/{id}
 POST  /api/bookings                # status is always set to PENDING
 PUT   /api/bookings/{id}/status    # ADMIN, STAFF
 PUT   /api/bookings/{id}/cancel    # User cancel booking
+
+GET   /api/admin/users             # ADMIN only (whole AdminController)
+PUT   /api/admin/users/{id}/role?roleId=CUSTOMER|STAFF   # cannot touch ADMIN accounts
+PUT   /api/admin/users/{id}/lock?locked=true|false       # locked users cannot log in; old tokens stop working
+GET   /api/admin/stats?period=day|week|month             # StatsService: 7 days / 8 weeks / 6 months, revenue = COMPLETED bookings by checkIn date
 
 GET   /api/hotels                  # authenticated
 GET   /api/hotels/{id}
