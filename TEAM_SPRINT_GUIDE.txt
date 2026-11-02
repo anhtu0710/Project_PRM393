@@ -31,3 +31,102 @@ Thêm, sửa, xóa phòng.
 Sửa bảng giá.
 Tạo, sửa, xóa voucher.
 Thêm, sửa chi nhánh.
+
+
+================================================================================
+NỀN CHUNG ĐÃ CÓ SẴN — MỖI NGƯỜI DÙNG GÌ ĐỂ LÀM TIẾP
+================================================================================
+
+BƯỚC ĐẦU TIÊN CỦA MỖI NGƯỜI
+1. Pull nhánh main về máy.
+2. Mở SSMS, chạy file sprint_foundation.sql (ở thư mục gốc repo) MỘT LẦN, sau SQLQuery1.sql.
+   File này thêm: cột IsLocked cho User, 3 bảng Voucher / Review / Notification,
+   và dữ liệu mẫu (3 tài khoản test, 3 voucher, 9 booking đủ các trạng thái, 1 đánh giá, 1 thông báo).
+3. Tài khoản test (mật khẩu ghi ở đầu file sprint_foundation.sql):
+   admin@genz.test    — ADMIN
+   staff@genz.test    — STAFF
+   customer@genz.test — CUSTOMER
+4. Tạo nhánh riêng từ main rồi mới code.
+
+
+CẢ NHÓM ĐỀU DÙNG
+- Tên trạng thái, không tự gõ chữ khác:
+    Java:    BookingStatus.PENDING, CONFIRMED, REJECTED, CHECKED_IN, COMPLETED, CANCELLED
+             RoomStatus.AVAILABLE ("Trống"), OCCUPIED ("Đang dùng"), CLEANING ("Đang dọn")
+    Flutter: AppConfig.bookingPending, bookingConfirmed, ... và AppConfig.roomAvailable, ...
+- Màn hình trống đã có sẵn route: chỉ mở đúng file của mình, thay phần body. Không cần sửa router.dart.
+- Phân quyền đã chạy: muốn API chỉ cho Staff dùng thì chép dòng
+    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
+  giống trong BookingController.
+- Booking.java và PriceConfig.java đã dùng FetchType.EAGER nên trả JSON không bị lỗi.
+- Mật khẩu không còn bị trả ra JSON.
+
+
+TV1 — ADMIN
+Có sẵn:
+- Cột IsLocked và field "locked" trong User.java.
+- Màn admin_user_screen.dart (đã có nút mở từ Admin Dashboard).
+- Package fl_chart đã cài.
+- 5 booking COMPLETED mẫu để vẽ biểu đồ doanh thu.
+Tự tạo:
+- UserController: danh sách user, đổi role, khoá / mở khoá.
+- Chặn tài khoản bị khoá: trong AuthService.login thêm
+    if (user.isLocked()) throw new RuntimeException("Tài khoản đã bị khoá");
+- API thống kê cho dashboard.
+
+TV2 — TÌM PHÒNG + ĐÁNH GIÁ
+Có sẵn:
+- Entity Review + ReviewRepository (findByRoomId, existsByBookingId).
+- TypeRoomRepository, HotelRepository để làm bộ lọc.
+- PriceConfigRepository để hiện giá theo combo.
+- Màn review_screen.dart.
+- 1 đánh giá mẫu cho phòng HN001_Q01.
+Tự tạo:
+- ReviewController.
+- Hàm tìm / lọc phòng: thêm hàm MỚI ở cuối RoomController.
+
+TV3 — ĐẶT PHÒNG + LỊCH SỬ
+Có sẵn:
+- Entity Voucher + VoucherRepository.findByCode.
+- PriceConfigRepository để lấy giá; TypeBookingRepository có DurationHours để tính giờ ra.
+- Hàm đặt phòng (POST /bookings) đã tự gán trạng thái PENDING.
+- Màn booking_history_screen.dart và booking_detail_screen.dart; menu Tài khoản đã có mục Lịch sử.
+- 3 voucher mẫu: GENZ10, GIAM50K, HETHAN (đã hết hạn, dùng để test báo lỗi).
+Tự tạo:
+- Tính giá và kiểm tra trùng lịch trong hàm createBooking
+  (lấy booking của phòng bằng findByRoom_RoomId rồi dùng vòng for để so giờ).
+- Hàm huỷ booking.
+- Kiểm tra voucher ngay trong BookingController bằng voucherRepository.findByCode.
+Lưu ý: booking_provider.dart đang có danh sách voucher viết cứng, cần thay bằng dữ liệu thật.
+
+TV4 — STAFF VẬN HÀNH + THÔNG BÁO
+Có sẵn:
+- GET /bookings và PUT /bookings/{id}/status đã mở cho Staff.
+- Entity Notification + NotificationRepository.findByUserId.
+- Màn staff_booking_screen.dart, staff_room_map_screen.dart, notification_screen.dart.
+- Dữ liệu mẫu: 2 booking PENDING, 1 booking CONFIRMED, 1 thông báo.
+Tự tạo:
+- Khi đổi trạng thái booking thì cập nhật trạng thái phòng và lưu 1 Notification cho khách.
+- API lấy thông báo của khách, đánh dấu đã đọc.
+- Số thông báo chưa đọc trên icon chuông.
+
+TV5 — STAFF CẤU HÌNH
+Có sẵn:
+- API thêm / sửa / xoá phòng đã mở cho Staff.
+- Các repository: Voucher, PriceConfig, Hotel, TypeRoom, TypeBooking.
+- Màn staff_room_manage_screen.dart, staff_price_screen.dart, staff_voucher_screen.dart,
+  staff_hotel_screen.dart (đã có nút từ trang Staff).
+Tự tạo:
+- VoucherController, PriceConfigController, HotelController.
+- Chặn xoá phòng còn booking (sửa trong hàm deleteRoom).
+
+
+QUY TẮC TRÁNH SỬA TRÙNG FILE
+- BookingController: TV3 sửa createBooking và thêm hàm huỷ; TV4 chỉ sửa updateStatus.
+- RoomController: TV2 thêm hàm mới ở cuối; TV5 chỉ sửa deleteRoom.
+- VoucherController: chỉ TV5 tạo. TV3 kiểm tra voucher ngay trong BookingController.
+- router.dart, app_config.dart: cần thêm gì thì nhờ TV1.
+- Thêm bảng hoặc cột mới: viết file SQL riêng (VD: sprint_tv3.sql) rồi báo cả nhóm chạy.
+  KHÔNG sửa sprint_foundation.sql, vì ai đã chạy rồi mà chạy lại sẽ bị lỗi.
+- Cuối ngày chạy thử trọn luồng: khách đặt có voucher → staff duyệt → khách nhận thông báo
+  → check-in → check-out → khách đánh giá → admin thấy doanh thu.

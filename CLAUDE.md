@@ -94,7 +94,7 @@ PUT   /api/bookings/{id}/status    # ADMIN, STAFF
 ## Development Notes
 
 - Error messages and email templates are in Vietnamese (UTF-8)
-- `spring.jpa.hibernate.ddl-auto=none` — Hibernate does not change the schema. Run `SQLQuery1.sql`, then `database/sprint_foundation.sql` once (tables Voucher/Review/Notification, `User.IsLocked`, test accounts, sample data).
+- `spring.jpa.hibernate.ddl-auto=none` — Hibernate does not change the schema. Run `SQLQuery1.sql`, then `sprint_foundation.sql` (repo root) once (tables Voucher/Review/Notification, `User.IsLocked`, test accounts, sample data).
 - The team is new to Spring/Java: keep code simple (plain entities, derived repository methods, `FetchType.EAGER`, no custom JPQL or advanced annotations).
 - Booking statuses: `constant/BookingStatus` / `AppConfig.booking*` — `PENDING, CONFIRMED, REJECTED, CHECKED_IN, COMPLETED, CANCELLED`. Room statuses: `constant/RoomStatus` / `AppConfig.room*` — `Trống, Đang dùng, Đang dọn`.
 - `@EnableMethodSecurity` is on, so `@PreAuthorize("hasRole(...)")` works (`ROLE_` + RoleId). SecurityConfig paths are relative to the `/api` context path: `/auth/**`, not `/api/auth/**`.
