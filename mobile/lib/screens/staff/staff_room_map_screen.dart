@@ -20,6 +20,7 @@ class _StaffRoomMapScreenState extends ConsumerState<StaffRoomMapScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   String? selectedHotelId;
+  String? selectedStatusFilter;
 
   @override
   void initState() {
@@ -29,6 +30,9 @@ class _StaffRoomMapScreenState extends ConsumerState<StaffRoomMapScreen>
       vsync: this,
       initialIndex: widget.initialTabIndex,
     );
+    _tabController.addListener(() {
+      if (mounted) setState(() {});
+    });
   }
 
   @override
@@ -54,11 +58,12 @@ class _StaffRoomMapScreenState extends ConsumerState<StaffRoomMapScreen>
     final hotelState = ref.watch(hotelListProvider);
     final priceState = ref.watch(priceConfigListProvider);
 
-    final filteredRooms = selectedHotelId == null
-        ? roomState.rooms
-        : roomState.rooms
-            .where((r) => r.hotel?.hotelId == selectedHotelId)
-            .toList();
+    final filteredRooms = roomState.rooms.where((r) {
+      final matchesHotel = selectedHotelId == null || r.hotel?.hotelId == selectedHotelId;
+      final normalizedStatus = _normalizeStatus(r.status);
+      final matchesStatus = selectedStatusFilter == null || normalizedStatus == selectedStatusFilter;
+      return matchesHotel && matchesStatus;
+    }).toList();
 
     return Scaffold(
       appBar: AppBar(
@@ -81,30 +86,51 @@ class _StaffRoomMapScreenState extends ConsumerState<StaffRoomMapScreen>
           ? const Center(child: CircularProgressIndicator())
           : Column(
               children: [
-                // Filter by Hotel
+                // ── Double Filters: Chi nhánh & Trạng thái phòng ───────────────
                 Padding(
                   padding: const EdgeInsets.all(12),
                   child: Row(
                     children: [
-                      const Text('Chi nhánh: ',
-                          style: TextStyle(fontWeight: FontWeight.bold)),
-                      const SizedBox(width: 8),
+                      // Filter 1: Chi nhánh
                       Expanded(
-                        child: DropdownButton<String?>(
+                        child: DropdownButtonFormField<String?>(
                           isExpanded: true,
-                          value: selectedHotelId,
-                          hint: const Text('Tất cả chi nhánh'),
+                          initialValue: selectedHotelId,
+                          decoration: InputDecoration(
+                            labelText: 'Chi nhánh',
+                            prefixIcon: const Icon(Icons.storefront, size: 18),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                          ),
                           items: [
-                            const DropdownMenuItem(
-                                value: null, child: Text('Tất cả chi nhánh')),
+                            const DropdownMenuItem(value: null, child: Text('Tất cả chi nhánh')),
                             ...hotelState.hotels.map((h) => DropdownMenuItem(
                                   value: h.hotelId,
-                                  child: Text(h.name,
-                                      overflow: TextOverflow.ellipsis),
+                                  child: Text(h.name, overflow: TextOverflow.ellipsis),
                                 )),
                           ],
-                          onChanged: (val) =>
-                              setState(() => selectedHotelId = val),
+                          onChanged: (val) => setState(() => selectedHotelId = val),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      // Filter 2: Trạng thái
+                      Expanded(
+                        child: DropdownButtonFormField<String?>(
+                          isExpanded: true,
+                          initialValue: selectedStatusFilter,
+                          decoration: InputDecoration(
+                            labelText: 'Trạng thái',
+                            prefixIcon: const Icon(Icons.filter_alt, size: 18),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                          ),
+                          items: const [
+                            DropdownMenuItem(value: null, child: Text('Tất cả trạng thái')),
+                            DropdownMenuItem(value: 'Trống', child: Text('Trống')),
+                            DropdownMenuItem(value: 'Đang dùng', child: Text('Đang dùng')),
+                            DropdownMenuItem(value: 'Đang dọn', child: Text('Đang dọn')),
+                          ],
+                          onChanged: (val) => setState(() => selectedStatusFilter = val),
                         ),
                       ),
                     ],
@@ -114,28 +140,32 @@ class _StaffRoomMapScreenState extends ConsumerState<StaffRoomMapScreen>
                   child: TabBarView(
                     controller: _tabController,
                     children: [
-                      // TAB 1: Sơ đồ phòng Realtime (Grid)
+                      // TAB 0: Sơ đồ phòng Realtime (Grid)
                       _buildRoomGrid(filteredRooms),
-                      // TAB 2: Danh sách Quản lý phòng (List + Thêm/Sửa/Xóa)
+                      // TAB 1: Danh sách Quản lý phòng (List + Thêm/Sửa/Xóa)
                       _buildRoomList(filteredRooms, hotelState.hotels, priceState.typeRooms),
                     ],
                   ),
                 ),
               ],
             ),
-      floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: const Color(0xFF9462FF),
-        icon: const Icon(Icons.add, color: Colors.white),
-        label: const Text('Thêm phòng', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-        onPressed: () => _showRoomDialog(hotelState.hotels, priceState.typeRooms),
-      ),
+      // Nút "Thêm phòng" CHỈ HIỂN THỊ khi ở Tab 1 (Danh sách & Quản lý)
+      floatingActionButton: _tabController.index == 1
+          ? FloatingActionButton.extended(
+              backgroundColor: const Color(0xFF9462FF),
+              icon: const Icon(Icons.add, color: Colors.white),
+              label: const Text('Thêm phòng mới',
+                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+              onPressed: () => _showRoomDialog(hotelState.hotels, priceState.typeRooms),
+            )
+          : null,
     );
   }
 
-  // ── TAB 1: Sơ đồ Realtime dạng Grid ───────────────────────────────────────
+  // ── TAB 0: Sơ đồ Realtime dạng Grid ───────────────────────────────────────
   Widget _buildRoomGrid(List<RoomModel> rooms) {
     if (rooms.isEmpty) {
-      return const Center(child: Text('Không có phòng nào trong chi nhánh này'));
+      return const Center(child: Text('Không có phòng nào theo bộ lọc'));
     }
 
     return Column(
@@ -226,10 +256,10 @@ class _StaffRoomMapScreenState extends ConsumerState<StaffRoomMapScreen>
     );
   }
 
-  // ── TAB 2: Danh sách & Quản lý phòng (List) ──────────────────────────────
+  // ── TAB 1: Danh sách & Quản lý phòng (List) ──────────────────────────────
   Widget _buildRoomList(List<RoomModel> rooms, List<HotelModel> hotels, List<TypeRoomModel> typeRooms) {
     if (rooms.isEmpty) {
-      return const Center(child: Text('Chưa có phòng nào'));
+      return const Center(child: Text('Chưa có phòng nào theo bộ lọc'));
     }
 
     return ListView.builder(
