@@ -99,6 +99,7 @@ class PriceConfigListNotifier extends StateNotifier<PriceConfigListState> {
   Future<bool> createTypeBooking(TypeBookingModel typeBooking) async {
     try {
       await _service.createTypeBooking(typeBooking);
+      await loadData();
       return true;
     } catch (e) {
       state = state.copyWith(error: e.toString());
