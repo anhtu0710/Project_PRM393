@@ -23,6 +23,7 @@ import '../screens/admin/admin_user_screen.dart';
 import '../screens/staff/staff_home_screen.dart';
 import '../screens/staff/staff_booking_screen.dart';
 import '../screens/staff/staff_room_map_screen.dart';
+import '../screens/staff/staff_room_manage_screen.dart';
 import '../screens/staff/staff_price_screen.dart';
 import '../screens/staff/staff_voucher_screen.dart';
 import '../screens/staff/staff_hotel_screen.dart';
@@ -160,8 +161,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/staff/profile',
-        builder: (_, __) => const StaffProfileScreen(),
-      ),
+        builder: (_, __) => const StaffProfileScreen(),      ),
 
       // ── Lịch sử, đánh giá, thông báo của khách ────────────────────────
       GoRoute(
