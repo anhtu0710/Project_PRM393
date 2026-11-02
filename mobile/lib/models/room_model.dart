@@ -42,6 +42,60 @@ class HotelModel {
       );
 }
 
+class PriceOptionModel {
+  final String typeBookingId;
+  final String typeName;
+  final String bookingCode;
+  final int? durationHours;
+  final double price;
+
+  const PriceOptionModel({
+    required this.typeBookingId,
+    required this.typeName,
+    required this.bookingCode,
+    this.durationHours,
+    required this.price,
+  });
+
+  factory PriceOptionModel.fromJson(Map<String, dynamic> json) =>
+      PriceOptionModel(
+        typeBookingId: json['typeBookingId'] as String? ?? '',
+        typeName: json['typeName'] as String? ?? '',
+        bookingCode: json['bookingCode'] as String? ?? '',
+        durationHours: (json['durationHours'] as num?)?.toInt(),
+        price: (json['price'] as num?)?.toDouble() ?? 0,
+      );
+}
+
+class ReviewModel {
+  final int reviewId;
+  final int bookingId;
+  final int rating;
+  final String? comment;
+  final String reviewerName;
+  final DateTime? createdAt;
+
+  const ReviewModel({
+    required this.reviewId,
+    required this.bookingId,
+    required this.rating,
+    this.comment,
+    required this.reviewerName,
+    this.createdAt,
+  });
+
+  factory ReviewModel.fromJson(Map<String, dynamic> json) => ReviewModel(
+        reviewId: (json['reviewId'] as num?)?.toInt() ?? 0,
+        bookingId: (json['bookingId'] as num?)?.toInt() ?? 0,
+        rating: (json['rating'] as num?)?.toInt() ?? 0,
+        comment: json['comment'] as String?,
+        reviewerName: json['reviewerName'] as String? ?? 'Khách hàng',
+        createdAt: json['createdAt'] != null
+            ? DateTime.tryParse(json['createdAt'].toString())
+            : null,
+      );
+}
+
 class RoomModel {
   final String roomId;
   final String nameRoom;
@@ -49,6 +103,10 @@ class RoomModel {
   final String? status;
   final HotelModel? hotel;
   final String? imageUrl;
+  final double averageRating;
+  final int reviewCount;
+  final List<PriceOptionModel> priceOptions;
+  final List<ReviewModel> reviews;
 
   const RoomModel({
     required this.roomId,
@@ -57,6 +115,10 @@ class RoomModel {
     this.status,
     this.hotel,
     this.imageUrl,
+    this.averageRating = 0,
+    this.reviewCount = 0,
+    this.priceOptions = const [],
+    this.reviews = const [],
   });
 
   factory RoomModel.fromJson(Map<String, dynamic> json) => RoomModel(
@@ -70,5 +132,13 @@ class RoomModel {
             ? HotelModel.fromJson(json['hotel'] as Map<String, dynamic>)
             : null,
         imageUrl: json['imageUrl'] as String?,
+        averageRating: (json['averageRating'] as num?)?.toDouble() ?? 0,
+        reviewCount: (json['reviewCount'] as num?)?.toInt() ?? 0,
+        priceOptions: (json['priceOptions'] as List<dynamic>? ?? const [])
+            .map((e) => PriceOptionModel.fromJson(e as Map<String, dynamic>))
+            .toList(),
+        reviews: (json['reviews'] as List<dynamic>? ?? const [])
+            .map((e) => ReviewModel.fromJson(e as Map<String, dynamic>))
+            .toList(),
       );
 }

@@ -1,5 +1,7 @@
 // lib/screens/customer/room/room_list_screen.dart
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -21,23 +23,39 @@ class _RoomListScreenState extends ConsumerState<RoomListScreen> {
   String _searchQuery = '';
 
   // ── Filter state ───────────────────────────────────────────────────────────
-  String? _selectedTypeId;   // 'QUEEN' | 'KING' | null
-  String? _selectedHotelId;  // hotelId | null
+  String? _selectedTypeId; // 'QUEEN' | 'KING' | null
+  String? _selectedHotelId; // hotelId | null
   String? _selectedPriceRange; // 'low' | 'high' | null
+  DateTime? _checkIn;
+  DateTime? _checkOut;
+  Timer? _searchDebounce;
 
   @override
   void initState() {
     super.initState();
     _selectedTypeId = widget.typeFilter;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(roomListProvider.notifier).loadRooms();
+      _reloadRooms();
     });
   }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _searchDebounce?.cancel();
     super.dispose();
+  }
+
+  void _reloadRooms() {
+    ref.read(roomListProvider.notifier).loadRooms(
+          keyword: _searchQuery.isEmpty ? null : _searchQuery,
+          hotelId: _selectedHotelId,
+          typeRoomId: _selectedTypeId,
+          minPrice: _selectedPriceRange == 'high' ? 100000 : null,
+          maxPrice: _selectedPriceRange == 'low' ? 99999 : null,
+          checkIn: _checkIn,
+          checkOut: _checkOut,
+        );
   }
 
   // ── Filtering ──────────────────────────────────────────────────────────────
@@ -46,11 +64,13 @@ class _RoomListScreenState extends ConsumerState<RoomListScreen> {
 
     if (_searchQuery.isNotEmpty) {
       final q = _searchQuery.toLowerCase();
-      result = result.where((r) =>
-          r.nameRoom.toLowerCase().contains(q) ||
-          (r.typeRoom?.typeRoom.toLowerCase().contains(q) ?? false) ||
-          (r.hotel?.address.toLowerCase().contains(q) ?? false) ||
-          (r.hotel?.name.toLowerCase().contains(q) ?? false)).toList();
+      result = result
+          .where((r) =>
+              r.nameRoom.toLowerCase().contains(q) ||
+              (r.typeRoom?.typeRoom.toLowerCase().contains(q) ?? false) ||
+              (r.hotel?.address.toLowerCase().contains(q) ?? false) ||
+              (r.hotel?.name.toLowerCase().contains(q) ?? false))
+          .toList();
     }
 
     if (_selectedTypeId != null) {
@@ -77,14 +97,52 @@ class _RoomListScreenState extends ConsumerState<RoomListScreen> {
   bool get _hasActiveFilter =>
       _selectedTypeId != null ||
       _selectedHotelId != null ||
-      _selectedPriceRange != null;
+      _selectedPriceRange != null ||
+      _checkIn != null;
 
   void _clearAllFilters() {
     setState(() {
       _selectedTypeId = null;
       _selectedHotelId = null;
       _selectedPriceRange = null;
+      _checkIn = null;
+      _checkOut = null;
     });
+    _reloadRooms();
+  }
+
+  Future<void> _pickAvailability() async {
+    final now = DateTime.now();
+    final date = await showDatePicker(
+      context: context,
+      initialDate: _checkIn ?? now,
+      firstDate: DateTime(now.year, now.month, now.day),
+      lastDate: now.add(const Duration(days: 90)),
+    );
+    if (date == null || !mounted) return;
+    final start = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.fromDateTime(_checkIn ?? now),
+    );
+    if (start == null || !mounted) return;
+    final end = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.fromDateTime(
+          _checkOut ?? now.add(const Duration(hours: 2))),
+    );
+    if (end == null || !mounted) return;
+
+    final checkIn =
+        DateTime(date.year, date.month, date.day, start.hour, start.minute);
+    var checkOut =
+        DateTime(date.year, date.month, date.day, end.hour, end.minute);
+    if (!checkOut.isAfter(checkIn))
+      checkOut = checkOut.add(const Duration(days: 1));
+    setState(() {
+      _checkIn = checkIn;
+      _checkOut = checkOut;
+    });
+    _reloadRooms();
   }
 
   // ── Filter bottom sheets ───────────────────────────────────────────────────
@@ -103,10 +161,14 @@ class _RoomListScreenState extends ConsumerState<RoomListScreen> {
         title: 'Chi nhánh',
         options: [
           const _FilterOption(value: null, label: 'Tất cả chi nhánh'),
-          ...hotels.entries.map((e) => _FilterOption(value: e.key, label: e.value)),
+          ...hotels.entries
+              .map((e) => _FilterOption(value: e.key, label: e.value)),
         ],
         selected: _selectedHotelId,
-        onSelect: (v) => setState(() => _selectedHotelId = v),
+        onSelect: (v) {
+          setState(() => _selectedHotelId = v);
+          _reloadRooms();
+        },
       ),
     );
   }
@@ -124,7 +186,10 @@ class _RoomListScreenState extends ConsumerState<RoomListScreen> {
           _FilterOption(value: 'KING', label: 'Phòng King  •  106k/h'),
         ],
         selected: _selectedTypeId,
-        onSelect: (v) => setState(() => _selectedTypeId = v),
+        onSelect: (v) {
+          setState(() => _selectedTypeId = v);
+          _reloadRooms();
+        },
       ),
     );
   }
@@ -142,7 +207,10 @@ class _RoomListScreenState extends ConsumerState<RoomListScreen> {
           _FilterOption(value: 'high', label: 'Từ 100k/h  (Phòng King)'),
         ],
         selected: _selectedPriceRange,
-        onSelect: (v) => setState(() => _selectedPriceRange = v),
+        onSelect: (v) {
+          setState(() => _selectedPriceRange = v);
+          _reloadRooms();
+        },
       ),
     );
   }
@@ -198,7 +266,12 @@ class _RoomListScreenState extends ConsumerState<RoomListScreen> {
         ),
         child: TextField(
           controller: _searchController,
-          onChanged: (v) => setState(() => _searchQuery = v),
+          onChanged: (v) {
+            setState(() => _searchQuery = v);
+            _searchDebounce?.cancel();
+            _searchDebounce =
+                Timer(const Duration(milliseconds: 350), _reloadRooms);
+          },
           decoration: InputDecoration(
             hintText: 'Tìm kiếm',
             hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 14),
@@ -217,24 +290,39 @@ class _RoomListScreenState extends ConsumerState<RoomListScreen> {
       padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
       child: Row(
         children: [
-          _filterChip(
-            label: 'Chi nhánh',
-            active: _selectedHotelId != null,
-            onTap: () => _showBranchFilter(allRooms),
+          Expanded(
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  _filterChip(
+                    label: 'Chi nhánh',
+                    active: _selectedHotelId != null,
+                    onTap: () => _showBranchFilter(allRooms),
+                  ),
+                  const SizedBox(width: 8),
+                  _filterChip(
+                    label: 'Loại phòng',
+                    active: _selectedTypeId != null,
+                    onTap: _showTypeFilter,
+                  ),
+                  const SizedBox(width: 8),
+                  _filterChip(
+                    label: 'Mức giá',
+                    active: _selectedPriceRange != null,
+                    onTap: _showPriceFilter,
+                  ),
+                  const SizedBox(width: 8),
+                  _filterChip(
+                    label: 'Giờ trống',
+                    active: _checkIn != null,
+                    onTap: _pickAvailability,
+                  ),
+                ],
+              ),
+            ),
           ),
           const SizedBox(width: 8),
-          _filterChip(
-            label: 'Loại phòng',
-            active: _selectedTypeId != null,
-            onTap: _showTypeFilter,
-          ),
-          const SizedBox(width: 8),
-          _filterChip(
-            label: 'Mức giá',
-            active: _selectedPriceRange != null,
-            onTap: _showPriceFilter,
-          ),
-          const Spacer(),
           GestureDetector(
             onTap: _hasActiveFilter ? _clearAllFilters : null,
             child: Container(
@@ -281,8 +369,7 @@ class _RoomListScreenState extends ConsumerState<RoomListScreen> {
                 style: TextStyle(
                     fontSize: 12,
                     color: active ? Colors.white : AppTheme.textPrimary,
-                    fontWeight:
-                        active ? FontWeight.w600 : FontWeight.normal)),
+                    fontWeight: active ? FontWeight.w600 : FontWeight.normal)),
             const SizedBox(width: 4),
             Icon(
               active ? Icons.check : Icons.keyboard_arrow_down,
@@ -302,6 +389,11 @@ class _RoomListScreenState extends ConsumerState<RoomListScreen> {
     if (_selectedHotelId != null) parts.add('1 chi nhánh');
     if (_selectedPriceRange != null)
       parts.add(_selectedPriceRange == 'low' ? '< 100k/h' : '≥ 100k/h');
+    if (_checkIn != null && _checkOut != null) {
+      parts.add(
+          '${_checkIn!.hour.toString().padLeft(2, '0')}:${_checkIn!.minute.toString().padLeft(2, '0')} - '
+          '${_checkOut!.hour.toString().padLeft(2, '0')}:${_checkOut!.minute.toString().padLeft(2, '0')}');
+    }
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 6, 16, 0),
@@ -481,7 +573,7 @@ class _RoomListScreenState extends ConsumerState<RoomListScreen> {
                 style: TextStyle(color: Colors.grey.shade600)),
             const SizedBox(height: 16),
             ElevatedButton(
-              onPressed: () => ref.read(roomListProvider.notifier).loadRooms(),
+              onPressed: _reloadRooms,
               style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.primary,
                   foregroundColor: Colors.white,
@@ -569,7 +661,8 @@ class _FilterSheetState extends State<_FilterSheet> {
             // Handle bar
             Center(
               child: Container(
-                width: 40, height: 4,
+                width: 40,
+                height: 4,
                 decoration: BoxDecoration(
                     color: Colors.grey.shade300,
                     borderRadius: BorderRadius.circular(4)),
@@ -587,7 +680,8 @@ class _FilterSheetState extends State<_FilterSheet> {
               child: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
-                  children: widget.options.map((opt) => _buildOption(opt)).toList(),
+                  children:
+                      widget.options.map((opt) => _buildOption(opt)).toList(),
                 ),
               ),
             ),
@@ -630,14 +724,14 @@ class _FilterSheetState extends State<_FilterSheet> {
               child: Text(opt.label,
                   style: TextStyle(
                       fontSize: 14,
-                      color: isSelected ? AppTheme.primary : AppTheme.textPrimary,
+                      color:
+                          isSelected ? AppTheme.primary : AppTheme.textPrimary,
                       fontWeight:
                           isSelected ? FontWeight.w600 : FontWeight.normal)),
             ),
             if (isSelected)
               ShaderMask(
-                shaderCallback: (b) =>
-                    AppTheme.primaryGradient.createShader(b),
+                shaderCallback: (b) => AppTheme.primaryGradient.createShader(b),
                 child: const Icon(Icons.check_circle,
                     color: Colors.white, size: 20),
               )
