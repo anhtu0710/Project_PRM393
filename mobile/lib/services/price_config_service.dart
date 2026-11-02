@@ -40,7 +40,14 @@ class PriceConfigService {
   Future<PriceConfigModel> updatePriceConfig(int id, PriceConfigModel config) async {
     final response = await _dio.put('/price-configs/$id', data: config.toJson());
     return PriceConfigModel.fromJson(response.data['data'] as Map<String, dynamic>);
-void> deletePriceConfig(int id) async {
+  }
+
+  Future<TypeBookingModel> createTypeBooking(TypeBookingModel combo) async {
+    final response = await _dio.post('/type-bookings', data: combo.toJson());
+    return TypeBookingModel.fromJson(response.data['data'] as Map<String, dynamic>);
+  }
+
+  Future<void> deletePriceConfig(int id) async {
     await _dio.delete('/price-configs/$id');
   }
 }

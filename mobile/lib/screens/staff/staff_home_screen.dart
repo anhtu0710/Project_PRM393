@@ -1,6 +1,5 @@
 // lib/screens/staff/staff_home_screen.dart
-// Trang đầu của Staff: danh sách nút đi tới từng màn hình
-Phụ trách: Trang chủ Nhân viên (Staff Dashboard)
+// Phụ trách: Trang chủ Nhân viên (Staff Dashboard)
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -308,10 +307,7 @@ class StaffHomeScreen extends ConsumerWidget {
               await ref.read(authProvider.notifier).logout();
               if (context.mounted) context.go('/login');
             },
-            child: const Text('Đăng xuất', style: TextStyle(color: Colors.white)          ListTile(
-            leading: const Icon(Icons.store),
-            title: const Text('Chi nhánh'),
-            onTap: () => context.push('/staff/hotels'),
+            child: const Text('Đăng xuất', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
