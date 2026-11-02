@@ -18,6 +18,19 @@ class AppConfig {
   // ── Role IDs (must match roleId in Role table) ────────────────────────
   static const String roleCustomerId      = 'CUSTOMER';
 
+  // ── Trạng thái booking (giống BookingStatus.java) ─────────────────────
+  static const String bookingPending   = 'PENDING';    // Chờ duyệt
+  static const String bookingConfirmed = 'CONFIRMED';  // Đã xác nhận
+  static const String bookingRejected  = 'REJECTED';   // Bị từ chối
+  static const String bookingCheckedIn = 'CHECKED_IN'; // Đang ở
+  static const String bookingCompleted = 'COMPLETED';  // Hoàn thành
+  static const String bookingCancelled = 'CANCELLED';  // Đã huỷ
+
+  // ── Trạng thái phòng (giống RoomStatus.java) ──────────────────────────
+  static const String roomAvailable = 'Trống';
+  static const String roomOccupied  = 'Đang dùng';
+  static const String roomCleaning  = 'Đang dọn';
+
   // ── App ───────────────────────────────────────────────────────────────
   static const String appName = 'GenzCinema Hotel';
 }

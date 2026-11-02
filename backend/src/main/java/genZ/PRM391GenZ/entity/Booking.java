@@ -20,15 +20,16 @@ public class Booking {
     @Column(name = "BookingId")
     private Integer bookingId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    // EAGER: lấy booking thì lấy luôn phòng, khách, combo (trả JSON không bị lỗi)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "RoomId", nullable = false)
     private Room room;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "UserId", nullable = false)
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "TypeBookingId", nullable = false)
     private TypeBooking typeBooking;
 

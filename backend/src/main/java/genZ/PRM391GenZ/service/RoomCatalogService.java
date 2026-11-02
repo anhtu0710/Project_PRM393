@@ -1,5 +1,6 @@
 package genZ.PRM391GenZ.service;
 
+import genZ.PRM391GenZ.constant.RoomStatus;
 import genZ.PRM391GenZ.dto.PriceOptionResponse;
 import genZ.PRM391GenZ.dto.ReviewResponse;
 import genZ.PRM391GenZ.dto.RoomResponse;
@@ -46,7 +47,7 @@ public class RoomCatalogService {
 
     @Transactional(readOnly = true)
     public List<RoomResponse> getAvailableRooms() {
-        return roomRepository.findByStatus("Trống").stream()
+        return roomRepository.findByStatus(RoomStatus.AVAILABLE).stream()
                 .map(room -> toResponse(room, false))
                 .toList();
     }

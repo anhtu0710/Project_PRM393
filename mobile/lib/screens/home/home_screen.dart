@@ -151,7 +151,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       height: 167,
       child: PageView.builder(
         controller: _bannerController,
-        itemCount: banners.length * _kInfiniteMultiplier, // "giả vô hạn"
+        // itemCount = null → vô hạn thật sự. Không dùng số lớn (banners.length * 10000)
+        // vì PageView là sliver fixed-extent: maxScrollOffset = itemCount * chiều rộng,
+        // chiều rộng lẻ (vd 360.727) nhân số lớn gây sai số dấu phẩy động → assertion
+        // "computeMaxScrollOffset() returned a value that is not an even multiple of its itemExtent".
+        itemCount: null,
         itemBuilder: (context, index) {
           final int realIndex = index % banners.length;
           return Container(
@@ -173,7 +177,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget _buildQuickActions(BuildContext context) {
     final items = [
       {'icon': Icons.credit_card, 'label': 'Voucher'},
-      {'icon': Icons.inventory_2_outlined, 'label': 'Lịch sử'},
+      // 'route': mục nào có route thì mở màn đó, chưa có thì báo "sắp ra mắt"
+      {'icon': Icons.inventory_2_outlined, 'label': 'Lịch sử', 'route': '/bookings'},
       {'icon': Icons.chat_bubble_outline, 'label': 'Feedback'},
     ];
 
@@ -184,7 +189,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4),
             child: InkWell(
-              onTap: () => _onComingSoon(context),
+              onTap: () {
+                final route = item['route'] as String?;
+                if (route != null) {
+                  context.push(route);
+                } else {
+                  _onComingSoon(context);
+                }
+              },
               borderRadius: BorderRadius.circular(12),
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 16),

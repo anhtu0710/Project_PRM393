@@ -15,7 +15,18 @@ import '../screens/customer/room/room_list_screen.dart';
 import '../screens/customer/room/room_detail_screen.dart';
 import '../screens/customer/saved/saved_screen.dart';
 import '../screens/customer/booking/booking_screen.dart';
+import '../screens/customer/booking/booking_history_screen.dart';
+import '../screens/customer/booking/booking_detail_screen.dart';
 import '../screens/customer/review/review_screen.dart';
+import '../screens/notification/notification_screen.dart';
+import '../screens/admin/admin_user_screen.dart';
+import '../screens/staff/staff_home_screen.dart';
+import '../screens/staff/staff_booking_screen.dart';
+import '../screens/staff/staff_room_map_screen.dart';
+import '../screens/staff/staff_room_manage_screen.dart';
+import '../screens/staff/staff_price_screen.dart';
+import '../screens/staff/staff_voucher_screen.dart';
+import '../screens/staff/staff_hotel_screen.dart';
 import '../providers/room_provider.dart';
 import '../models/room_model.dart';
 import '../models/review_eligible_booking_model.dart';
@@ -58,7 +69,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           state.matchedLocation.startsWith('/reset-password');
 
       if (!isLoggedIn && !isAuthRoute) return '/login';
-      if (isLoggedIn && isAuthRoute) return _homeForRole(authState.user?.role);
+      if (isLoggedIn && isAuthRoute) return _homeForRole(authState.user?.roleId);
 
       return null;
     },
@@ -98,6 +109,64 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/admin',
         name: 'admin',
         builder: (_, __) => const AdminDashboard(),
+      ),
+      GoRoute(
+        path: '/admin/users',
+        builder: (_, __) => const AdminUserScreen(), // TV1
+      ),
+
+      // ── Staff routes ──────────────────────────────────────────────────
+      GoRoute(
+        path: '/staff',
+        builder: (_, __) => const StaffHomeScreen(),
+      ),
+      GoRoute(
+        path: '/staff/bookings',
+        builder: (_, __) => const StaffBookingScreen(), // TV4
+      ),
+      GoRoute(
+        path: '/staff/room-map',
+        builder: (_, __) => const StaffRoomMapScreen(), // TV4
+      ),
+      GoRoute(
+        path: '/staff/rooms',
+        builder: (_, __) => const StaffRoomManageScreen(), // TV5
+      ),
+      GoRoute(
+        path: '/staff/prices',
+        builder: (_, __) => const StaffPriceScreen(), // TV5
+      ),
+      GoRoute(
+        path: '/staff/vouchers',
+        builder: (_, __) => const StaffVoucherScreen(), // TV5
+      ),
+      GoRoute(
+        path: '/staff/hotels',
+        builder: (_, __) => const StaffHotelScreen(), // TV5
+      ),
+
+      // ── Lịch sử, đánh giá, thông báo của khách ────────────────────────
+      GoRoute(
+        path: '/bookings',
+        builder: (_, __) => const BookingHistoryScreen(), // TV3
+      ),
+      GoRoute(
+        path: '/bookings/:id',
+        builder: (_, state) {
+          final id = int.parse(state.pathParameters['id']!);
+          return BookingDetailScreen(bookingId: id); // TV3
+        },
+      ),
+      GoRoute(
+        path: '/bookings/:id/review',
+        builder: (_, state) {
+          final id = int.parse(state.pathParameters['id']!);
+          return ReviewBookingLoader(bookingId: id); // TV2
+        },
+      ),
+      GoRoute(
+        path: '/notifications',
+        builder: (_, __) => const NotificationScreen(), // TV4
       ),
 
       // ── Saved routes ─────────────────────────────────────────────────
@@ -162,11 +231,13 @@ final routerProvider = Provider<GoRouter>((ref) {
   return router;
 });
 
-String _homeForRole(String? role) {
-  if (role == null) return '/home';
-  switch (role.toLowerCase()) {
+String _homeForRole(String? roleId) {
+  if (roleId == null) return '/home';
+  switch (roleId.toUpperCase()) {
     case AppConfig.roleAdmin:
       return '/admin';
+    case AppConfig.roleStaff:
+      return '/staff';
     default:
       return '/home';
   }

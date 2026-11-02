@@ -47,7 +47,7 @@ class _EligibleReviewsScreenState extends State<EligibleReviewsScreen> {
               onAction: _reload,
             );
           }
-          final bookings = snapshot.data ?? const [];
+          final bookings = snapshot.data ?? const <ReviewEligibleBookingModel>[];
           if (bookings.isEmpty) {
             return const _MessageState(
               icon: Icons.rate_review_outlined,
@@ -55,7 +55,10 @@ class _EligibleReviewsScreenState extends State<EligibleReviewsScreen> {
             );
           }
           return RefreshIndicator(
-            onRefresh: () async => _reload(),
+            onRefresh: () async {
+              _reload();
+              await _future;
+            },
             child: ListView.separated(
               padding: const EdgeInsets.all(16),
               itemCount: bookings.length,
@@ -72,14 +75,12 @@ class _EligibleReviewsScreenState extends State<EligibleReviewsScreen> {
                     contentPadding: const EdgeInsets.all(14),
                     leading: const CircleAvatar(
                       backgroundColor: Color(0xFFF1E7FF),
-                      child:
-                          Icon(Icons.movie_outlined, color: AppTheme.primary),
+                      child: Icon(Icons.movie_outlined, color: AppTheme.primary),
                     ),
                     title: Text(booking.roomName,
                         style: const TextStyle(fontWeight: FontWeight.w700)),
                     subtitle: Text(booking.hotelName),
-                    trailing: const Icon(Icons.chevron_right,
-                        color: AppTheme.primary),
+                    trailing: const Icon(Icons.chevron_right, color: AppTheme.primary),
                     onTap: () async {
                       final submitted = await context.push<bool>(
                         '/reviews/${booking.bookingId}',
@@ -94,6 +95,56 @@ class _EligibleReviewsScreenState extends State<EligibleReviewsScreen> {
           );
         },
       ),
+    );
+  }
+}
+
+/// Supports the booking-history route while still accepting reviews only for
+/// bookings the authenticated user is eligible to review.
+class ReviewBookingLoader extends StatefulWidget {
+  final int bookingId;
+  const ReviewBookingLoader({super.key, required this.bookingId});
+
+  @override
+  State<ReviewBookingLoader> createState() => _ReviewBookingLoaderState();
+}
+
+class _ReviewBookingLoaderState extends State<ReviewBookingLoader> {
+  final ReviewService _service = ReviewService();
+  late final Future<List<ReviewEligibleBookingModel>> _future;
+
+  @override
+  void initState() {
+    super.initState();
+    _future = _service.getEligibleBookings();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<List<ReviewEligibleBookingModel>>(
+      future: _future,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState != ConnectionState.done) {
+          return const Scaffold(body: Center(child: CircularProgressIndicator()));
+        }
+
+        ReviewEligibleBookingModel? booking;
+        for (final candidate in snapshot.data ?? const <ReviewEligibleBookingModel>[]) {
+          if (candidate.bookingId == widget.bookingId) {
+            booking = candidate;
+            break;
+          }
+        }
+        if (booking != null) return ReviewFormScreen(booking: booking);
+
+        return Scaffold(
+          appBar: AppBar(title: const Text('Đánh giá phòng')),
+          body: const _MessageState(
+            icon: Icons.info_outline,
+            message: 'Booking này hiện chưa thể đánh giá.',
+          ),
+        );
+      },
     );
   }
 }
@@ -121,9 +172,11 @@ class _ReviewFormScreenState extends State<ReviewFormScreen> {
   Future<void> _submit() async {
     if (_rating == 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Vui lòng chọn số sao đánh giá.')));
+        const SnackBar(content: Text('Vui lòng chọn số sao đánh giá.')),
+      );
       return;
     }
+
     setState(() => _isSubmitting = true);
     try {
       await _service.createReview(
@@ -133,13 +186,15 @@ class _ReviewFormScreenState extends State<ReviewFormScreen> {
       );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Cảm ơn bạn đã đánh giá!')));
+          const SnackBar(content: Text('Cảm ơn bạn đã đánh giá!')),
+        );
         context.pop(true);
       }
     } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text('Không thể gửi đánh giá. Vui lòng thử lại.')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Không thể gửi đánh giá. Vui lòng thử lại.')),
+        );
       }
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
@@ -162,28 +217,33 @@ class _ReviewFormScreenState extends State<ReviewFormScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(widget.booking.roomName,
-                  style: const TextStyle(
-                      fontSize: 20, fontWeight: FontWeight.w700)),
+              Text(
+                widget.booking.roomName,
+                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+              ),
               if (widget.booking.hotelName.isNotEmpty) ...[
                 const SizedBox(height: 4),
                 Text(widget.booking.hotelName,
                     style: const TextStyle(color: AppTheme.textGray)),
               ],
               const SizedBox(height: 32),
-              const Text('Trải nghiệm của bạn thế nào?',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+              const Text(
+                'Trải nghiệm của bạn thế nào?',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              ),
               const SizedBox(height: 12),
               Row(
                 children: List.generate(
-                    5,
-                    (index) => IconButton(
-                          onPressed: () => setState(() => _rating = index + 1),
-                          icon: Icon(
-                              index < _rating ? Icons.star : Icons.star_border,
-                              color: const Color(0xFFFFC107),
-                              size: 36),
-                        )),
+                  5,
+                  (index) => IconButton(
+                    onPressed: () => setState(() => _rating = index + 1),
+                    icon: Icon(
+                      index < _rating ? Icons.star : Icons.star_border,
+                      color: const Color(0xFFFFC107),
+                      size: 36,
+                    ),
+                  ),
+                ),
               ),
               const SizedBox(height: 20),
               TextField(
@@ -192,8 +252,7 @@ class _ReviewFormScreenState extends State<ReviewFormScreen> {
                 maxLength: 1000,
                 decoration: InputDecoration(
                   hintText: 'Chia sẻ thêm nhận xét của bạn (không bắt buộc)',
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12)),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                 ),
               ),
               const SizedBox(height: 24),
@@ -205,15 +264,14 @@ class _ReviewFormScreenState extends State<ReviewFormScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.primary,
                     foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                   child: _isSubmitting
                       ? const SizedBox(
                           width: 22,
                           height: 22,
-                          child: CircularProgressIndicator(
-                              color: Colors.white, strokeWidth: 2))
+                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                        )
                       : const Text('Gửi đánh giá'),
                 ),
               ),
@@ -231,20 +289,24 @@ class _MessageState extends StatelessWidget {
   final String message;
   final String? actionLabel;
   final VoidCallback? onAction;
-  const _MessageState(
-      {required this.icon,
-      required this.message,
-      this.actionLabel,
-      this.onAction});
+
+  const _MessageState({
+    required this.icon,
+    required this.message,
+    this.actionLabel,
+    this.onAction,
+  });
 
   @override
   Widget build(BuildContext context) => Center(
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Icon(icon, size: 60, color: Colors.grey.shade400),
-          const SizedBox(height: 12),
-          Text(message, style: const TextStyle(color: AppTheme.textGray)),
-          if (onAction != null)
-            TextButton(onPressed: onAction, child: Text(actionLabel!)),
-        ]),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 60, color: Colors.grey.shade400),
+            const SizedBox(height: 12),
+            Text(message, style: const TextStyle(color: AppTheme.textGray)),
+            if (onAction != null) TextButton(onPressed: onAction, child: Text(actionLabel!)),
+          ],
+        ),
       );
 }

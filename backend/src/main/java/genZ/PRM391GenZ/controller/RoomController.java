@@ -55,14 +55,14 @@ public class RoomController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
     public ResponseEntity<ApiResponse<Room>> createRoom(@RequestBody Room room) {
         Room saved = roomRepository.save(room);
         return ResponseEntity.ok(ApiResponse.success("Tạo phòng thành công", saved));
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
     public ResponseEntity<ApiResponse<Room>> updateRoom(
             @PathVariable String id, @RequestBody Room room) {
         if (!roomRepository.existsById(id)) {
@@ -74,7 +74,7 @@ public class RoomController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
     public ResponseEntity<ApiResponse<Void>> deleteRoom(@PathVariable String id) {
         if (!roomRepository.existsById(id)) {
             return ResponseEntity.notFound().build();

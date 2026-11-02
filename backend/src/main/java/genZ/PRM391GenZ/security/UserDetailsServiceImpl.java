@@ -20,12 +20,14 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy tài khoản: " + email));
 
-        String roleName = user.getRole() != null ? user.getRole().getRoleName() : "CUSTOMER";
+        // Dùng RoleId (ADMIN/STAFF/CUSTOMER) để khớp với hasRole('ADMIN');
+        // RoleName là tên hiển thị ("Administrator") nên không dùng để phân quyền.
+        String roleId = user.getRole() != null ? user.getRole().getRoleId() : "CUSTOMER";
 
         return org.springframework.security.core.userdetails.User.builder()
                 .username(user.getEmail())
                 .password(user.getPassword())
-                .authorities(List.of(new SimpleGrantedAuthority("ROLE_" + roleName.toUpperCase())))
+                .authorities(List.of(new SimpleGrantedAuthority("ROLE_" + roleId.toUpperCase())))
                 .build();
     }
 }

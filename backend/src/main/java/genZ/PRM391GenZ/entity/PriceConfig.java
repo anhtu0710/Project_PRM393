@@ -17,11 +17,11 @@ public class PriceConfig {
     @Column(name = "PriceConfigId")
     private Integer priceConfigId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "TypeRoomId", nullable = false)
     private TypeRoom typeRoom;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "TypeBookingId", nullable = false)
     private TypeBooking typeBooking;
 

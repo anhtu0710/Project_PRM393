@@ -1,120 +1,132 @@
+Thành viên 1: Nền chung + Admin
+
+Làm trước khi cả nhóm bắt đầu: thêm role Staff, chia màn hình theo 3 role, tạo bảng mới trong database, thống nhất tên các trạng thái.
+Quản lý người dùng: xem danh sách, tìm kiếm, đổi role Customer ↔ Staff, khóa/mở khóa tài khoản.
+Chặn tài khoản bị khóa không cho đăng nhập.
+Dashboard thống kê có biểu đồ doanh thu.
+
+Thành viên 2: Tìm phòng + Đánh giá
+
+Trang chủ, danh sách phòng có tìm kiếm và bộ lọc (chi nhánh, loại phòng, giá, giờ trống).
+Chi tiết phòng: giá theo kiểu đặt, số sao trung bình, các đánh giá.
+Khách đánh giá phòng (1–5 sao) sau khi đã check-out.
+
+Thành viên 3: Đặt phòng + Lịch sử
+
+Màn đặt phòng: chọn kiểu đặt, giờ vào, nhập voucher, hiện tổng tiền.
+Backend tính giá, kiểm tra trùng lịch, áp dụng voucher.
+Lịch sử đặt phòng 3 tab: Sắp tới, Đã qua, Đã hủy.
+Chi tiết booking và nút hủy (chỉ hủy được trước giờ vào 2 tiếng).
+
+Thành viên 4: Staff vận hành + Thông báo
+
+Danh sách booking, duyệt hoặc từ chối.
+Check-in, check-out (thu tiền tại quầy).
+Sơ đồ phòng theo màu: Trống, Đang dùng, Đang dọn.
+Thông báo cho khách khi booking được duyệt, bị từ chối, hoặc check-out xong; chuông có số thông báo chưa đọc.
+
+Thành viên 5: Staff cấu hình
+
+Thêm, sửa, xóa phòng.
+Sửa bảng giá.
+Tạo, sửa, xóa voucher.
+Thêm, sửa chi nhánh.
+
+
 ================================================================================
-          GENZCINEMA HOTEL - SPRINT GUIDE & PROJECT PROGRESS TRACKER
+NỀN CHUNG ĐÃ CÓ SẴN — MỖI NGƯỜI DÙNG GÌ ĐỂ LÀM TIẾP
 ================================================================================
-Tài liệu hướng dẫn phân công và cập nhật tiến độ cho 5 thành viên (Full-stack).
 
---------------------------------------------------------------------------------
-📊 TIẾN ĐỘ HIỆN TẠI CỦA DỰ ÁN (ĐÃ HOÀN THÀNH)
---------------------------------------------------------------------------------
-1. Backend (Spring Boot):
-   - Đã cấu hình kết nối SQL Server (Database GenzCinemaHotel) và JPA/Hibernate.
-   - Đã hoàn thiện hệ thống xác thực JWT (Login, Register, Quên/Đổi mật khẩu).
-   - Đã hoàn thiện các API quản lý Khách sạn (Hotel), Phòng (Room), và Đặt phòng (Booking).
-   - Đã cấu hình Spring Security (`SecurityConfig`) và Global Exception Handling.
+BƯỚC ĐẦU TIÊN CỦA MỖI NGƯỜI
+1. Pull nhánh main về máy.
+2. Mở SSMS, chạy file sprint_foundation.sql (ở thư mục gốc repo) MỘT LẦN, sau SQLQuery1.sql.
+   File này thêm: cột IsLocked cho User, 3 bảng Voucher / Review / Notification,
+   và dữ liệu mẫu (3 tài khoản test, 3 voucher, 9 booking đủ các trạng thái, 1 đánh giá, 1 thông báo).
+3. Tài khoản test (mật khẩu ghi ở đầu file sprint_foundation.sql):
+   admin@genz.test    — ADMIN
+   staff@genz.test    — STAFF
+   customer@genz.test — CUSTOMER
+4. Tạo nhánh riêng từ main rồi mới code.
 
-2. Mobile App (Flutter):
-   - Đã cấu hình Riverpod State Management, GoRouter (định tuyến theo role).
-   - Đã hoàn thiện Dio API Client tự động đính kèm Bearer Token.
-   - Đã hoàn thiện các màn hình:
-     + Xác thực: Login, Register, Request Reset, Reset Password.
-     + Khách hàng: Trang chủ (Home), Danh sách phòng (Room List), Chi tiết phòng (Room Detail), Đặt phòng (Booking với Combo & Voucher), Phòng đã lưu (Saved/Favorites).
-     + Quản trị: Admin Dashboard cơ bản.
 
---------------------------------------------------------------------------------
-🚀 PHÂN CÔNG 5 THÀNH VIÊN HOÀN THIỆN CÁC TÍNH NĂNG HOÀN HẢO (FULL-STACK)
---------------------------------------------------------------------------------
+CẢ NHÓM ĐỀU DÙNG
+- Tên trạng thái, không tự gõ chữ khác:
+    Java:    BookingStatus.PENDING, CONFIRMED, REJECTED, CHECKED_IN, COMPLETED, CANCELLED
+             RoomStatus.AVAILABLE ("Trống"), OCCUPIED ("Đang dùng"), CLEANING ("Đang dọn")
+    Flutter: AppConfig.bookingPending, bookingConfirmed, ... và AppConfig.roomAvailable, ...
+- Màn hình trống đã có sẵn route: chỉ mở đúng file của mình, thay phần body. Không cần sửa router.dart.
+- Phân quyền đã chạy: muốn API chỉ cho Staff dùng thì chép dòng
+    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
+  giống trong BookingController.
+- Booking.java và PriceConfig.java đã dùng FetchType.EAGER nên trả JSON không bị lỗi.
+- Mật khẩu không còn bị trả ra JSON.
 
---------------------------------------------------------------------------------
-THÀNH VIÊN 1: LUỒNG XÁC THỰC, HỒ SƠ & UPLOAD CCCD (AUTH & PROFILE)
---------------------------------------------------------------------------------
-1. Backend (Spring Boot):
-   - Chạy lệnh SQL bổ sung cột:
-     ALTER TABLE [User] ADD ImageCccd VARCHAR(MAX) NULL, IsLocked BIT DEFAULT 0;
-   - Viết API cập nhật thông tin cá nhân & upload ảnh CCCD:
-     PUT /api/users/{id}/profile
-2. Frontend (Flutter):
-   - Hoàn thiện màn hình ProfileScreen.dart (sửa họ tên, SĐT).
-   - Tích hợp package `image_picker` để chụp/chọn ảnh CCCD và gửi lên API profile.
 
---------------------------------------------------------------------------------
-THÀNH VIÊN 2: LUỒNG ĐẶT PHÒNG, VOUCHER, THANH TOÁN & LỊCH SỬ (BOOKING & HISTORY)
---------------------------------------------------------------------------------
-1. Backend (Spring Boot):
-   - Tạo bảng Voucher trong SQL Server:
-     CREATE TABLE Voucher (
-         VoucherId VARCHAR(50) PRIMARY KEY,
-         Code VARCHAR(50) UNIQUE NOT NULL,
-         DiscountPercent FLOAT NULL,
-         DiscountAmount DECIMAL(18,2) NULL,
-         MinOrderAmount DECIMAL(18,2) NOT NULL,
-         ExpiryDate DATETIME NOT NULL
-     );
-   - Viết API: GET /api/vouchers và kiểm tra POST /api/bookings.
-2. Frontend (Flutter):
-   - BookingScreen.dart: Thêm ô nhập mã Voucher, tính toán giảm giá.
-   - PaymentScreen.dart: Chọn hình thức thanh toán (Sandbox VNPay/MoMo) và xác nhận đặt phòng.
-   - BookingHistoryScreen.dart: TabBar chia 3 tab (Sắp tới, Đã qua, Đã hủy) gọi API GET /api/bookings/user/{userId} kèm nút Hủy đơn.
+TV1 — ADMIN
+Có sẵn:
+- Cột IsLocked và field "locked" trong User.java.
+- Màn admin_user_screen.dart (đã có nút mở từ Admin Dashboard).
+- Package fl_chart đã cài.
+- 5 booking COMPLETED mẫu để vẽ biểu đồ doanh thu.
+Tự tạo:
+- UserController: danh sách user, đổi role, khoá / mở khoá.
+- Chặn tài khoản bị khoá: trong AuthService.login thêm
+    if (user.isLocked()) throw new RuntimeException("Tài khoản đã bị khoá");
+- API thống kê cho dashboard.
 
---------------------------------------------------------------------------------
-THÀNH VIÊN 3: LUỒNG VẬN HÀNH CỦA NHÂN VIÊN & TÌM KIẾM NHANH (STAFF OPERATIONS)
---------------------------------------------------------------------------------
-1. Backend (Spring Boot):
-   - Đảm bảo API PUT /api/bookings/{id}/status hoạt động để duyệt/từ chối đơn và cập nhật trạng thái phòng.
-   - Hỗ trợ query lọc/tìm kiếm booking theo SĐT khách hàng.
-2. Frontend (Flutter):
-   - StaffDashboardScreen.dart:
-     + Tab 1: Danh sách đơn chờ duyệt (kèm ô tìm kiếm nhanh theo SĐT/Mã booking, nút Duyệt / Từ chối).
-     + Tab 2: Sơ đồ phòng trực quan (Room Grid) dạng lưới đổi màu theo trạng thái.
-   - Tích hợp package `mobile_scanner` để quét mã QR check-in nhanh.
+TV2 — TÌM PHÒNG + ĐÁNH GIÁ
+Có sẵn:
+- Entity Review + ReviewRepository (findByRoomId, existsByBookingId).
+- TypeRoomRepository, HotelRepository để làm bộ lọc.
+- PriceConfigRepository để hiện giá theo combo.
+- Màn review_screen.dart.
+- 1 đánh giá mẫu cho phòng HN001_Q01.
+Tự tạo:
+- ReviewController.
+- Hàm tìm / lọc phòng: thêm hàm MỚI ở cuối RoomController.
 
---------------------------------------------------------------------------------
-THÀNH VIÊN 4: LUỒNG QUẢN TRỊ ADMIN, ĐÁNH GIÁ & THÔNG BÁO (ADMIN & NOTIFICATION)
---------------------------------------------------------------------------------
-1. Backend (Spring Boot):
-   - Tạo bảng Review và Notification trong SQL Server:
-     CREATE TABLE Review (
-         ReviewId INT IDENTITY(1,1) PRIMARY KEY,
-         RoomId VARCHAR(50) NOT NULL FOREIGN KEY REFERENCES Room(RoomId),
-         UserId VARCHAR(50) NOT NULL FOREIGN KEY REFERENCES [User](UserId),
-         Rating INT NOT NULL,
-         Comment NVARCHAR(MAX) NULL,
-         CreatedAt DATETIME DEFAULT GETDATE()
-     );
-     CREATE TABLE Notification (
-         NotificationId INT IDENTITY(1,1) PRIMARY KEY,
-         UserId VARCHAR(50) NOT NULL FOREIGN KEY REFERENCES [User](UserId),
-         Title NVARCHAR(255) NOT NULL,
-         Message NVARCHAR(MAX) NOT NULL,
-         IsRead BIT DEFAULT 0,
-         CreatedAt DATETIME DEFAULT GETDATE()
-     );
-   - Viết API Quản lý User (GET /api/users, PUT /api/users/{id}/role, PUT /api/users/{id}/lock) và API Notification.
-2. Frontend (Flutter):
-   - AdminUserScreen.dart: Quản lý user, đổi role (Customer <-> Staff), khóa tài khoản.
-   - AdminDashboardScreen.dart: Tích hợp `fl_chart` vẽ biểu đồ doanh thu.
-   - ReviewScreen.dart: Giao diện đánh giá phòng (1-5 sao).
-   - Notification widget: Icon chuông trên AppBar có badge số chưa đọc và màn hình danh sách thông báo.
+TV3 — ĐẶT PHÒNG + LỊCH SỬ
+Có sẵn:
+- Entity Voucher + VoucherRepository.findByCode.
+- PriceConfigRepository để lấy giá; TypeBookingRepository có DurationHours để tính giờ ra.
+- Hàm đặt phòng (POST /bookings) đã tự gán trạng thái PENDING.
+- Màn booking_history_screen.dart và booking_detail_screen.dart; menu Tài khoản đã có mục Lịch sử.
+- 3 voucher mẫu: GENZ10, GIAM50K, HETHAN (đã hết hạn, dùng để test báo lỗi).
+Tự tạo:
+- Tính giá và kiểm tra trùng lịch trong hàm createBooking
+  (lấy booking của phòng bằng findByRoom_RoomId rồi dùng vòng for để so giờ).
+- Hàm huỷ booking.
+- Kiểm tra voucher ngay trong BookingController bằng voucherRepository.findByCode.
+Lưu ý: booking_provider.dart đang có danh sách voucher viết cứng, cần thay bằng dữ liệu thật.
 
---------------------------------------------------------------------------------
-THÀNH VIÊN 5: LUỒNG CHỌN PHIM, COMBO BẮP NƯỚC & TIỆN NGHI PHÒNG (CINEMA HOTEL USP)
---------------------------------------------------------------------------------
-1. Backend (Spring Boot):
-   - Tạo bảng `Movie` (Phim), bảng `ServiceItem` (Combo bắp nước) và cấu hình tiện ích phòng (Amenities):
-     CREATE TABLE Movie (
-         MovieId VARCHAR(50) PRIMARY KEY,
-         Title NVARCHAR(255) NOT NULL,
-         Description NVARCHAR(MAX) NULL,
-         PosterUrl VARCHAR(MAX) NULL,
-         DurationMinutes INT NULL
-     );
-     CREATE TABLE ServiceItem (
-         ServiceId VARCHAR(50) PRIMARY KEY,
-         Name NVARCHAR(255) NOT NULL,
-         Price DECIMAL(18,2) NOT NULL,
-         ImageUrl VARCHAR(MAX) NULL
-     );
-   - Viết API: GET /api/movies và GET /api/services.
-2. Frontend (Flutter):
-   - Màn hình BookingScreen: Bổ sung bước chọn phim chiếu riêng tư và chọn combo bắp nước/snack đi kèm.
-   - Màn hình RoomDetailScreen: Bổ sung hiển thị danh sách **Tiện nghi phòng** (Ví dụ: Máy chiếu 4K, Âm thanh vòm Dolby, Netflix miễn phí, Ghế sofa Bed...) để làm nổi bật trải nghiệm Cinema.
-================================================================================
+TV4 — STAFF VẬN HÀNH + THÔNG BÁO
+Có sẵn:
+- GET /bookings và PUT /bookings/{id}/status đã mở cho Staff.
+- Entity Notification + NotificationRepository.findByUserId.
+- Màn staff_booking_screen.dart, staff_room_map_screen.dart, notification_screen.dart.
+- Dữ liệu mẫu: 2 booking PENDING, 1 booking CONFIRMED, 1 thông báo.
+Tự tạo:
+- Khi đổi trạng thái booking thì cập nhật trạng thái phòng và lưu 1 Notification cho khách.
+- API lấy thông báo của khách, đánh dấu đã đọc.
+- Số thông báo chưa đọc trên icon chuông.
+
+TV5 — STAFF CẤU HÌNH
+Có sẵn:
+- API thêm / sửa / xoá phòng đã mở cho Staff.
+- Các repository: Voucher, PriceConfig, Hotel, TypeRoom, TypeBooking.
+- Màn staff_room_manage_screen.dart, staff_price_screen.dart, staff_voucher_screen.dart,
+  staff_hotel_screen.dart (đã có nút từ trang Staff).
+Tự tạo:
+- VoucherController, PriceConfigController, HotelController.
+- Chặn xoá phòng còn booking (sửa trong hàm deleteRoom).
+
+
+QUY TẮC TRÁNH SỬA TRÙNG FILE
+- BookingController: TV3 sửa createBooking và thêm hàm huỷ; TV4 chỉ sửa updateStatus.
+- RoomController: TV2 thêm hàm mới ở cuối; TV5 chỉ sửa deleteRoom.
+- VoucherController: chỉ TV5 tạo. TV3 kiểm tra voucher ngay trong BookingController.
+- router.dart, app_config.dart: cần thêm gì thì nhờ TV1.
+- Thêm bảng hoặc cột mới: viết file SQL riêng (VD: sprint_tv3.sql) rồi báo cả nhóm chạy.
+  KHÔNG sửa sprint_foundation.sql, vì ai đã chạy rồi mà chạy lại sẽ bị lỗi.
+- Cuối ngày chạy thử trọn luồng: khách đặt có voucher → staff duyệt → khách nhận thông báo
+  → check-in → check-out → khách đánh giá → admin thấy doanh thu.
