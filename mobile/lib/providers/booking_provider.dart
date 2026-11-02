@@ -331,3 +331,11 @@ final bookingDetailProvider =
     FutureProvider.autoDispose.family<BookingModel, int>((ref, id) {
   return ref.read(bookingServiceProvider).getBookingById(id);
 });
+
+// ── Danh sách tất cả booking dành cho Staff / Admin ──────────────────────────────
+final staffBookingsProvider =
+    FutureProvider.autoDispose<List<BookingModel>>((ref) async {
+  final list = await ref.read(bookingServiceProvider).getAllBookings();
+  list.sort((a, b) => b.checkIn.compareTo(a.checkIn));
+  return list;
+});
