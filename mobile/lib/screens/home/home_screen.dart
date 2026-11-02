@@ -177,7 +177,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget _buildQuickActions(BuildContext context) {
     final items = [
       {'icon': Icons.credit_card, 'label': 'Voucher'},
-      {'icon': Icons.inventory_2_outlined, 'label': 'Lịch sử'},
+      // 'route': mục nào có route thì mở màn đó, chưa có thì báo "sắp ra mắt"
+      {'icon': Icons.inventory_2_outlined, 'label': 'Lịch sử', 'route': '/bookings'},
       {'icon': Icons.chat_bubble_outline, 'label': 'Feedback'},
     ];
 
@@ -188,7 +189,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4),
             child: InkWell(
-              onTap: () => _onComingSoon(context),
+              onTap: () {
+                final route = item['route'] as String?;
+                if (route != null) {
+                  context.push(route);
+                } else {
+                  _onComingSoon(context);
+                }
+              },
               borderRadius: BorderRadius.circular(12),
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 16),
