@@ -4,7 +4,12 @@ class AppConfig {
   // ── API ─────────────────────────────────────────────────────────────
   // For Android emulator: use 10.0.2.2 instead of localhost
   // For physical device: use your machine's local IP e.g. 192.168.1.x
-  static const String baseUrl = 'http://10.0.2.2:8080/api';
+  // Chạy trên Chrome / máy thật mà không sửa code:
+  //   flutter run --dart-define=API_URL=http://localhost:8080/api
+  static const String baseUrl = String.fromEnvironment(
+    'API_URL',
+    defaultValue: 'http://10.0.2.2:8080/api',
+  );
 
   // ── JWT ──────────────────────────────────────────────────────────────
   static const String tokenKey    = 'jwt_token';

@@ -28,6 +28,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 .username(user.getEmail())
                 .password(user.getPassword())
                 .authorities(List.of(new SimpleGrantedAuthority("ROLE_" + roleId.toUpperCase())))
+                .accountLocked(user.isLocked()) // Admin khoá thì không đăng nhập được
                 .build();
     }
 }
