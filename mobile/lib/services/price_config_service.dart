@@ -42,6 +42,11 @@ class PriceConfigService {
     return PriceConfigModel.fromJson(response.data['data'] as Map<String, dynamic>);
   }
 
+  Future<TypeBookingModel> createTypeBooking(TypeBookingModel combo) async {
+    final response = await _dio.post('/type-bookings', data: combo.toJson());
+    return TypeBookingModel.fromJson(response.data['data'] as Map<String, dynamic>);
+  }
+
   Future<void> deletePriceConfig(int id) async {
     await _dio.delete('/price-configs/$id');
   }
