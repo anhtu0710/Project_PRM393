@@ -21,8 +21,8 @@ flutter emulators --launch Medium_Phone   # Start the Android emulator
 
 Screen → Provider → Service → SQLite.
 
-- `assets/database.sql` — the ONLY place tables and sample data are defined (merged from the old `SQLQuery1.sql` + `sprint_foundation.sql`, SQLite syntax). Test accounts and their shared password are listed in its header.
-- `lib/database/database_helper.dart` — opens `genz_cinema_hotel.db`; on first launch runs `assets/database.sql` statement by statement (split on `;`, `--` comment lines skipped — never put `;` inside data or comments). Also `hashPassword()` (SHA-256).
+- `database.sql` (directly in `mobile/`, declared in `pubspec.yaml` assets) — the ONLY place tables and sample data are defined (merged from the old `SQLQuery1.sql` + `sprint_foundation.sql`, SQLite syntax). It must stay inside `mobile/`: Flutter cannot bundle assets from outside the package folder. Test accounts and their shared password are listed in its header.
+- `lib/database/database_helper.dart` — opens `genz_cinema_hotel.db`; on first launch runs `database.sql` statement by statement (split on `;`, `--` comment lines skipped — never put `;` inside data or comments). Also `hashPassword()` (SHA-256).
 - `lib/services/` — one service per feature (auth, room, hotel, booking, price_config, voucher, review, admin). They run SQL with sqflite and return the models in `lib/models/`. Errors are thrown as Vietnamese `String`s; `BookingService.errorMessage` / `AdminService.errorMessage` read them. Business rules (price from PriceConfig, overlap check, voucher check, cancel rules, admin stats) live here.
 - `lib/providers/` — Riverpod providers wrapping the services.
 - `lib/config/router.dart` — GoRouter; redirects by login status and role (`ADMIN` → `/admin`, `STAFF` → `/staff`, else `/home`). Guests may visit `/home`, `/rooms`, `/rooms/:id`, `/saved`; everything else (including `/rooms/:id/booking`) redirects to `/login`.
@@ -31,7 +31,7 @@ Screen → Provider → Service → SQLite.
 
 ## Development Notes
 
-- Changing `assets/database.sql` only takes effect on a fresh install (uninstall the app first) because it runs in `onCreate`.
+- Changing `mobile/database.sql` only takes effect on a fresh install (uninstall the app first) because it runs in `onCreate`.
 - Dates are stored as ISO text (`2026-11-05T19:00:00`); compare them in Dart with `DateTime.parse`. Sample bookings use `strftime(..., 'now', 'localtime', ...)` so they are always relative to the install date.
 - Forgot password works offline: `requestPasswordReset` returns the reset token and the screen opens `/reset-password?token=...` directly (no email).
 - Each phone has its own data; uninstalling the app deletes it.

@@ -150,8 +150,8 @@ File nằm ở `mobile/build/app/outputs/flutter-apk/app-release.apk`.
 
 ```
 mobile/
+├── database.sql              ← TẤT CẢ bảng + dữ liệu mẫu (SQLite)
 ├── assets/
-│   ├── database.sql          ← TẤT CẢ bảng + dữ liệu mẫu (SQLite)
 │   └── images/               ← ảnh banner, logo
 └── lib/
     ├── main.dart             ← điểm bắt đầu của app
@@ -205,7 +205,7 @@ Có 12 bảng, giống thiết kế SQL Server cũ:
 - Trạng thái phòng: `Trống`, `Đang dùng`, `Đang dọn`.
 
 **Muốn sửa bảng hoặc dữ liệu mẫu:**
-1. Sửa file `mobile/assets/database.sql`.
+1. Sửa file `mobile/database.sql`.
 2. **Gỡ app khỏi máy** rồi chạy / cài lại. File SQL chỉ chạy 1 lần lúc database chưa có.
 
 Không viết dấu `;` trong dữ liệu hay chú thích, vì app tách các câu lệnh theo dấu `;`.

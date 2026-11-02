@@ -1,6 +1,6 @@
 // lib/database/database_helper.dart
 // Database SQLite nằm ngay trong điện thoại (không cần server, không cần mạng).
-// Bảng + dữ liệu mẫu viết trong file assets/database.sql.
+// Bảng + dữ liệu mẫu viết trong file mobile/database.sql.
 // Lần đầu mở app (database chưa có) sẽ chạy file đó 1 lần.
 
 import 'dart:convert';
@@ -24,7 +24,7 @@ class DatabaseHelper {
       path,
       version: 1,
       onCreate: (db, version) async {
-        await _runSqlFile(db, 'assets/database.sql');
+        await _runSqlFile(db, 'database.sql');
       },
     );
   }
