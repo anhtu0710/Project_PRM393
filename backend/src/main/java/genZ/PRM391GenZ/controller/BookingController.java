@@ -108,7 +108,7 @@ public class BookingController {
 
         // Chặn đặt phòng nếu trạng thái phòng đang 'Đang dùng' hoặc 'Đang dọn'
         String roomStatus = room.getStatus();
-        if (!RoomStatus.AVAILABLE.equalsIgnoreCase(roomStatus) && !"available".equalsIgnoreCase(roomStatus)) {
+        if (!"Trống".equalsIgnoreCase(roomStatus) && !"available".equalsIgnoreCase(roomStatus)) {
             throw new RuntimeException("Phòng đang " + (roomStatus != null ? roomStatus.toLowerCase() : "bận") + ", tạm thời khóa đặt phòng!");
         }
 
