@@ -13,10 +13,22 @@ class AppBottomNavBar extends ConsumerWidget {
   const AppBottomNavBar({super.key, required this.currentIndex});
 
   static const _items = [
-    {'icon': Icons.home_outlined, 'activeIcon': Icons.home, 'label': 'Trang chủ'},
-    {'icon': Icons.bookmark_border, 'activeIcon': Icons.bookmark, 'label': 'Đã lưu'},
+    {
+      'icon': Icons.home_outlined,
+      'activeIcon': Icons.home,
+      'label': 'Trang chủ'
+    },
+    {
+      'icon': Icons.bookmark_border,
+      'activeIcon': Icons.bookmark,
+      'label': 'Đã lưu'
+    },
     {'icon': Icons.work_outline, 'activeIcon': Icons.work, 'label': 'Đặt chỗ'},
-    {'icon': Icons.person_outline, 'activeIcon': Icons.person, 'label': 'Tài khoản'},
+    {
+      'icon': Icons.person_outline,
+      'activeIcon': Icons.person,
+      'label': 'Tài khoản'
+    },
   ];
 
   void _onTap(BuildContext context, WidgetRef ref, int index) {
@@ -67,6 +79,15 @@ class AppBottomNavBar extends ConsumerWidget {
                   leading: const Icon(Icons.person, color: AppTheme.primary),
                   title: const Text('Tài khoản'),
                   onTap: () => Navigator.pop(ctx),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.rate_review_outlined,
+                      color: AppTheme.primary),
+                  title: const Text('Đánh giá sau lưu trú'),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    context.push('/reviews');
+                  },
                 ),
                 ListTile(
                   leading: const Icon(Icons.history, color: AppTheme.primary),

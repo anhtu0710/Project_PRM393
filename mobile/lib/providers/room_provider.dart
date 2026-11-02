@@ -48,40 +48,6 @@ class RoomListNotifier extends StateNotifier<RoomListState> {
     }
   }
 
-  Future<bool> createRoom(RoomModel room) async {
-    try {
-      await _service.createRoom(room);
-      await loadRooms();
-      return true;
-    } catch (e) {
-      state = state.copyWith(error: e.toString());
-      return false;
-    }
-  }
-
-  Future<bool> updateRoom(String id, RoomModel room) async {
-    try {
-      await _service.updateRoom(id, room);
-      await loadRooms();
-      return true;
-    } catch (e) {
-      state = state.copyWith(error: e.toString());
-      return false;
-    }
-  }
-
-  Future<String?> deleteRoom(String id) async {
-    try {
-      await _service.deleteRoom(id);
-      await loadRooms();
-      return null; // Success, no error message
-    } catch (e) {
-      final msg = e.toString().replaceAll('Exception: ', '');
-      state = state.copyWith(error: msg);
-      return msg; // Return error message to UI
-    }
-  }
-
   // Lọc theo loại phòng
   void filterByType(String? typeRoomId) {
     // TODO: gọi API hoặc filter local
