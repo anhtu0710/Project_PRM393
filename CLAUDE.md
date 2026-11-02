@@ -4,128 +4,37 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-GenzCinema Hotel — a cinema hotel booking system with a Spring Boot REST API backend and Flutter mobile client.
+GenzCinema Hotel — a cinema hotel booking app (Flutter). **Branch `sqlite`:** there is no server. All data lives in a local SQLite database on the phone, so the APK works offline on any Android device. (The Spring Boot + SQL Server version is on `main`.)
 
-> **Branch `sqlite`:** the Flutter app does NOT call the Spring Boot API. All data lives in a local SQLite database on the phone (`mobile/lib/database/database_helper.dart` creates the tables, `seed_data.dart` inserts the sample data on first launch). The services in `mobile/lib/services/` keep the same method names but read/write SQLite and throw Vietnamese error messages as plain `String`s. sqflite does not run on Chrome — test on an Android emulator/device. The `backend/` folder is unused on this branch.
-
-## Commands
-
-### Backend (Spring Boot — `backend/`)
+## Commands (run inside `mobile/`)
 
 ```bash
-cd backend
-./mvnw spring-boot:run       # Start server at http://localhost:8080/api
-./mvnw clean install         # Build
-./mvnw test                  # Run all tests
-./mvnw package               # Build JAR to target/
-```
-
-### Mobile (Flutter — `mobile/`)
-
-```bash
-cd mobile
 flutter pub get              # Install dependencies
-flutter run                  # Run on emulator/device
-flutter build apk            # Build Android APK
+flutter run                  # Run on Android emulator/device (sqflite does NOT run on Chrome)
+flutter build apk            # Build APK -> build/app/outputs/flutter-apk/app-release.apk
 flutter analyze              # Lint
 flutter test                 # Run tests
-flutter pub run build_runner build   # Regenerate Riverpod code after provider changes
+flutter emulators --launch Medium_Phone   # Start the Android emulator
 ```
 
-## Architecture
+## Architecture (Flutter + Riverpod + sqflite)
 
-### Backend (Java 17 + Spring Boot 3.5.6 + SQL Server)
+Screen → Provider → Service → SQLite.
 
-Layered: Controller → Service → Repository → Entity. All responses are wrapped in `ApiResponse<T>`.
-
-- `controller/` — REST endpoints (Auth, Room, Booking)
-- `service/` — Business logic (AuthService, EmailService)
-- `security/` — JWT pipeline: `JwtService` generates/validates tokens, `JwtAuthFilter` attaches auth to each request, `SecurityConfig` defines public vs protected routes
-- `entity/` — JPA entities mapped to SQL Server (User, Room, Booking, Hotel, Role, TypeRoom, TypeBooking, PriceConfig, PasswordResetToken)
-- `dto/` — Request/response objects (LoginRequest, LoginResponse, RegisterRequest, ResetPasswordDto, ApiResponse)
-- `repository/` — Spring Data JPA interfaces
-- `exception/GlobalExceptionHandler.java` — Centralized error handling
-
-JWT claims embed: `userId`, `fullName`, `role`, `roleId`. Routes under `/api/auth/**` are public; all others require a valid token.
-
-### Mobile (Flutter + Riverpod + Dio)
-
-- `main.dart` — Entry point; wraps app in `ProviderScope`
-- `config/router.dart` — GoRouter; listens to `authProvider` and redirects on login status and role (`ADMIN` → admin dashboard, `CUSTOMER` → room list)
-- `config/app_config.dart` — Central constants: base API URL, role names, storage keys
-- `services/api_client.dart` — Dio singleton; interceptor auto-attaches `Authorization: Bearer {token}` from FlutterSecureStorage
-- `providers/auth_provider.dart` — `StateNotifierProvider<AuthNotifier, AuthState>`; holds user, isLoading, error, isInitialized flags
-- `screens/` — Organized by role: `auth/`, `customer/room/`, `admin/`, `home/`
-
-State flow: login → `authProvider` updates → GoRouter redirects based on role. The app opens on `/home`; guests may visit `/home`, `/rooms`, `/rooms/:id`, `/saved` — every other route (including `/rooms/:id/booking`) redirects guests to `/login`.
-
-## Key Configuration
-
-**Backend** (`backend/src/main/resources/application.properties`):
-- Server: port `8080`, context path `/api`
-- Database: SQL Server at `localhost:1433`, DB name `GenzCinemaHotel`
-- JWT expiry: 24 hours (`app.jwt.expiration=86400000`)
-- Password reset token expiry: 15 minutes
-
-**Mobile** — API base URL and role constants are in `mobile/lib/config/app_config.dart`. Update the base URL here when switching environments (local vs device vs emulator — emulator uses `10.0.2.2` to reach host localhost). `baseUrl` can also be overridden without editing code: `flutter run -d chrome --dart-define=API_URL=http://localhost:8080/api` (Chrome must run on port 3000 to pass the backend CORS list: `--web-port 3000`).
-
-## API Surface
-
-```
-POST  /api/auth/login              # public
-POST  /api/auth/register           # public
-POST  /api/auth/request-reset      # public
-GET   /api/auth/verify-token       # public
-POST  /api/auth/reset-password     # public
-
-GET   /api/rooms                   # public (guests can browse; see SecurityConfig GET permitAll list)
-GET   /api/rooms/available
-GET   /api/rooms/hotel/{hotelId}
-GET   /api/rooms/{id}
-POST  /api/rooms                   # ADMIN, STAFF
-PUT   /api/rooms/{id}              # ADMIN, STAFF
-DELETE /api/rooms/{id}             # ADMIN, STAFF (Blocked if active booking exists)
-
-GET   /api/bookings                # ADMIN, STAFF
-GET   /api/bookings/user/{userId}
-GET   /api/bookings/{id}
-POST  /api/bookings                # status is always set to PENDING
-PUT   /api/bookings/{id}/status    # ADMIN, STAFF
-PUT   /api/bookings/{id}/cancel    # User cancel booking
-
-GET   /api/admin/users             # ADMIN only (whole AdminController)
-PUT   /api/admin/users/{id}/role?roleId=CUSTOMER|STAFF   # cannot touch ADMIN accounts
-PUT   /api/admin/users/{id}/lock?locked=true|false       # locked users cannot log in; old tokens stop working
-GET   /api/admin/stats?period=day|week|month             # StatsService: 7 days / 8 weeks / 6 months, revenue = COMPLETED bookings by checkIn date
-
-GET   /api/hotels                  # public (also GET /type-rooms, /type-bookings, /price-configs)
-GET   /api/hotels/{id}
-POST  /api/hotels                  # ADMIN, STAFF
-PUT   /api/hotels/{id}             # ADMIN, STAFF
-DELETE /api/hotels/{id}            # ADMIN, STAFF
-
-GET   /api/vouchers                # authenticated
-GET   /api/vouchers/{id}
-GET   /api/vouchers/code/{code}
-POST  /api/vouchers                # ADMIN, STAFF
-PUT   /api/vouchers/{id}             # ADMIN, STAFF
-DELETE /api/vouchers/{id}          # ADMIN, STAFF
-
-GET   /api/price-configs           # authenticated
-GET   /api/price-configs/{id}
-POST  /api/price-configs           # ADMIN, STAFF
-PUT   /api/price-configs/{id}      # ADMIN, STAFF
-DELETE /api/price-configs/{id}     # ADMIN, STAFF
-
-GET   /api/type-rooms              # authenticated
-GET   /api/type-bookings           # authenticated
-```
+- `assets/database.sql` — the ONLY place tables and sample data are defined (merged from the old `SQLQuery1.sql` + `sprint_foundation.sql`, SQLite syntax). Test accounts and their shared password are listed in its header.
+- `lib/database/database_helper.dart` — opens `genz_cinema_hotel.db`; on first launch runs `assets/database.sql` statement by statement (split on `;`, `--` comment lines skipped — never put `;` inside data or comments). Also `hashPassword()` (SHA-256).
+- `lib/services/` — one service per feature (auth, room, hotel, booking, price_config, voucher, review, admin). They run SQL with sqflite and return the models in `lib/models/`. Errors are thrown as Vietnamese `String`s; `BookingService.errorMessage` / `AdminService.errorMessage` read them. Business rules (price from PriceConfig, overlap check, voucher check, cancel rules, admin stats) live here.
+- `lib/providers/` — Riverpod providers wrapping the services.
+- `lib/config/router.dart` — GoRouter; redirects by login status and role (`ADMIN` → `/admin`, `STAFF` → `/staff`, else `/home`). Guests may visit `/home`, `/rooms`, `/rooms/:id`, `/saved`; everything else (including `/rooms/:id/booking`) redirects to `/login`.
+- `lib/config/app_config.dart` — role names, booking/room status constants, storage keys.
+- Logged-in user is saved in FlutterSecureStorage (`AppConfig.userKey`); `AuthService.getCurrentUser()` re-checks the DB (locked/deleted users are logged out, role refreshed).
 
 ## Development Notes
 
-- Error messages and email templates are in Vietnamese (UTF-8)
-- `spring.jpa.hibernate.ddl-auto=none` — Hibernate does not change the schema. Run `SQLQuery1.sql`, then `sprint_foundation.sql` (repo root) once (tables Voucher/Review/Notification, `User.IsLocked`, test accounts, sample data).
-- The team is new to Spring/Java: keep code simple (plain entities, derived repository methods, `FetchType.EAGER`, no custom JPQL or advanced annotations).
-- Booking statuses: `constant/BookingStatus` / `AppConfig.booking*` — `PENDING, CONFIRMED, REJECTED, CHECKED_IN, COMPLETED, CANCELLED`. Room statuses: `constant/RoomStatus` / `AppConfig.room*` — `Trống, Đang dùng, Đang dọn`.
-- `@EnableMethodSecurity` is on, so `@PreAuthorize("hasRole(...)")` works (`ROLE_` + RoleId). SecurityConfig paths are relative to the `/api` context path: `/auth/**`, not `/api/auth/**`.
-- After modifying any Riverpod `@riverpod`-annotated provider, run `build_runner build` to regenerate `.g.dart` files
+- Changing `assets/database.sql` only takes effect on a fresh install (uninstall the app first) because it runs in `onCreate`.
+- Dates are stored as ISO text (`2026-11-05T19:00:00`); compare them in Dart with `DateTime.parse`. Sample bookings use `strftime(..., 'now', 'localtime', ...)` so they are always relative to the install date.
+- Forgot password works offline: `requestPasswordReset` returns the reset token and the screen opens `/reset-password?token=...` directly (no email).
+- Each phone has its own data; uninstalling the app deletes it.
+- The team is new to coding: keep code simple (plain SQL, `db.query` / `db.rawQuery`, small helper functions, Vietnamese comments).
+- Booking statuses (`AppConfig.booking*`): `PENDING, CONFIRMED, REJECTED, CHECKED_IN, COMPLETED, CANCELLED`. Room statuses (`AppConfig.room*`): `Trống, Đang dùng, Đang dọn`.
+- After modifying any Riverpod `@riverpod`-annotated provider, run `flutter pub run build_runner build`.
