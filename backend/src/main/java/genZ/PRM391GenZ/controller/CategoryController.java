@@ -7,7 +7,7 @@ import genZ.PRM391GenZ.repository.TypeBookingRepository;
 import genZ.PRM391GenZ.repository.TypeRoomRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-security.access.prepost.PreAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -53,5 +53,6 @@ public class CategoryController {
             typeRoom.setTypeRoomId("TR_" + (System.currentTimeMillis() % 100000));
         }
         TypeRoom saved = typeRoomRepository.save(typeRoom);
-        return ResponseEntity.ok(ApiResponse.success("Tạo loại phòng mới thành công", saved)    }
+        return ResponseEntity.ok(ApiResponse.success("Tạo loại phòng mới thành công", saved));
+    }
 }
