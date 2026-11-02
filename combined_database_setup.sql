@@ -221,6 +221,7 @@ INSERT INTO Room (RoomId, nameRoom, TypeRoomId, Status, HotelId, imageUrl) VALUE
 ('HN009_K01', N'King 01',  'KING',  N'Trống', 'HN009', NULL),
 ('HN009_K02', N'King 02',  'KING',  N'Trống', 'HN009', NULL);
 
+-- Password: Genz@123
 INSERT INTO [User] (UserId, full_name, phone, email, password, RoleId, IsLocked) VALUES
 ('SEED_ADMIN',    N'Admin Test', '0900000001', 'admin@genz.test',    '$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'ADMIN',    0),
 ('SEED_STAFF',    N'Staff Test', '0900000002', 'staff@genz.test',    '$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'STAFF',    0),
