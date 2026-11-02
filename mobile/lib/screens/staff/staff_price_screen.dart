@@ -423,8 +423,7 @@ class _StaffPriceScreenState extends ConsumerState<StaffPriceScreen> {
             },
             child: const Text('Xóa', style: TextStyle(color: Colors.white)),
           ),
-        ],
-      ),
+        ]      ),
     );
   }
 }

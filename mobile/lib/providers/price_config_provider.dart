@@ -87,24 +87,6 @@ class PriceConfigListNotifier extends StateNotifier<PriceConfigListState> {
   Future<bool> deletePriceConfig(int id) async {
     try {
       await _service.deletePriceConfig(id);
-      await loadData();
-      return true;
-    } catch (e) {
-      state = state.copyWith(error: e.toString());
-      return false;
-    }
-  }
-
-  Future<bool> createTypeBooking(TypeBookingModel combo) async {
-    try {
-      await _service.createTypeBooking(combo);
-      await loadData();
-      return true;
-    } catch (e) {
-      state = state.copyWith(error: e.toString());
-      return false;
-    }
-  }
 }
 
 final priceConfigListProvider =
