@@ -1,8 +1,11 @@
 package genZ.PRM391GenZ.controller;
 
+import genZ.PRM391GenZ.constant.BookingStatus;
 import genZ.PRM391GenZ.constant.RoomStatus;
 import genZ.PRM391GenZ.dto.ApiResponse;
+import genZ.PRM391GenZ.entity.Booking;
 import genZ.PRM391GenZ.entity.Room;
+import genZ.PRM391GenZ.repository.BookingRepository;
 import genZ.PRM391GenZ.repository.RoomRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +20,7 @@ import java.util.List;
 public class RoomController {
 
     private final RoomRepository roomRepository;
+    private final BookingRepository bookingRepository;
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<Room>>> getAllRooms() {
@@ -69,6 +73,21 @@ public class RoomController {
         if (!roomRepository.existsById(id)) {
             return ResponseEntity.notFound().build();
         }
+
+        // TV5: Chặn xóa phòng còn booking đang hoạt động (PENDING, CONFIRMED, CHECKED_IN)
+        List<Booking> bookings = bookingRepository.findByRoom_RoomId(id);
+        boolean hasActiveBooking = bookings.stream().anyMatch(b ->
+                BookingStatus.PENDING.equalsIgnoreCase(b.getStatus()) ||
+                BookingStatus.CONFIRMED.equalsIgnoreCase(b.getStatus()) ||
+                BookingStatus.CHECKED_IN.equalsIgnoreCase(b.getStatus())
+        );
+
+        if (hasActiveBooking) {
+            return ResponseEntity.badRequest().body(
+                    ApiResponse.error("Không thể xóa phòng đang có booking hoạt động")
+            );
+        }
+
         roomRepository.deleteById(id);
         return ResponseEntity.ok(ApiResponse.success("Xóa phòng thành công"));
     }

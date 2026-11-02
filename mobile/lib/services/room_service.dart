@@ -27,4 +27,29 @@ class RoomService {
         .map((e) => RoomModel.fromJson(e as Map<String, dynamic>))
         .toList();
   }
+
+  Future<RoomModel> createRoom(RoomModel room) async {
+    final response = await _dio.post('/rooms', data: room.toJson());
+    return RoomModel.fromJson(response.data['data'] as Map<String, dynamic>);
+  }
+
+  Future<RoomModel> updateRoom(String id, RoomModel room) async {
+    final response = await _dio.put('/rooms/$id', data: room.toJson());
+    return RoomModel.fromJson(response.data['data'] as Map<String, dynamic>);
+  }
+
+  Future<void> deleteRoom(String id) async {
+    final response = await _dio.delete('/rooms/$id');
+    if (response.data['success'] == false) {
+      throw Exception(response.data['message'] ?? 'Xóa phòng thất bại');
+    }
+  }
+
+  Future<List<TypeRoomModel>> getTypeRooms() async {
+    final response = await _dio.get('/type-rooms');
+    final data = response.data['data'] as List<dynamic>;
+    return data
+        .map((e) => TypeRoomModel.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
 }

@@ -16,6 +16,12 @@ class TypeRoomModel {
         typeRoom: json['typeRoom'] as String? ?? '',
         pricePerHour: (json['pricePerHour'] as num?)?.toDouble(),
       );
+
+  Map<String, dynamic> toJson() => {
+        'typeRoomId': typeRoomId,
+        'typeRoom': typeRoom,
+        if (pricePerHour != null) 'pricePerHour': pricePerHour,
+      };
 }
 
 class HotelModel {
@@ -24,6 +30,7 @@ class HotelModel {
   final String address;
   final String? phone;
   final String? imageUrl;
+  final int? countRoom;
 
   const HotelModel({
     required this.hotelId,
@@ -31,6 +38,7 @@ class HotelModel {
     required this.address,
     this.phone,
     this.imageUrl,
+    this.countRoom,
   });
 
   factory HotelModel.fromJson(Map<String, dynamic> json) => HotelModel(
@@ -39,7 +47,17 @@ class HotelModel {
         address: json['address'] as String? ?? '',
         phone: json['phone'] as String?,
         imageUrl: json['imageUrl'] as String?,
+        countRoom: json['countRoom'] as int?,
       );
+
+  Map<String, dynamic> toJson() => {
+        'hotelId': hotelId,
+        'name': name,
+        'address': address,
+        if (phone != null) 'phone': phone,
+        if (imageUrl != null) 'imageUrl': imageUrl,
+        if (countRoom != null) 'countRoom': countRoom,
+      };
 }
 
 class RoomModel {
@@ -71,4 +89,13 @@ class RoomModel {
             : null,
         imageUrl: json['imageUrl'] as String?,
       );
+
+  Map<String, dynamic> toJson() => {
+        'roomId': roomId,
+        'nameRoom': nameRoom,
+        if (typeRoom != null) 'typeRoom': typeRoom!.toJson(),
+        if (status != null) 'status': status,
+        if (hotel != null) 'hotel': hotel!.toJson(),
+        if (imageUrl != null) 'imageUrl': imageUrl,
+      };
 }
