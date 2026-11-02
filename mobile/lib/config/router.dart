@@ -50,7 +50,7 @@ final routerProvider = Provider<GoRouter>((ref) {
   final notifier = _AuthNotifierListenable(ref);
 
   final router = GoRouter(
-    initialLocation: '/login',
+    initialLocation: '/home', // mở app vào thẳng trang chủ, chưa đăng nhập vẫn xem được phòng
     refreshListenable:
         notifier, // GoRouter tự gọi lại redirect khi auth thay đổi
     redirect: (context, state) {
@@ -68,8 +68,22 @@ final routerProvider = Provider<GoRouter>((ref) {
           state.matchedLocation.startsWith('/request-reset') ||
           state.matchedLocation.startsWith('/reset-password');
 
-      if (!isLoggedIn && !isAuthRoute) return '/login';
+      // Trang khách chưa đăng nhập vẫn xem được: trang chủ, danh sách phòng,
+      // chi tiết phòng, phòng đã lưu. Đặt phòng (/rooms/:id/booking) vẫn phải đăng nhập.
+      final loc = state.matchedLocation;
+      final isPublicRoute = loc == '/home' ||
+          loc == '/saved' ||
+          loc == '/rooms' ||
+          (loc.startsWith('/rooms/') && !loc.endsWith('/booking'));
+
+      if (!isLoggedIn && !isAuthRoute && !isPublicRoute) return '/login';
       if (isLoggedIn && isAuthRoute) return _homeForRole(authState.user?.roleId);
+
+      // Admin / Staff đã đăng nhập mà mở trang chủ khách thì chuyển về trang của mình
+      if (isLoggedIn && loc == '/home') {
+        final home = _homeForRole(authState.user?.roleId);
+        if (home != '/home') return home;
+      }
 
       return null;
     },

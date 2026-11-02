@@ -38,6 +38,11 @@ public class SecurityConfig {
                         .requestMatchers("/auth/**").permitAll()
                         // Cho phép /error để lỗi thật (400/404/500) không bị biến thành 403
                         .requestMatchers("/error").permitAll()
+                        // Khách chưa đăng nhập vẫn XEM được phòng, khách sạn, loại phòng, bảng giá (chỉ GET).
+                        // Thêm / sửa / xoá vẫn cần đăng nhập và đúng role (@PreAuthorize trong controller).
+                        .requestMatchers(HttpMethod.GET,
+                                "/rooms/**", "/hotels/**", "/type-rooms", "/type-bookings", "/price-configs/**"
+                        ).permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session ->
