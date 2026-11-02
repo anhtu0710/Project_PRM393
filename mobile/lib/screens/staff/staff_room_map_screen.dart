@@ -683,8 +683,7 @@ class _StaffRoomMapScreenState extends ConsumerState<StaffRoomMapScreen>
             },
             child: const Text('Xóa', style: TextStyle(color: Colors.white)),
           ),
-        ],
-      ),
+        ]      ),
     );
   }
 }
