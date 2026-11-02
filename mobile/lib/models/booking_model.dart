@@ -37,11 +37,20 @@ class VoucherModel {
     this.minOrderAmount = 0,
   });
 
-  /// Tính số tiền giảm thực tế dựa trên tổng đơn
+  /// Đọc từ bảng Voucher (backend). label lấy từ Description.
+  factory VoucherModel.fromJson(Map<String, dynamic> json) => VoucherModel(
+        code: json['code'] as String? ?? '',
+        label: json['description'] as String? ?? '',
+        discountPercent: (json['discountPercent'] as num?)?.toDouble() ?? 0,
+        discountAmount: (json['discountAmount'] as num?)?.toDouble(),
+        minOrderAmount: (json['minOrderAmount'] as num?)?.toDouble() ?? 0,
+      );
+
+  /// Tính số tiền giảm thực tế dựa trên tổng đơn (giống backend)
   double calculateDiscount(double total) {
     if (total < minOrderAmount) return 0;
-    if (discountAmount != null) return discountAmount!;
-    return total * discountPercent / 100;
+    final discount = discountAmount ?? (total * discountPercent / 100).floorToDouble();
+    return discount > total ? total : discount;
   }
 }
 
@@ -58,6 +67,13 @@ class BookingModel {
   final double? discountAmount;
   final String? note;
 
+  // Thông tin hiển thị (chỉ có khi đọc từ server)
+  final String? roomName;
+  final String? roomImageUrl;
+  final String? hotelName;
+  final String? hotelAddress;
+  final String? typeBookingName;
+
   const BookingModel({
     this.bookingId,
     required this.roomId,
@@ -70,28 +86,42 @@ class BookingModel {
     this.voucherCode,
     this.discountAmount,
     this.note,
+    this.roomName,
+    this.roomImageUrl,
+    this.hotelName,
+    this.hotelAddress,
+    this.typeBookingName,
   });
 
-  factory BookingModel.fromJson(Map<String, dynamic> json) => BookingModel(
-        bookingId: json['bookingId'] as int?,
-        roomId: (json['room'] as Map<String, dynamic>?)?['roomId'] as String? ??
-            json['roomId'] as String? ?? '',
-        userId: (json['user'] as Map<String, dynamic>?)?['userId'] as String? ??
-            json['userId'] as String? ?? '',
-        typeBookingId:
-            (json['typeBooking'] as Map<String, dynamic>?)?['typeBookingId']
-                    as String? ??
-                json['typeBookingId'] as String? ?? '',
-        checkIn: DateTime.parse(json['checkIn'] as String),
-        checkOut: json['checkOut'] != null
-            ? DateTime.parse(json['checkOut'] as String)
-            : null,
-        totalPrice: (json['totalPrice'] as num?)?.toDouble(),
-        status: json['status'] as String?,
-        voucherCode: json['voucherCode'] as String?,
-        discountAmount: (json['discountAmount'] as num?)?.toDouble(),
-        note: json['note'] as String?,
-      );
+  factory BookingModel.fromJson(Map<String, dynamic> json) {
+    final room = json['room'] as Map<String, dynamic>?;
+    final hotel = room?['hotel'] as Map<String, dynamic>?;
+    final user = json['user'] as Map<String, dynamic>?;
+    final typeBooking = json['typeBooking'] as Map<String, dynamic>?;
+
+    return BookingModel(
+      bookingId: json['bookingId'] as int?,
+      roomId: room?['roomId'] as String? ?? json['roomId'] as String? ?? '',
+      userId: user?['userId'] as String? ?? json['userId'] as String? ?? '',
+      typeBookingId: typeBooking?['typeBookingId'] as String? ??
+          json['typeBookingId'] as String? ??
+          '',
+      checkIn: DateTime.parse(json['checkIn'] as String),
+      checkOut: json['checkOut'] != null
+          ? DateTime.parse(json['checkOut'] as String)
+          : null,
+      totalPrice: (json['totalPrice'] as num?)?.toDouble(),
+      status: json['status'] as String?,
+      voucherCode: json['voucherCode'] as String?,
+      discountAmount: (json['discountAmount'] as num?)?.toDouble(),
+      note: json['note'] as String?,
+      roomName: room?['nameRoom'] as String?,
+      roomImageUrl: room?['imageUrl'] as String?,
+      hotelName: hotel?['name'] as String?,
+      hotelAddress: hotel?['address'] as String?,
+      typeBookingName: typeBooking?['typeName'] as String?,
+    );
+  }
 
   Map<String, dynamic> toJson() => {
         'room': {'roomId': roomId},

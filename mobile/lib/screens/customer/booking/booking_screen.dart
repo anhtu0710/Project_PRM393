@@ -135,6 +135,14 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
       builder: (_) => _VoucherSheet(
         appliedVoucher: state.appliedVoucher,
         roomTotal: state.roomTotal,
+        vouchers: state.vouchers,
+        onSubmitCode: (code) async {
+          final error = await ref
+              .read(bookingProvider.notifier)
+              .applyVoucherCode(code);
+          if (error == null && context.mounted) Navigator.of(context).pop();
+          return error;
+        },
         onApply: (voucher) {
           ref.read(bookingProvider.notifier).applyVoucher(voucher);
           Navigator.of(context).pop();
@@ -984,12 +992,17 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
 class _VoucherSheet extends StatefulWidget {
   final VoucherModel? appliedVoucher;
   final double roomTotal;
+  final List<VoucherModel> vouchers; // voucher còn hạn từ server
+  // Kiểm tra mã nhập tay qua server; trả về câu lỗi hoặc null nếu OK
+  final Future<String?> Function(String code) onSubmitCode;
   final void Function(VoucherModel) onApply;
   final VoidCallback onRemove;
 
   const _VoucherSheet({
     required this.appliedVoucher,
     required this.roomTotal,
+    required this.vouchers,
+    required this.onSubmitCode,
     required this.onApply,
     required this.onRemove,
   });
@@ -1001,23 +1014,27 @@ class _VoucherSheet extends StatefulWidget {
 class _VoucherSheetState extends State<_VoucherSheet> {
   final _ctrl = TextEditingController();
   String? _errorMsg;
+  bool _checking = false;
 
-  void _tryManualCode() {
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  // Hỏi server: mã có tồn tại, còn hạn, đủ đơn tối thiểu không (VD: HETHAN báo lỗi)
+  Future<void> _tryManualCode() async {
     final code = _ctrl.text.trim().toUpperCase();
-    final found = availableVouchers.firstWhere(
-      (v) => v.code == code,
-      orElse: () => const VoucherModel(code: '', label: ''),
-    );
-    if (found.code.isEmpty) {
-      setState(() => _errorMsg = 'Mã voucher không hợp lệ');
-      return;
-    }
-    if (widget.roomTotal < found.minOrderAmount) {
-      setState(() => _errorMsg =
-          'Tổng đơn phải đạt tối thiểu ${(found.minOrderAmount / 1000).toInt()}k');
-      return;
-    }
-    widget.onApply(found);
+    setState(() {
+      _checking = true;
+      _errorMsg = null;
+    });
+    final error = await widget.onSubmitCode(code);
+    if (!mounted) return;
+    setState(() {
+      _checking = false;
+      _errorMsg = error;
+    });
   }
 
   @override
@@ -1088,7 +1105,7 @@ class _VoucherSheetState extends State<_VoucherSheet> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: ElevatedButton(
-                    onPressed: _tryManualCode,
+                    onPressed: _checking ? null : _tryManualCode,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.transparent,
                       shadowColor: Colors.transparent,
@@ -1114,7 +1131,13 @@ class _VoucherSheetState extends State<_VoucherSheet> {
             ),
             const SizedBox(height: 10),
             // Danh sách voucher
-            ...availableVouchers.map((v) {
+            if (widget.vouchers.isEmpty)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 12),
+                child: Text('Hiện chưa có voucher nào',
+                    style: TextStyle(fontSize: 13, color: AppTheme.textGray)),
+              ),
+            ...widget.vouchers.map((v) {
               final isApplied = widget.appliedVoucher?.code == v.code;
               final canApply = widget.roomTotal >= v.minOrderAmount;
               return GestureDetector(
