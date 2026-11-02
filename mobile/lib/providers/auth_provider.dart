@@ -96,6 +96,16 @@ class AuthNotifier extends StateNotifier<AuthState> {
     state = const AuthState(isInitialized: true);
   }
 
+  void updateProfile({String? fullName, String? email}) {
+    if (state.user != null) {
+      final updatedUser = state.user!.copyWith(
+        fullName: fullName ?? state.user!.fullName,
+        email: email ?? state.user!.email,
+      );
+      state = state.copyWith(user: updatedUser);
+    }
+  }
+
   void clearError() => state = state.copyWith(clearError: true);
 }
 

@@ -26,6 +26,7 @@ import '../screens/staff/staff_room_map_screen.dart';
 import '../screens/staff/staff_price_screen.dart';
 import '../screens/staff/staff_voucher_screen.dart';
 import '../screens/staff/staff_hotel_screen.dart';
+import '../screens/staff/staff_profile_screen.dart';
 import '../providers/room_provider.dart';
 import '../models/room_model.dart';
 import '../models/review_eligible_booking_model.dart';
@@ -156,6 +157,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/staff/hotels',
         builder: (_, __) => const StaffHotelScreen(), // TV5
+      ),
+      GoRoute(
+        path: '/staff/profile',
+        builder: (_, __) => const StaffProfileScreen(),
       ),
 
       // ── Lịch sử, đánh giá, thông báo của khách ────────────────────────
