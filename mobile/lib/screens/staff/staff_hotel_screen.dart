@@ -95,39 +95,80 @@ class _StaffHotelScreenState extends ConsumerState<StaffHotelScreen> {
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(isEdit ? 'Sửa chi nhánh' : 'Thêm chi nhánh'),
+      builder: (dialogCtx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: [
+            Icon(
+              isEdit ? Icons.edit_location : Icons.add_location_alt,
+              color: const Color(0xFF9462FF),
+            ),
+            const SizedBox(width: 10),
+            Text(
+              isEdit ? 'Sửa chi nhánh' : 'Thêm chi nhánh mới',
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+            ),
+          ],
+        ),
         content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (!isEdit)
+          child: Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (!isEdit) ...[
+                  TextField(
+                    controller: idController,
+                    decoration: InputDecoration(
+                      labelText: 'Mã chi nhánh (VD: HN010)',
+                      prefixIcon: const Icon(Icons.qr_code, size: 20),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
                 TextField(
-                  controller: idController,
-                  decoration: const InputDecoration(labelText: 'Mã chi nhánh (VD: HN010)'),
+                  controller: nameController,
+                  decoration: InputDecoration(
+                    labelText: 'Tên chi nhánh',
+                    prefixIcon: const Icon(Icons.store, size: 20),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
                 ),
-              TextField(
-                controller: nameController,
-                decoration: const InputDecoration(labelText: 'Tên chi nhánh'),
-              ),
-              TextField(
-                controller: addressController,
-                decoration: const InputDecoration(labelText: 'Địa chỉ'),
-              ),
-              TextField(
-                controller: phoneController,
-                decoration: const InputDecoration(labelText: 'Số điện thoại'),
-                keyboardType: TextInputType.phone,
-              ),
-            ],
+                const SizedBox(height: 16),
+                TextField(
+                  controller: addressController,
+                  decoration: InputDecoration(
+                    labelText: 'Địa chỉ',
+                    prefixIcon: const Icon(Icons.location_on, size: 20),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: phoneController,
+                  decoration: InputDecoration(
+                    labelText: 'Số điện thoại',
+                    prefixIcon: const Icon(Icons.phone, size: 20),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  keyboardType: TextInputType.phone,
+                ),
+              ],
+            ),
           ),
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Hủy'),
+            onPressed: () => Navigator.pop(dialogCtx),
+            child: const Text('Hủy', style: TextStyle(color: Colors.grey)),
           ),
           ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF9462FF),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            ),
             onPressed: () async {
               final newHotel = HotelModel(
                 hotelId: isEdit ? hotel.hotelId : idController.text.trim(),
@@ -142,7 +183,7 @@ class _StaffHotelScreenState extends ConsumerState<StaffHotelScreen> {
                   : await notifier.createHotel(newHotel);
 
               if (mounted) {
-                Navigator.pop(context);
+                Navigator.pop(dialogCtx);
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(success
@@ -152,7 +193,7 @@ class _StaffHotelScreenState extends ConsumerState<StaffHotelScreen> {
                 );
               }
             },
-            child: Text(isEdit ? 'Lưu' : 'Thêm'),
+            child: Text(isEdit ? 'Lưu' : 'Thêm', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -162,24 +203,38 @@ class _StaffHotelScreenState extends ConsumerState<StaffHotelScreen> {
   void _confirmDelete(String id) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogCtx) => AlertDialog(
         title: const Text('Xác nhận xóa'),
         content: Text('Bạn có chắc chắn muốn xóa chi nhánh $id không?'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogCtx),
             child: const Text('Hủy'),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             onPressed: () async {
-              final success = await ref.read(hotelListProvider.notifier).deleteHotel(id);
-              if (mounted) {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(success ? 'Đã xóa chi nhánh' : 'Xóa thất bại'),
+              final errorMsg = await ref.read(hotelListProvider.notifier).deleteHotel(id);
+              if (!mounted) return;
+              Navigator.pop(dialogCtx);
+              if (errorMsg != null) {
+                // Hiển thị dialog báo lỗi lý do không thể xóa chi nhánh
+                showDialog(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    title: const Text('Không thể xóa', style: TextStyle(color: Colors.red)),
+                    content: Text(errorMsg),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(ctx),
+                        child: const Text('Đã hiểu'),
+                      ),
+                    ],
                   ),
+                );
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Đã xóa chi nhánh thành công')),
                 );
               }
             },

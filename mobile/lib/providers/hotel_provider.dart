@@ -68,14 +68,20 @@ class HotelListNotifier extends StateNotifier<HotelListState> {
     }
   }
 
-  Future<bool> deleteHotel(String id) async {
+  Future<String?> deleteHotel(String id) async {
     try {
       await _service.deleteHotel(id);
       await loadHotels();
-      return true;
+      return null; // Success, no error
     } catch (e) {
-      state = state.copyWith(error: e.toString());
-      return false;
+      String msg = 'Xóa chi nhánh thất bại';
+      if (e.toString().contains('400') || e.toString().contains('phòng')) {
+        msg = 'Không thể xóa chi nhánh đang có phòng thuộc cơ sở này';
+      } else {
+        msg = e.toString().replaceAll('Exception: ', '');
+      }
+      state = state.copyWith(error: msg);
+      return msg; // Return error message to UI
     }
   }
 }
