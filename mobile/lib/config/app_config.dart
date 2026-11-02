@@ -1,17 +1,11 @@
 // lib/config/app_config.dart
 
 class AppConfig {
-  // ── API ─────────────────────────────────────────────────────────────
-  // For Android emulator: use 10.0.2.2 instead of localhost
-  // For physical device: use your machine's local IP e.g. 192.168.1.x
-  // Chạy trên Chrome / máy thật mà không sửa code:
-  //   flutter run --dart-define=API_URL=http://localhost:8080/api
-  static const String baseUrl = String.fromEnvironment(
-    'API_URL',
-    defaultValue: 'http://10.0.2.2:8080/api',
-  );
+  // ── Database ────────────────────────────────────────────────────
+  // Bản này KHÔNG dùng server: dữ liệu nằm trong SQLite ngay trên điện thoại
+  // (xem lib/database/database_helper.dart và seed_data.dart).
 
-  // ── JWT ──────────────────────────────────────────────────────────────
+  // ── Lưu người đang đăng nhập ──────────────────────────────────────────────────────────────
   static const String tokenKey    = 'jwt_token';
   static const String userKey     = 'current_user';
 

@@ -65,7 +65,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const SizedBox(height: 32),
+              // ── Nút quay lại (VD: khách bấm Đặt phòng khi chưa đăng nhập) ──
+              Align(
+                alignment: Alignment.centerLeft,
+                child: IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  onPressed: () {
+                    if (context.canPop()) {
+                      context.pop();
+                    } else {
+                      context.go('/home');
+                    }
+                  },
+                ),
+              ),
               // ── Logo / Header ──────────────────────────────────────────
               Container(
                 padding: const EdgeInsets.all(20),

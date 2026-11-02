@@ -6,6 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 GenzCinema Hotel — a cinema hotel booking system with a Spring Boot REST API backend and Flutter mobile client.
 
+> **Branch `sqlite`:** the Flutter app does NOT call the Spring Boot API. All data lives in a local SQLite database on the phone (`mobile/lib/database/database_helper.dart` creates the tables, `seed_data.dart` inserts the sample data on first launch). The services in `mobile/lib/services/` keep the same method names but read/write SQLite and throw Vietnamese error messages as plain `String`s. sqflite does not run on Chrome — test on an Android emulator/device. The `backend/` folder is unused on this branch.
+
 ## Commands
 
 ### Backend (Spring Boot — `backend/`)

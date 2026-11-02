@@ -25,7 +25,11 @@ class _RequestResetScreenState extends ConsumerState<RequestResetScreen> {
 
   Future<void> _onSubmit() async {
     if (!_formKey.currentState!.validate()) return;
-    await ref.read(resetProvider.notifier).requestReset(_emailCtrl.text.trim());
+    final token =
+        await ref.read(resetProvider.notifier).requestReset(_emailCtrl.text.trim());
+    if (token != null && mounted) {
+      context.push('/reset-password?token=$token');
+    }
   }
 
   @override
@@ -57,7 +61,7 @@ class _RequestResetScreenState extends ConsumerState<RequestResetScreen> {
             ),
             const SizedBox(height: 8),
             const Text(
-              'Nhập email của bạn và chúng tôi sẽ gửi link đặt lại mật khẩu.',
+              'Nhập email tài khoản của bạn để đặt mật khẩu mới.',
               textAlign: TextAlign.center,
               style: TextStyle(color: AppTheme.textGray, fontSize: 14),
             ),
@@ -130,7 +134,7 @@ class _RequestResetScreenState extends ConsumerState<RequestResetScreen> {
                         ? const Center(child: CircularProgressIndicator())
                         : ElevatedButton(
                       onPressed: _onSubmit,
-                      child: const Text('Gửi link đặt lại'),
+                      child: const Text('Tiếp tục'),
                     ),
                   ),
                   const SizedBox(height: 16),
