@@ -88,7 +88,7 @@ class _StaffRoomManageScreenState extends ConsumerState<StaffRoomManageScreen> {
                               child: ListTile(
                                 contentPadding: const EdgeInsets.all(12),
                                 leading: CircleAvatar(
-                                  backgroundColor: statusColor.withOpacity(0.2),
+                                  backgroundColor: statusColor.withValues(alpha: 0.2),
                                   child: Icon(Icons.meeting_room, color: statusColor),
                                 ),
                                 title: Text(
@@ -105,7 +105,7 @@ class _StaffRoomManageScreenState extends ConsumerState<StaffRoomManageScreen> {
                                       margin: const EdgeInsets.only(top: 4),
                                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                                       decoration: BoxDecoration(
-                                        color: statusColor.withOpacity(0.1),
+                                        color: statusColor.withValues(alpha: 0.1),
                                         borderRadius: BorderRadius.circular(6),
                                         border: Border.all(color: statusColor),
                                       ),
@@ -149,6 +149,13 @@ class _StaffRoomManageScreenState extends ConsumerState<StaffRoomManageScreen> {
     return Colors.green;
   }
 
+  Widget _buildFieldLabel(String label) {
+    return Text(
+      label,
+      style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Color(0xFF4B5563)),
+    );
+  }
+
   void _showRoomDialog(List<HotelModel> hotels, List<TypeRoomModel> typeRooms, {RoomModel? room}) {
     final isEdit = room != null;
     final idController = TextEditingController(text: room?.roomId ?? '');
@@ -166,60 +173,125 @@ class _StaffRoomManageScreenState extends ConsumerState<StaffRoomManageScreen> {
 
     showDialog(
       context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setModalState) {
+      builder: (dialogCtx) => StatefulBuilder(
+        builder: (dialogCtx, setModalState) {
           return AlertDialog(
-            title: Text(isEdit ? 'Sửa phòng ${room.roomId}' : 'Thêm phòng mới'),
-            content: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (!isEdit)
-                    TextField(
-                      controller: idController,
-                      decoration: const InputDecoration(labelText: 'Mã phòng (VD: HN001_Q03)'),
-                    ),
-                  TextField(
-                    controller: nameController,
-                    decoration: const InputDecoration(labelText: 'Tên phòng (VD: Queen 03)'),
-                  ),
-                  if (hotels.isNotEmpty)
-                    DropdownButtonFormField<HotelModel>(
-                      value: selectedHotel,
-                      decoration: const InputDecoration(labelText: 'Chi nhánh'),
-                      items: hotels
-                          .map((h) => DropdownMenuItem(value: h, child: Text(h.name)))
-                          .toList(),
-                      onChanged: (val) => setModalState(() => selectedHotel = val),
-                    ),
-                  if (typeRooms.isNotEmpty)
-                    DropdownButtonFormField<TypeRoomModel>(
-                      value: selectedType,
-                      decoration: const InputDecoration(labelText: 'Loại phòng'),
-                      items: typeRooms
-                          .map((t) => DropdownMenuItem(value: t, child: Text(t.typeRoom)))
-                          .toList(),
-                      onChanged: (val) => setModalState(() => selectedType = val),
-                    ),
-                  DropdownButtonFormField<String>(
-                    value: selectedStatus,
-                    decoration: const InputDecoration(labelText: 'Trạng thái'),
-                    items: const [
-                      DropdownMenuItem(value: 'Trống', child: Text('Trống')),
-                      DropdownMenuItem(value: 'Đang dùng', child: Text('Đang dùng')),
-                      DropdownMenuItem(value: 'Đang dọn', child: Text('Đang dọn')),
+            insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            title: Row(
+              children: [
+                Icon(
+                  isEdit ? Icons.edit_sharp : Icons.add_business_rounded,
+                  color: const Color(0xFF9462FF),
+                ),
+                const SizedBox(width: 10),
+                Text(
+                  isEdit ? 'Sửa phòng ${room.roomId}' : 'Thêm phòng mới',
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                ),
+              ],
+            ),
+            content: SizedBox(
+              width: MediaQuery.of(context).size.width * 0.9,
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (!isEdit) ...[
+                        _buildFieldLabel('Mã phòng'),
+                        const SizedBox(height: 4),
+                        TextField(
+                          controller: idController,
+                          decoration: InputDecoration(
+                            hintText: 'VD: HN001_Q03',
+                            prefixIcon: const Icon(Icons.qr_code, size: 20),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                      ],
+                      _buildFieldLabel('Tên phòng'),
+                      const SizedBox(height: 4),
+                      TextField(
+                        controller: nameController,
+                        decoration: InputDecoration(
+                          hintText: 'VD: Queen 03',
+                          prefixIcon: const Icon(Icons.meeting_room, size: 20),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      if (hotels.isNotEmpty) ...[
+                        _buildFieldLabel('Chi nhánh'),
+                        const SizedBox(height: 4),
+                        DropdownButtonFormField<HotelModel>(
+                          initialValue: selectedHotel,
+                          decoration: InputDecoration(
+                            prefixIcon: const Icon(Icons.storefront, size: 20),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                          ),
+                          items: hotels
+                              .map((h) => DropdownMenuItem(value: h, child: Text(h.name, overflow: TextOverflow.ellipsis)))
+                              .toList(),
+                          onChanged: (val) => setModalState(() => selectedHotel = val),
+                        ),
+                        const SizedBox(height: 12),
+                      ],
+                      if (typeRooms.isNotEmpty) ...[
+                        _buildFieldLabel('Loại phòng'),
+                        const SizedBox(height: 4),
+                        DropdownButtonFormField<TypeRoomModel>(
+                          initialValue: selectedType,
+                          decoration: InputDecoration(
+                            prefixIcon: const Icon(Icons.category, size: 20),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                          ),
+                          items: typeRooms
+                              .map((t) => DropdownMenuItem(value: t, child: Text(t.typeRoom)))
+                              .toList(),
+                          onChanged: (val) => setModalState(() => selectedType = val),
+                        ),
+                        const SizedBox(height: 12),
+                      ],
+                      _buildFieldLabel('Trạng thái'),
+                      const SizedBox(height: 4),
+                      DropdownButtonFormField<String>(
+                        initialValue: selectedStatus,
+                        decoration: InputDecoration(
+                          prefixIcon: const Icon(Icons.info_outline, size: 20),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                        ),
+                        items: const [
+                          DropdownMenuItem(value: 'Trống', child: Text('Trống')),
+                          DropdownMenuItem(value: 'Đang dùng', child: Text('Đang dùng')),
+                          DropdownMenuItem(value: 'Đang dọn', child: Text('Đang dọn')),
+                        ],
+                        onChanged: (val) => setModalState(() => selectedStatus = val!),
+                      ),
                     ],
-                    onChanged: (val) => setModalState(() => selectedStatus = val!),
                   ),
-                ],
+                ),
               ),
             ),
             actions: [
               TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Hủy'),
+                onPressed: () => Navigator.pop(dialogCtx),
+                child: const Text('Hủy', style: TextStyle(color: Colors.grey)),
               ),
               ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF9462FF),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                ),
                 onPressed: () async {
                   final newRoom = RoomModel(
                     roomId: isEdit ? room.roomId : idController.text.trim(),
@@ -235,7 +307,7 @@ class _StaffRoomManageScreenState extends ConsumerState<StaffRoomManageScreen> {
                       : await notifier.createRoom(newRoom);
 
                   if (mounted) {
-                    Navigator.pop(context);
+                    Navigator.pop(dialogCtx);
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text(success
@@ -245,7 +317,7 @@ class _StaffRoomManageScreenState extends ConsumerState<StaffRoomManageScreen> {
                     );
                   }
                 },
-                child: Text(isEdit ? 'Lưu' : 'Thêm'),
+                child: Text(isEdit ? 'Lưu' : 'Thêm', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
               ),
             ],
           );

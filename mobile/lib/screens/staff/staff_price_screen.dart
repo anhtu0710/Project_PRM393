@@ -125,19 +125,43 @@ class _StaffPriceScreenState extends ConsumerState<StaffPriceScreen> {
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Sửa giá: ${config.typeRoom?.typeRoom} - ${config.typeBooking?.typeName}'),
-        content: TextField(
-          controller: priceController,
-          decoration: const InputDecoration(labelText: 'Giá tiền mới (VNĐ)'),
-          keyboardType: TextInputType.number,
+      builder: (dialogCtx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: [
+            const Icon(Icons.price_change, color: Color(0xFF9462FF)),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                'Sửa giá: ${config.typeRoom?.typeRoom} - ${config.typeBooking?.typeName}',
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              ),
+            ),
+          ],
+        ),
+        content: Padding(
+          padding: const EdgeInsets.only(top: 8),
+          child: TextField(
+            controller: priceController,
+            decoration: InputDecoration(
+              labelText: 'Giá tiền mới (VNĐ)',
+              prefixIcon: const Icon(Icons.attach_money, size: 20),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            keyboardType: TextInputType.number,
+          ),
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Hủy'),
+            onPressed: () => Navigator.pop(dialogCtx),
+            child: const Text('Hủy', style: TextStyle(color: Colors.grey)),
           ),
           ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF9462FF),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            ),
             onPressed: () async {
               final newPrice = double.tryParse(priceController.text.trim()) ?? config.price;
               final updated = PriceConfigModel(
@@ -152,7 +176,7 @@ class _StaffPriceScreenState extends ConsumerState<StaffPriceScreen> {
                   .updatePriceConfig(config.priceConfigId!, updated);
 
               if (mounted) {
-                Navigator.pop(context);
+                Navigator.pop(dialogCtx);
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(success ? 'Cập nhật giá thành công' : 'Thất bại'),
@@ -160,7 +184,7 @@ class _StaffPriceScreenState extends ConsumerState<StaffPriceScreen> {
                 );
               }
             },
-            child: const Text('Lưu'),
+            child: const Text('Lưu', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -174,42 +198,73 @@ class _StaffPriceScreenState extends ConsumerState<StaffPriceScreen> {
 
     showDialog(
       context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setModalState) {
+      builder: (dialogCtx) => StatefulBuilder(
+        builder: (dialogCtx, setModalState) {
           return AlertDialog(
-            title: const Text('Thêm cấu hình giá mới'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            title: const Row(
               children: [
-                DropdownButtonFormField<TypeRoomModel>(
-                  value: selectedRoomType,
-                  decoration: const InputDecoration(labelText: 'Loại phòng'),
-                  items: state.typeRooms
-                      .map((tr) => DropdownMenuItem(value: tr, child: Text(tr.typeRoom)))
-                      .toList(),
-                  onChanged: (val) => setModalState(() => selectedRoomType = val),
-                ),
-                DropdownButtonFormField<TypeBookingModel>(
-                  value: selectedBookingType,
-                  decoration: const InputDecoration(labelText: 'Loại Combo'),
-                  items: state.typeBookings
-                      .map((tb) => DropdownMenuItem(value: tb, child: Text(tb.typeName)))
-                      .toList(),
-                  onChanged: (val) => setModalState(() => selectedBookingType = val),
-                ),
-                TextField(
-                  controller: priceController,
-                  decoration: const InputDecoration(labelText: 'Giá tiền (VNĐ)'),
-                  keyboardType: TextInputType.number,
-                ),
+                Icon(Icons.add_card, color: Color(0xFF9462FF)),
+                SizedBox(width: 10),
+                Text('Thêm cấu hình giá mới', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
               ],
+            ),
+            content: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    DropdownButtonFormField<TypeRoomModel>(
+                      initialValue: selectedRoomType,
+                      decoration: InputDecoration(
+                        labelText: 'Loại phòng',
+                        prefixIcon: const Icon(Icons.meeting_room, size: 20),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                      items: state.typeRooms
+                          .map((tr) => DropdownMenuItem(value: tr, child: Text(tr.typeRoom)))
+                          .toList(),
+                      onChanged: (val) => setModalState(() => selectedRoomType = val),
+                    ),
+                    const SizedBox(height: 16),
+                    DropdownButtonFormField<TypeBookingModel>(
+                      initialValue: selectedBookingType,
+                      decoration: InputDecoration(
+                        labelText: 'Loại Combo',
+                        prefixIcon: const Icon(Icons.category, size: 20),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                      items: state.typeBookings
+                          .map((tb) => DropdownMenuItem(value: tb, child: Text(tb.typeName)))
+                          .toList(),
+                      onChanged: (val) => setModalState(() => selectedBookingType = val),
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: priceController,
+                      decoration: InputDecoration(
+                        labelText: 'Giá tiền (VNĐ)',
+                        prefixIcon: const Icon(Icons.attach_money, size: 20),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                      keyboardType: TextInputType.number,
+                    ),
+                  ],
+                ),
+              ),
             ),
             actions: [
               TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Hủy'),
+                onPressed: () => Navigator.pop(dialogCtx),
+                child: const Text('Hủy', style: TextStyle(color: Colors.grey)),
               ),
               ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF9462FF),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                ),
                 onPressed: () async {
                   if (selectedRoomType == null || selectedBookingType == null) return;
                   final newConfig = PriceConfigModel(
@@ -223,7 +278,7 @@ class _StaffPriceScreenState extends ConsumerState<StaffPriceScreen> {
                       .createPriceConfig(newConfig);
 
                   if (mounted) {
-                    Navigator.pop(context);
+                    Navigator.pop(dialogCtx);
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text(success ? 'Thêm cấu hình giá thành công' : 'Thất bại'),
@@ -231,7 +286,7 @@ class _StaffPriceScreenState extends ConsumerState<StaffPriceScreen> {
                     );
                   }
                 },
-                child: const Text('Thêm'),
+                child: const Text('Thêm', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
               ),
             ],
           );

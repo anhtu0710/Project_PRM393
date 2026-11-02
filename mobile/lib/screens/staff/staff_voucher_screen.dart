@@ -96,6 +96,13 @@ class _StaffVoucherScreenState extends ConsumerState<StaffVoucherScreen> {
     );
   }
 
+  Widget _buildFieldLabel(String label) {
+    return Text(
+      label,
+      style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Color(0xFF4B5563)),
+    );
+  }
+
   void _showVoucherDialog({VoucherModel? voucher}) {
     final isEdit = voucher != null;
     final codeController = TextEditingController(text: voucher?.code ?? '');
@@ -113,72 +120,163 @@ class _StaffVoucherScreenState extends ConsumerState<StaffVoucherScreen> {
 
     showDialog(
       context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setModalState) {
+      builder: (dialogCtx) => StatefulBuilder(
+        builder: (dialogCtx, setModalState) {
           return AlertDialog(
-            title: Text(isEdit ? 'Sửa Voucher' : 'Thêm Voucher'),
-            content: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    controller: codeController,
-                    decoration: const InputDecoration(labelText: 'Mã Voucher (VD: GENZ10)'),
-                  ),
-                  TextField(
-                    controller: descController,
-                    decoration: const InputDecoration(labelText: 'Mô tả'),
-                  ),
-                  Row(
+            insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            title: Row(
+              children: [
+                Icon(
+                  isEdit ? Icons.edit_note : Icons.confirmation_number,
+                  color: const Color(0xFF9462FF),
+                ),
+                const SizedBox(width: 10),
+                Text(
+                  isEdit ? 'Sửa Voucher' : 'Thêm Voucher mới',
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                ),
+              ],
+            ),
+            content: SizedBox(
+              width: MediaQuery.of(context).size.width * 0.9,
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: RadioListTile<bool>(
-                          title: const Text('%'),
-                          value: true,
-                          groupValue: isPercent,
-                          onChanged: (val) => setModalState(() => isPercent = val!),
+                      _buildFieldLabel('Mã Voucher'),
+                      const SizedBox(height: 4),
+                      TextField(
+                        controller: codeController,
+                        decoration: InputDecoration(
+                          hintText: 'VD: GENZ10',
+                          prefixIcon: const Icon(Icons.tag, size: 20),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                         ),
                       ),
-                      Expanded(
-                        child: RadioListTile<bool>(
-                          title: const Text('Số tiền'),
-                          value: false,
-                          groupValue: isPercent,
-                          onChanged: (val) => setModalState(() => isPercent = val!),
+                      const SizedBox(height: 12),
+                      _buildFieldLabel('Mô tả Voucher'),
+                      const SizedBox(height: 4),
+                      TextField(
+                        controller: descController,
+                        decoration: InputDecoration(
+                          hintText: 'Mô tả ngắn...',
+                          prefixIcon: const Icon(Icons.description, size: 20),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      _buildFieldLabel('Hình thức giảm giá'),
+                      const SizedBox(height: 6),
+                      SizedBox(
+                        width: double.infinity,
+                        child: SegmentedButton<bool>(
+                          segments: const [
+                            ButtonSegment<bool>(
+                              value: true,
+                              label: Text('% Phần trăm'),
+                              icon: Icon(Icons.percent, size: 18),
+                            ),
+                            ButtonSegment<bool>(
+                              value: false,
+                              label: Text('Số tiền (VNĐ)'),
+                              icon: Icon(Icons.attach_money, size: 18),
+                            ),
+                          ],
+                          selected: {isPercent},
+                          onSelectionChanged: (set) => setModalState(() => isPercent = set.first),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      if (isPercent) ...[
+                        _buildFieldLabel('Phần trăm giảm (%)'),
+                        const SizedBox(height: 4),
+                        TextField(
+                          controller: percentController,
+                          decoration: InputDecoration(
+                            hintText: 'VD: 10',
+                            prefixIcon: const Icon(Icons.discount, size: 20),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                          ),
+                          keyboardType: TextInputType.number,
+                        ),
+                      ] else ...[
+                        _buildFieldLabel('Số tiền giảm (VNĐ)'),
+                        const SizedBox(height: 4),
+                        TextField(
+                          controller: amountController,
+                          decoration: InputDecoration(
+                            hintText: 'VD: 50000',
+                            prefixIcon: const Icon(Icons.payments, size: 20),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                          ),
+                          keyboardType: TextInputType.number,
+                        ),
+                      ],
+                      const SizedBox(height: 12),
+                      _buildFieldLabel('Đơn hàng tối thiểu (VNĐ)'),
+                      const SizedBox(height: 4),
+                      TextField(
+                        controller: minOrderController,
+                        decoration: InputDecoration(
+                          hintText: 'VD: 0 hoặc 200000',
+                          prefixIcon: const Icon(Icons.shopping_bag, size: 20),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                        ),
+                        keyboardType: TextInputType.number,
+                      ),
+                      const SizedBox(height: 12),
+                      _buildFieldLabel('Hạn sử dụng'),
+                      const SizedBox(height: 4),
+                      TextField(
+                        controller: expiryController,
+                        readOnly: true,
+                        onTap: () async {
+                          final initial = DateTime.tryParse(expiryController.text) ?? DateTime(2027, 12, 31);
+                          final picked = await showDatePicker(
+                            context: context,
+                            initialDate: initial,
+                            firstDate: DateTime.now().subtract(const Duration(days: 365)),
+                            lastDate: DateTime(2035),
+                          );
+                          if (picked != null) {
+                            setModalState(() {
+                              expiryController.text =
+                                  "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
+                            });
+                          }
+                        },
+                        decoration: InputDecoration(
+                          prefixIcon: const Icon(Icons.calendar_month, size: 20),
+                          suffixIcon: const Icon(Icons.arrow_drop_down),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                         ),
                       ),
                     ],
                   ),
-                  if (isPercent)
-                    TextField(
-                      controller: percentController,
-                      decoration: const InputDecoration(labelText: 'Phần trăm giảm (%)'),
-                      keyboardType: TextInputType.number,
-                    )
-                  else
-                    TextField(
-                      controller: amountController,
-                      decoration: const InputDecoration(labelText: 'Số tiền giảm (VNĐ)'),
-                      keyboardType: TextInputType.number,
-                    ),
-                  TextField(
-                    controller: minOrderController,
-                    decoration: const InputDecoration(labelText: 'Đơn hàng tối thiểu (VNĐ)'),
-                    keyboardType: TextInputType.number,
-                  ),
-                  TextField(
-                    controller: expiryController,
-                    decoration: const InputDecoration(labelText: 'Hạn dùng (YYYY-MM-DD)'),
-                  ),
-                ],
+                ),
               ),
             ),
             actions: [
               TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Hủy'),
+                onPressed: () => Navigator.pop(dialogCtx),
+                child: const Text('Hủy', style: TextStyle(color: Colors.grey)),
               ),
               ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF9462FF),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                ),
                 onPressed: () async {
                   final newVoucher = VoucherModel(
                     voucherId: voucher?.voucherId,
@@ -200,7 +298,7 @@ class _StaffVoucherScreenState extends ConsumerState<StaffVoucherScreen> {
                       : await notifier.createVoucher(newVoucher);
 
                   if (mounted) {
-                    Navigator.pop(context);
+                    Navigator.pop(dialogCtx);
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text(success
@@ -210,7 +308,7 @@ class _StaffVoucherScreenState extends ConsumerState<StaffVoucherScreen> {
                     );
                   }
                 },
-                child: Text(isEdit ? 'Lưu' : 'Thêm'),
+                child: Text(isEdit ? 'Lưu' : 'Thêm', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
               ),
             ],
           );
