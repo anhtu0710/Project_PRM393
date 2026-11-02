@@ -6,7 +6,9 @@ import genZ.PRM391GenZ.dto.ApiResponse;
 import genZ.PRM391GenZ.entity.Booking;
 import genZ.PRM391GenZ.entity.Room;
 import genZ.PRM391GenZ.repository.BookingRepository;
+import genZ.PRM391GenZ.repository.HotelRepository;
 import genZ.PRM391GenZ.repository.RoomRepository;
+import genZ.PRM391GenZ.repository.TypeRoomRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -21,6 +23,8 @@ public class RoomController {
 
     private final RoomRepository roomRepository;
     private final BookingRepository bookingRepository;
+    private final TypeRoomRepository typeRoomRepository;
+    private final HotelRepository hotelRepository;
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<Room>>> getAllRooms() {
@@ -51,6 +55,24 @@ public class RoomController {
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
     public ResponseEntity<ApiResponse<Room>> createRoom(@RequestBody Room room) {
+        if (room.getTypeRoom() != null && room.getTypeRoom().getTypeRoomId() != null) {
+            room.setTypeRoom(typeRoomRepository.findById(room.getTypeRoom().getTypeRoomId()).orElse(null));
+        }
+        if (room.getHotel() != null && room.getHotel().getHotelId() != null) {
+            room.setHotel(hotelRepository.findById(room.getHotel().getHotelId()).orElse(null));
+        }
+        if (room.getStatus() == null || room.getStatus().isBlank()) {
+            room.setStatus(RoomStatus.AVAILABLE);
+        } else {
+            String s = room.getStatus().trim();
+            if ("CLEANING".equalsIgnoreCase(s) || RoomStatus.CLEANING.equalsIgnoreCase(s)) {
+                room.setStatus(RoomStatus.CLEANING);
+            } else if ("OCCUPIED".equalsIgnoreCase(s) || RoomStatus.OCCUPIED.equalsIgnoreCase(s)) {
+                room.setStatus(RoomStatus.OCCUPIED);
+            } else {
+                room.setStatus(RoomStatus.AVAILABLE);
+            }
+        }
         Room saved = roomRepository.save(room);
         return ResponseEntity.ok(ApiResponse.success("Tạo phòng thành công", saved));
     }
@@ -59,11 +81,41 @@ public class RoomController {
     @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
     public ResponseEntity<ApiResponse<Room>> updateRoom(
             @PathVariable String id, @RequestBody Room room) {
-        if (!roomRepository.existsById(id)) {
+        Room existing = roomRepository.findById(id).orElse(null);
+        if (existing == null) {
             return ResponseEntity.notFound().build();
         }
-        room.setRoomId(id);
-        Room updated = roomRepository.save(room);
+
+        if (room.getNameRoom() != null && !room.getNameRoom().isBlank()) {
+            existing.setNameRoom(room.getNameRoom());
+        }
+
+        if (room.getStatus() != null && !room.getStatus().isBlank()) {
+            String s = room.getStatus().trim();
+            if ("CLEANING".equalsIgnoreCase(s) || RoomStatus.CLEANING.equalsIgnoreCase(s)) {
+                existing.setStatus(RoomStatus.CLEANING);
+            } else if ("OCCUPIED".equalsIgnoreCase(s) || RoomStatus.OCCUPIED.equalsIgnoreCase(s)) {
+                existing.setStatus(RoomStatus.OCCUPIED);
+            } else {
+                existing.setStatus(RoomStatus.AVAILABLE);
+            }
+        }
+
+        if (room.getTypeRoom() != null && room.getTypeRoom().getTypeRoomId() != null) {
+            typeRoomRepository.findById(room.getTypeRoom().getTypeRoomId())
+                    .ifPresent(existing::setTypeRoom);
+        }
+
+        if (room.getHotel() != null && room.getHotel().getHotelId() != null) {
+            hotelRepository.findById(room.getHotel().getHotelId())
+                    .ifPresent(existing::setHotel);
+        }
+
+        if (room.getImageUrl() != null) {
+            existing.setImageUrl(room.getImageUrl());
+        }
+
+        Room updated = roomRepository.save(existing);
         return ResponseEntity.ok(ApiResponse.success("Cập nhật phòng thành công", updated));
     }
 

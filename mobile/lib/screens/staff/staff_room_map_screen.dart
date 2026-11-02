@@ -167,14 +167,23 @@ class _StaffRoomMapScreenState extends ConsumerState<StaffRoomMapScreen> {
     );
   }
 
+  String _normalizeStatus(String? status) {
+    if (status == null) return 'Trống';
+    final s = status.trim();
+    if (s == 'Đang dọn' || s == 'CLEANING') return 'Đang dọn';
+    if (s == 'Đang dùng' || s == 'OCCUPIED') return 'Đang dùng';
+    return 'Trống';
+  }
+
   MaterialColor _statusColor(String? status) {
-    if (status == 'Đang dùng' || status == 'OCCUPIED') return Colors.red;
-    if (status == 'Đang dọn' || status == 'CLEANING') return Colors.orange;
+    final s = _normalizeStatus(status);
+    if (s == 'Đang dùng') return Colors.red;
+    if (s == 'Đang dọn') return Colors.orange;
     return Colors.green;
   }
 
   void _showStatusChangeDialog(RoomModel room) {
-    String currentStatus = room.status ?? 'Trống';
+    String currentStatus = _normalizeStatus(room.status);
 
     showDialog(
       context: context,
