@@ -2,7 +2,9 @@ package genZ.PRM391GenZ.controller;
 
 import genZ.PRM391GenZ.dto.ApiResponse;
 import genZ.PRM391GenZ.entity.Hotel;
+import genZ.PRM391GenZ.entity.Room;
 import genZ.PRM391GenZ.repository.HotelRepository;
+import genZ.PRM391GenZ.repository.RoomRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -16,6 +18,7 @@ import java.util.List;
 public class HotelController {
 
     private final HotelRepository hotelRepository;
+    private final RoomRepository roomRepository;
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<Hotel>>> getAllHotels() {
@@ -55,6 +58,12 @@ public class HotelController {
     public ResponseEntity<ApiResponse<Void>> deleteHotel(@PathVariable String id) {
         if (!hotelRepository.existsById(id)) {
             return ResponseEntity.notFound().build();
+        }
+        List<Room> rooms = roomRepository.findByHotel_HotelId(id);
+        if (!rooms.isEmpty()) {
+            return ResponseEntity.badRequest().body(
+                    ApiResponse.error("Không thể xóa chi nhánh đang có " + rooms.size() + " phòng thuộc cơ sở này")
+            );
         }
         hotelRepository.deleteById(id);
         return ResponseEntity.ok(ApiResponse.success("Xóa chi nhánh thành công"));

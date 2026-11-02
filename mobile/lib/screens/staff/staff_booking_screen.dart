@@ -136,7 +136,7 @@ class _BookingListView extends StatelessWidget {
                 ),
                 const Divider(),
                 Text('Phòng: ${b.roomId}', style: const TextStyle(fontWeight: FontWeight.bold)),
-                Text('Khách đặt: ${b.user?.fullName ?? b.userId ?? "N/A"} (${b.user?.phone ?? "Không SĐT"})'),
+                Text('Khách đặt: ${b.userFullName ?? b.userId} (${b.userPhone ?? "Không SĐT"})'),
                 Text('Nhận phòng: ${b.formattedCheckIn}'),
                 Text('Trả phòng: ${b.formattedCheckOut}'),
                 if (b.note != null && b.note!.isNotEmpty)
