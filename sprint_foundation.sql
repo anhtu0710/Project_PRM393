@@ -8,6 +8,9 @@
 --   customer@genz.test — CUSTOMER
 -- =============================================================================
 
+USE GenzCinemaHotel;
+GO
+
 -- 1. Bảng User: thêm cột khoá tài khoản (0 = bình thường, 1 = bị khoá)
 ALTER TABLE [User] ADD IsLocked BIT NOT NULL DEFAULT 0;
 GO

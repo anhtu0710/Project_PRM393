@@ -82,13 +82,36 @@ GET   /api/rooms/hotel/{hotelId}
 GET   /api/rooms/{id}
 POST  /api/rooms                   # ADMIN, STAFF
 PUT   /api/rooms/{id}              # ADMIN, STAFF
-DELETE /api/rooms/{id}             # ADMIN, STAFF
+DELETE /api/rooms/{id}             # ADMIN, STAFF (Blocked if active booking exists)
 
 GET   /api/bookings                # ADMIN, STAFF
 GET   /api/bookings/user/{userId}
 GET   /api/bookings/{id}
 POST  /api/bookings                # status is always set to PENDING
 PUT   /api/bookings/{id}/status    # ADMIN, STAFF
+PUT   /api/bookings/{id}/cancel    # User cancel booking
+
+GET   /api/hotels                  # authenticated
+GET   /api/hotels/{id}
+POST  /api/hotels                  # ADMIN, STAFF
+PUT   /api/hotels/{id}             # ADMIN, STAFF
+DELETE /api/hotels/{id}            # ADMIN, STAFF
+
+GET   /api/vouchers                # authenticated
+GET   /api/vouchers/{id}
+GET   /api/vouchers/code/{code}
+POST  /api/vouchers                # ADMIN, STAFF
+PUT   /api/vouchers/{id}             # ADMIN, STAFF
+DELETE /api/vouchers/{id}          # ADMIN, STAFF
+
+GET   /api/price-configs           # authenticated
+GET   /api/price-configs/{id}
+POST  /api/price-configs           # ADMIN, STAFF
+PUT   /api/price-configs/{id}      # ADMIN, STAFF
+DELETE /api/price-configs/{id}     # ADMIN, STAFF
+
+GET   /api/type-rooms              # authenticated
+GET   /api/type-bookings           # authenticated
 ```
 
 ## Development Notes
