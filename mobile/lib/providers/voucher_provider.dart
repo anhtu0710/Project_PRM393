@@ -40,6 +40,14 @@ class VoucherListNotifier extends StateNotifier<VoucherListState> {
     state = state.copyWith(isLoading: true, error: null);
     try {
       final list = await _service.getAllVouchers();
+      // Sắp xếp ngày hết hạn tăng dần (ngày hết hạn sớm/gần hơn đứng trước: 2025 -> 2026 -> 2027)
+      list.sort((a, b) {
+        final dateA = DateTime.tryParse(a.expiryDate) ?? DateTime(2099);
+        final dateB = DateTime.tryParse(b.expiryDate) ?? DateTime(2099);
+        final comp = dateA.compareTo(dateB);
+        if (comp != 0) return comp;
+        return (a.voucherId ?? 0).compareTo(b.voucherId ?? 0);
+      });
       state = state.copyWith(vouchers: list, isLoading: false);
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());

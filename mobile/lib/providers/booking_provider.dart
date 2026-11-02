@@ -321,8 +321,12 @@ final myBookingsProvider =
   if (user == null) return [];
   final list =
       await ref.read(bookingServiceProvider).getBookingsByUser(user.userId);
-  // Mới nhất lên đầu
-  list.sort((a, b) => b.checkIn.compareTo(a.checkIn));
+  // Sắp xếp ngày nhận phòng tăng dần (ngày gần hơn đứng trước: 05/11 -> 10/11)
+  list.sort((a, b) {
+    final comp = a.checkIn.compareTo(b.checkIn);
+    if (comp != 0) return comp;
+    return (a.bookingId ?? 0).compareTo(b.bookingId ?? 0);
+  });
   return list;
 });
 
@@ -336,6 +340,11 @@ final bookingDetailProvider =
 final staffBookingsProvider =
     FutureProvider.autoDispose<List<BookingModel>>((ref) async {
   final list = await ref.read(bookingServiceProvider).getAllBookings();
-  list.sort((a, b) => b.checkIn.compareTo(a.checkIn));
+  // Sắp xếp ngày nhận phòng tăng dần (ngày gần hơn đứng trước: 05/11 14:00 -> 05/11 19:00 -> 10/11)
+  list.sort((a, b) {
+    final comp = a.checkIn.compareTo(b.checkIn);
+    if (comp != 0) return comp;
+    return (a.bookingId ?? 0).compareTo(b.bookingId ?? 0);
+  });
   return list;
 });
