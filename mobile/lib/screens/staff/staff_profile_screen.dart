@@ -1,9 +1,10 @@
 // lib/screens/staff/staff_profile_screen.dart
-// Phụ trách: Màn hình Chỉnh sửa Hồ sơ Cá nhân của Staff
+// Phụ trách: Màn hình Chỉnh sửa Hồ sơ Cá nhân của Staff (Hiển thị chi nhánh phụ trách)
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../config/app_theme.dart';
 import '../../models/user_model.dart';
 import '../../providers/auth_provider.dart';
 
@@ -150,13 +151,17 @@ class _StaffProfileScreenState extends ConsumerState<StaffProfileScreen> {
     final authState = ref.watch(authProvider);
     final user = authState.user;
 
+    final branchName = user?.hotelName != null && user!.hotelName!.isNotEmpty
+        ? user.hotelName!
+        : 'GenZ Cinema - Hoa Bằng (Mặc định)';
+
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0.5,
         title: const Text(
-          'Hồ sơ Cá nhân',
+          'Hồ sơ Cá nhân Staff',
           style: TextStyle(color: Color(0xFF1E293B), fontWeight: FontWeight.bold),
         ),
       ),
@@ -169,15 +174,11 @@ class _StaffProfileScreenState extends ConsumerState<StaffProfileScreen> {
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF9462FF), Color(0xFF7C3AED)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
+                gradient: AppTheme.primaryGradient,
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF9462FF).withValues(alpha: 0.3),
+                    color: AppTheme.primary.withOpacity(0.3),
                     blurRadius: 12,
                     offset: const Offset(0, 6),
                   ),
@@ -189,7 +190,7 @@ class _StaffProfileScreenState extends ConsumerState<StaffProfileScreen> {
                     children: [
                       CircleAvatar(
                         radius: 38,
-                        backgroundColor: Colors.white.withValues(alpha: 0.25),
+                        backgroundColor: Colors.white.withOpacity(0.25),
                         child: Text(
                           user?.fullName.isNotEmpty == true
                               ? user!.fullName.substring(0, 1).toUpperCase()
@@ -208,7 +209,7 @@ class _StaffProfileScreenState extends ConsumerState<StaffProfileScreen> {
                           width: 16,
                           height: 16,
                           decoration: BoxDecoration(
-                            color: Colors.greenAccent,
+                            color: AppTheme.success,
                             shape: BoxShape.circle,
                             border: Border.all(color: Colors.white, width: 2),
                           ),
@@ -227,10 +228,34 @@ class _StaffProfileScreenState extends ConsumerState<StaffProfileScreen> {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    'Vai trò: ${user?.roleId ?? "STAFF"}',
+                    'Vai trò: STAFF - Nhân Viên Vận Hành',
                     style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.85),
+                      color: Colors.white.withOpacity(0.85),
                       fontSize: 12,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: Colors.white38),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.storefront_rounded, size: 16, color: Colors.white),
+                        const SizedBox(width: 6),
+                        Text(
+                          branchName,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -253,7 +278,7 @@ class _StaffProfileScreenState extends ConsumerState<StaffProfileScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Text(
-                        'THÔNG TIN CÁ NHÂN',
+                        'THÔNG TIN CÁ NHÂN STAFF',
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
@@ -268,12 +293,12 @@ class _StaffProfileScreenState extends ConsumerState<StaffProfileScreen> {
                         icon: Icon(
                           _isEditing ? Icons.close : Icons.edit,
                           size: 16,
-                          color: _isEditing ? Colors.red : const Color(0xFF9462FF),
+                          color: _isEditing ? Colors.red : AppTheme.primary,
                         ),
                         label: Text(
                           _isEditing ? 'Hủy' : 'Chỉnh sửa',
                           style: TextStyle(
-                            color: _isEditing ? Colors.red : const Color(0xFF9462FF),
+                            color: _isEditing ? Colors.red : AppTheme.primary,
                             fontWeight: FontWeight.bold,
                             fontSize: 13,
                           ),
@@ -331,6 +356,20 @@ class _StaffProfileScreenState extends ConsumerState<StaffProfileScreen> {
                       contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                     ),
                   ),
+                  const SizedBox(height: 14),
+                  _buildFieldLabel('Chi nhánh phụ trách'),
+                  const SizedBox(height: 4),
+                  TextField(
+                    readOnly: true,
+                    controller: TextEditingController(text: branchName),
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: Colors.grey.shade100,
+                      prefixIcon: const Icon(Icons.storefront_rounded, size: 20, color: AppTheme.primary),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                    ),
+                  ),
                   const SizedBox(height: 20),
 
                   // Nút "Lưu thay đổi" CHỈ HIỂN THỊ khi ở chế độ _isEditing == true
@@ -340,7 +379,7 @@ class _StaffProfileScreenState extends ConsumerState<StaffProfileScreen> {
                       height: 48,
                       child: ElevatedButton.icon(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF9462FF),
+                          backgroundColor: AppTheme.primary,
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         ),
                         icon: const Icon(Icons.save_rounded, color: Colors.white),
@@ -372,7 +411,7 @@ class _StaffProfileScreenState extends ConsumerState<StaffProfileScreen> {
             ),
             const SizedBox(height: 16),
 
-            // ── Đổi Mật Khẩu Option (Luôn có nút bấm riêng) ─────────────────
+            // ── Đổi Mật Khẩu Option ─────────────────────────────────
             Container(
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -435,7 +474,7 @@ class _StaffProfileScreenState extends ConsumerState<StaffProfileScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Row(
           children: [
-            Icon(Icons.lock_reset, color: Color(0xFF9462FF)),
+            Icon(Icons.lock_reset, color: AppTheme.primary),
             SizedBox(width: 10),
             Text('Đổi mật khẩu', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
           ],
@@ -481,7 +520,7 @@ class _StaffProfileScreenState extends ConsumerState<StaffProfileScreen> {
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF9462FF),
+              backgroundColor: AppTheme.primary,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             ),

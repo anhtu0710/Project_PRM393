@@ -318,7 +318,7 @@ ON CONFLICT (RoomId) DO NOTHING;
 INSERT INTO "user" (UserId, full_name, phone, email, password, RoleId, HotelId, IsLocked) VALUES
 ('SEED_ADMIN',    'Trần Quản Lý (Admin)',  '0901111111', 'admin@genz.test',    '$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'ADMIN',    NULL,    FALSE),
 ('SEED_STAFF',    'Lê Nhân Viên (Staff)',  '0902222222', 'staff@genz.test',    '$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'STAFF',    'HN002', FALSE),
-('STAFF_HN001',   'Nguyễn Văn Vận Hành',   '0902222223', 'staff.hn001@genz.test','$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'STAFF',    'HN001', FALSE),
+('STAFF_HN001',   'Nguyễn Văn Thành (Staff)',   '0902222223', 'staff.hn001@genz.test','$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'STAFF',    'HN001', FALSE),
 ('STAFF_HCM001',  'Phạm Hoàng Nam (Staff)', '0902222224', 'staff.hcm001@genz.test','$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'STAFF',    'HCM001',FALSE),
 ('SEED_CUSTOMER', 'Nguyễn Văn An (Khách)', '0903333333', 'customer@genz.test', '$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'CUSTOMER', NULL,    FALSE),
 ('CUSTOMER_02',   'Phạm Thị Mai',          '0904444444', 'mai.pham@genz.test', '$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'CUSTOMER', NULL,    FALSE),
