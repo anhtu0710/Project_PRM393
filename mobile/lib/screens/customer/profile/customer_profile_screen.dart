@@ -152,21 +152,34 @@ class _CustomerProfileScreenState extends ConsumerState<CustomerProfileScreen> {
     final authState = ref.watch(authProvider);
     final user = authState.user;
 
-    return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0.5,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20, color: Color(0xFF1E293B)),
-          onPressed: () => context.pop(),
+    return PopScope(
+      canPop: true,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) {
+          context.go('/home');
+        }
+      },
+      child: Scaffold(
+        backgroundColor: const Color(0xFFF8FAFC),
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0.5,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20, color: Color(0xFF1E293B)),
+            onPressed: () {
+              if (context.canPop()) {
+                context.pop();
+              } else {
+                context.go('/home');
+              }
+            },
+          ),
+          title: const Text(
+            'Hồ sơ Cá nhân',
+            style: TextStyle(color: Color(0xFF1E293B), fontWeight: FontWeight.bold),
+          ),
+          centerTitle: true,
         ),
-        title: const Text(
-          'Hồ sơ Cá nhân',
-          style: TextStyle(color: Color(0xFF1E293B), fontWeight: FontWeight.bold),
-        ),
-        centerTitle: true,
-      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -497,7 +510,8 @@ class _CustomerProfileScreenState extends ConsumerState<CustomerProfileScreen> {
         ),
       ),
       bottomNavigationBar: const AppBottomNavBar(currentIndex: 3),
-    );
+    ),
+  );
   }
 
   Widget _menuItem({required IconData icon, required Color color, required String title, required VoidCallback onTap}) {

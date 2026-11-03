@@ -41,7 +41,7 @@ class AppBottomNavBar extends ConsumerWidget {
     }
     if (index == currentIndex) return;
     final routes = ['/home', '/saved', '/rooms'];
-    context.push(routes[index]);
+    context.go(routes[index]);
   }
 
   void _showAccountSheet(BuildContext context, WidgetRef ref) {
@@ -72,7 +72,9 @@ class AppBottomNavBar extends ConsumerWidget {
                 InkWell(
                   onTap: () {
                     Navigator.pop(ctx);
-                    context.push('/profile');
+                    if (GoRouterState.of(context).matchedLocation != '/profile') {
+                      context.push('/profile');
+                    }
                   },
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -122,15 +124,6 @@ class AppBottomNavBar extends ConsumerWidget {
                   },
                 )
               else ...[
-                ListTile(
-                  leading: const Icon(Icons.person_outline_rounded, color: AppTheme.primary),
-                  title: const Text('Hồ sơ cá nhân', style: TextStyle(fontWeight: FontWeight.w600)),
-                  trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: Colors.grey),
-                  onTap: () {
-                    Navigator.pop(ctx);
-                    context.push('/profile');
-                  },
-                ),
                 ListTile(
                   leading: const Icon(Icons.rate_review_outlined, color: AppTheme.primary),
                   title: const Text('Đánh giá sau lưu trú', style: TextStyle(fontWeight: FontWeight.w600)),
