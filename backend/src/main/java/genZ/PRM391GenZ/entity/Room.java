@@ -31,12 +31,12 @@ public class Room {
     @JoinColumn(name = "HotelId")
     private Hotel hotel;
 
-    @Column(name = "imageUrl", columnDefinition = "NVARCHAR(MAX)")
+    @Column(name = "imageUrl", columnDefinition = "TEXT")
     private String imageUrl;
 
-    @Column(name = "description", columnDefinition = "NVARCHAR(MAX)")
+    @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "amenities", columnDefinition = "NVARCHAR(MAX)")
+    @Column(name = "amenities", columnDefinition = "TEXT")
     private String amenities;
 }

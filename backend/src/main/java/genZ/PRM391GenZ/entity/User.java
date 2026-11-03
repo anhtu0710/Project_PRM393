@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "[User]")
+@Table(name = "\"user\"")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -29,7 +29,7 @@ public class User {
     @Column(name = "password", nullable = false)
     private String password;
 
-    @Column(name = "Image_cccd", columnDefinition = "NVARCHAR(MAX)")
+    @Column(name = "Image_cccd", columnDefinition = "TEXT")
     private String imageCccd;
 
     @ManyToOne(fetch = FetchType.EAGER)

@@ -32,10 +32,10 @@ public class Movie {
     @Column(name = "Quality", nullable = false, length = 50)
     private String quality;
 
-    @Column(name = "PosterUrl", columnDefinition = "NVARCHAR(MAX)")
+    @Column(name = "PosterUrl", columnDefinition = "TEXT")
     private String posterUrl;
 
-    @Column(name = "Description", columnDefinition = "NVARCHAR(MAX)")
+    @Column(name = "Description", columnDefinition = "TEXT")
     private String description;
 
     @Builder.Default

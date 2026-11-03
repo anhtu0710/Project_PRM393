@@ -37,7 +37,7 @@ public class Review {
     @Column(name = "Rating", nullable = false)
     private Integer rating;
 
-    @Column(name = "Comment", columnDefinition = "NVARCHAR(MAX)")
+    @Column(name = "Comment", columnDefinition = "TEXT")
     private String comment;
 
     @Column(name = "CreatedAt", nullable = false)

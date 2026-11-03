@@ -51,6 +51,6 @@ public class Booking {
     @Column(name = "discountAmount", precision = 18, scale = 2)
     private BigDecimal discountAmount;
 
-    @Column(name = "note", columnDefinition = "NVARCHAR(MAX)")
+    @Column(name = "note", columnDefinition = "TEXT")
     private String note;
 }

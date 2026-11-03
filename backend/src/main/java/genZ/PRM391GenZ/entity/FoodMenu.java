@@ -29,10 +29,10 @@ public class FoodMenu {
     @Column(name = "Price", nullable = false, precision = 18, scale = 2)
     private BigDecimal price;
 
-    @Column(name = "ImageUrl", columnDefinition = "NVARCHAR(MAX)")
+    @Column(name = "ImageUrl", columnDefinition = "TEXT")
     private String imageUrl;
 
-    @Column(name = "Description", columnDefinition = "NVARCHAR(MAX)")
+    @Column(name = "Description", columnDefinition = "TEXT")
     private String description;
 
     @Builder.Default
