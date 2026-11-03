@@ -153,7 +153,7 @@ class _StaffProfileScreenState extends ConsumerState<StaffProfileScreen> {
 
     final branchName = user?.hotelName != null && user!.hotelName!.isNotEmpty
         ? user.hotelName!
-        : 'GenZ Cinema - Hoa Bằng (Mặc định)';
+        : 'GenZ Cinema - Hoa Bằng';
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
@@ -357,16 +357,31 @@ class _StaffProfileScreenState extends ConsumerState<StaffProfileScreen> {
                     ),
                   ),
                   const SizedBox(height: 14),
-                  _buildFieldLabel('Chi nhánh phụ trách'),
+                  Row(
+                    children: [
+                      _buildFieldLabel('Chi nhánh phụ trách'),
+                      const SizedBox(width: 6),
+                      const Icon(Icons.lock_outline_rounded, size: 14, color: AppTheme.textGray),
+                    ],
+                  ),
                   const SizedBox(height: 4),
                   TextField(
                     readOnly: true,
                     controller: TextEditingController(text: branchName),
+                    style: const TextStyle(color: AppTheme.textGray, fontWeight: FontWeight.w600, fontSize: 13),
                     decoration: InputDecoration(
                       filled: true,
-                      fillColor: Colors.grey.shade100,
-                      prefixIcon: const Icon(Icons.storefront_rounded, size: 20, color: AppTheme.primary),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      fillColor: const Color(0xFFF1F5F9), // Gray filled background indicating non-editable
+                      prefixIcon: const Icon(Icons.storefront_rounded, size: 20, color: AppTheme.textGray),
+                      suffixIcon: const Icon(Icons.lock_rounded, size: 16, color: AppTheme.textGray),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: Color(0xFFCBD5E1)),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: Color(0xFFCBD5E1)),
+                      ),
                       contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                     ),
                   ),
