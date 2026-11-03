@@ -2,8 +2,10 @@ package genZ.PRM391GenZ.controller;
 
 import genZ.PRM391GenZ.dto.AdminStatsResponse;
 import genZ.PRM391GenZ.dto.ApiResponse;
+import genZ.PRM391GenZ.entity.Hotel;
 import genZ.PRM391GenZ.entity.Role;
 import genZ.PRM391GenZ.entity.User;
+import genZ.PRM391GenZ.repository.HotelRepository;
 import genZ.PRM391GenZ.repository.RoleRepository;
 import genZ.PRM391GenZ.repository.UserRepository;
 import genZ.PRM391GenZ.service.StatsService;
@@ -22,11 +24,12 @@ public class AdminController {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final HotelRepository hotelRepository;
     private final StatsService statsService;
 
     // ── Quản lý người dùng ──────────────────────────────────────────────────
 
-    // GET /api/admin/users — danh sách tất cả tài khoản (app tự lọc, tìm kiếm)
+    // GET /api/admin/users — danh sách tất cả tài khoản
     @GetMapping("/users")
     public ResponseEntity<ApiResponse<List<User>>> getUsers() {
         return ResponseEntity.ok(ApiResponse.success("Danh sách người dùng", userRepository.findAll()));
@@ -50,6 +53,24 @@ public class AdminController {
         user.setRole(role);
         User saved = userRepository.save(user);
         return ResponseEntity.ok(ApiResponse.success("Đã đổi role thành " + role.getRoleName(), saved));
+    }
+
+    // PUT /api/admin/users/{id}/hotel?hotelId=HN002 — gán chi nhánh cho Staff
+    @PutMapping("/users/{id}/hotel")
+    public ResponseEntity<ApiResponse<User>> assignHotel(
+            @PathVariable String id, @RequestParam(required = false) String hotelId) {
+        User user = findUser(id);
+
+        if (hotelId != null && !hotelId.isBlank()) {
+            Hotel hotel = hotelRepository.findById(hotelId.trim())
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy chi nhánh " + hotelId));
+            user.setHotel(hotel);
+        } else {
+            user.setHotel(null);
+        }
+
+        User saved = userRepository.save(user);
+        return ResponseEntity.ok(ApiResponse.success("Đã cập nhật chi nhánh phụ trách", saved));
     }
 
     // PUT /api/admin/users/{id}/lock?locked=true — khoá (true) hoặc mở khoá (false)

@@ -35,6 +35,14 @@ class AdminService {
         queryParameters: {'roleId': roleId});
   }
 
+  /// Gán chi nhánh phụ trách cho Staff (hotelId = 'HN001'...)
+  Future<void> assignHotel(String userId, String? hotelId) async {
+    await _dio.put('/admin/users/$userId/hotel',
+        queryParameters: {
+          if (hotelId != null && hotelId.isNotEmpty) 'hotelId': hotelId,
+        });
+  }
+
   /// Khoá (locked = true) hoặc mở khoá (locked = false)
   Future<void> setLocked(String userId, bool locked) async {
     await _dio.put('/admin/users/$userId/lock',

@@ -1,12 +1,14 @@
 // lib/screens/admin/admin_user_screen.dart
-// Phụ trách: TV1 — Quản lý người dùng: tìm kiếm, lọc theo role, đổi role, khoá / mở khoá
+// Phụ trách: TV1 — Quản lý người dùng: tìm kiếm, lọc theo role, đổi role, gán chi nhánh, khoá / mở khoá
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../config/app_config.dart';
 import '../../config/app_theme.dart';
 import '../../models/admin_user_model.dart';
+import '../../models/hotel_model.dart';
 import '../../providers/admin_provider.dart';
+import '../../providers/hotel_provider.dart';
 import '../../services/admin_service.dart';
 
 class AdminUserScreen extends ConsumerStatefulWidget {
@@ -45,6 +47,63 @@ class _AdminUserScreenState extends ConsumerState<AdminUserScreen> {
     );
   }
 
+  Future<void> _assignHotelDialog(AdminUserModel u, List<HotelModel> hotels) async {
+    String? selectedHotelId = u.hotelId;
+
+    final result = await showDialog<String>(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Text('Gán Chi Nhánh Cho ${u.fullName}'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('Chọn cơ sở GenZ Cinema mà nhân viên này phụ trách:'),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<String>(
+                value: selectedHotelId,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                ),
+                hint: const Text('Chọn chi nhánh'),
+                items: hotels.map((h) {
+                  return DropdownMenuItem<String>(
+                    value: h.hotelId,
+                    child: Text(h.name, style: const TextStyle(fontSize: 13)),
+                  );
+                }).toList(),
+                onChanged: (val) {
+                  setDialogState(() => selectedHotelId = val);
+                },
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, null),
+              child: const Text('Bỏ gán', style: TextStyle(color: Colors.red)),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primary),
+              onPressed: () => Navigator.pop(ctx, selectedHotelId ?? ''),
+              child: const Text('Lưu thay đổi', style: TextStyle(color: Colors.white)),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (result != null) {
+      await _run(
+        () => ref.read(adminServiceProvider).assignHotel(u.userId, result.isEmpty ? null : result),
+        'Đã cập nhật chi nhánh phụ trách cho ${u.fullName}',
+      );
+    }
+  }
+
   Future<void> _toggleLock(AdminUserModel u) async {
     final lock = !u.locked;
     final ok = await _confirm(
@@ -60,7 +119,6 @@ class _AdminUserScreenState extends ConsumerState<AdminUserScreen> {
     );
   }
 
-  // Gọi API, tải lại danh sách và báo kết quả
   Future<void> _run(Future<void> Function() action, String successText) async {
     try {
       await action();
@@ -101,11 +159,10 @@ class _AdminUserScreenState extends ConsumerState<AdminUserScreen> {
     return result == true;
   }
 
-  // ── Giao diện ──────────────────────────────────────────────────────────
-
   @override
   Widget build(BuildContext context) {
     final asyncUsers = ref.watch(adminUsersProvider);
+    final hotelState = ref.watch(hotelListProvider);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Quản lý người dùng')),
@@ -186,7 +243,9 @@ class _AdminUserScreenState extends ConsumerState<AdminUserScreen> {
                       final u = shown[i - 1];
                       return _UserCard(
                         user: u,
+                        hotels: hotelState.hotels,
                         onChangeRole: () => _changeRole(u),
+                        onAssignHotel: () => _assignHotelDialog(u, hotelState.hotels),
                         onToggleLock: () => _toggleLock(u),
                       );
                     },
@@ -241,12 +300,16 @@ Color roleColor(String roleId) {
 
 class _UserCard extends StatelessWidget {
   final AdminUserModel user;
+  final List<HotelModel> hotels;
   final VoidCallback onChangeRole;
+  final VoidCallback onAssignHotel;
   final VoidCallback onToggleLock;
 
   const _UserCard({
     required this.user,
+    required this.hotels,
     required this.onChangeRole,
+    required this.onAssignHotel,
     required this.onToggleLock,
   });
 
@@ -255,6 +318,7 @@ class _UserCard extends StatelessWidget {
     final u = user;
     final color = roleColor(u.roleId);
     final isAdmin = u.roleId == AppConfig.roleAdmin;
+    final isStaff = u.roleId == AppConfig.roleStaff;
 
     return Container(
       padding: const EdgeInsets.fromLTRB(14, 12, 4, 12),
@@ -301,6 +365,8 @@ class _UserCard extends StatelessWidget {
                   runSpacing: 4,
                   children: [
                     _chip(roleLabel(u.roleId), color),
+                    if (isStaff && u.hotelName != null && u.hotelName!.isNotEmpty)
+                      _chip('Cơ sở: ${u.hotelName}', AppTheme.goldAccent),
                     if (u.locked) _chip('Đã khoá', AppTheme.error),
                   ],
                 ),
@@ -317,6 +383,7 @@ class _UserCard extends StatelessWidget {
               tooltip: 'Thao tác',
               onSelected: (value) {
                 if (value == 'role') onChangeRole();
+                if (value == 'hotel') onAssignHotel();
                 if (value == 'lock') onToggleLock();
               },
               itemBuilder: (_) => [
@@ -326,6 +393,11 @@ class _UserCard extends StatelessWidget {
                       ? 'Chuyển thành Khách hàng'
                       : 'Chuyển thành Staff'),
                 ),
+                if (isStaff)
+                  const PopupMenuItem(
+                    value: 'hotel',
+                    child: Text('Gán Chi Nhánh Phụ Trách 🏬'),
+                  ),
                 PopupMenuItem(
                   value: 'lock',
                   child: Text(

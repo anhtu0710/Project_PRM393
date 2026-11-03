@@ -36,6 +36,10 @@ public class User {
     @JoinColumn(name = "RoleId")
     private Role role;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "HotelId")
+    private Hotel hotel; // Chi nhánh phụ trách (nếu là STAFF)
+
     @Column(name = "IsLocked", nullable = false)
     private boolean locked; // true = tài khoản bị khoá
 }
