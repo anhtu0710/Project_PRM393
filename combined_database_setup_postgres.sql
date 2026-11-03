@@ -249,153 +249,67 @@ INSERT INTO Hotel (HotelId, name, address, countRoom, phone, imageUrl, City) VAL
 ('HCM002', 'GenZ Cinema - Âu Cơ',          'Số 547 Âu Cơ, P. Phú Trung, Q. Tân Phú, TP. Hồ Chí Minh',          4, '0876583333', 'https://genzcinema.vn/wp-content/uploads/2024/01/tanphu.jpg', 'TP. Hồ Chí Minh')
 ON CONFLICT (HotelId) DO NOTHING;
 
--- Danh sách Phòng đúng chuẩn phân bổ yêu cầu
+-- Danh sách Phòng đúng chuẩn phân bổ yêu cầu với URL Hình ảnh chuẩn từ website GenZ Cinema
 INSERT INTO Room (RoomId, nameRoom, TypeRoomId, Status, HotelId, imageUrl, description, amenities) VALUES
 -- 1. Cơ sở HN001 (Nguyễn Văn Lộc): 2 Queen, 2 King
-('HN001_Q01', 'Queen 01', 'QUEEN', 'Trống', 'HN001', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10', 'Phòng Queen chiếu phim riêng tư ấm cúng.', 'Máy chiếu 4K, Sofa bed, Điều hòa 2 chiều, Netflix 4K'),
+('HN001_Q01', 'Queen 01', 'QUEEN', 'Trống', 'HN001', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRGcHios9GsQ4LKiKRGqJ9cwW645mYEOwWEqDxNUTYwRB88RsKZz-BjMwU&s=10', 'Phòng Queen chiếu phim riêng tư ấm cúng.', 'Máy chiếu 4K, Sofa bed, Điều hòa 2 chiều, Netflix 4K'),
 ('HN001_Q02', 'Queen 02', 'QUEEN', 'Trống', 'HN001', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10', 'Phòng Queen xem phim không gian thoáng mát.', 'Máy chiếu 4K, Sofa bed, Máy lọc không khí, Netflix 4K'),
 ('HN001_K01', 'King 01',  'KING',  'Trống', 'HN001', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10',  'Phòng King cao cấp trang bị PC đôi chơi game.', 'Máy chiếu 4K, PC Couple RTX, Sofa đôi, Netflix 4K'),
 ('HN001_K02', 'King 02',  'KING',  'Đang dùng', 'HN001', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10',  'Phòng King rạp chiếu phim kết hợp dàn máy gaming.', 'Máy chiếu 4K, PC Couple RTX, Sofa đôi, Board game'),
 
 -- 2. Cơ sở HN002 (Hoa Bằng - Hà Nội): 7 Box chủ đề
-('HN002_FB', 'Football Box - Hoa Bằng', 'FOOTBALL', 'Trống', 'HN002', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10', 'Không gian điện ảnh kết hợp giải trí thể thao sôi động.', 'Máy chiếu 4K, Sofa bed, Soundbar 5.1, Netflix 4K'),
-('HN002_GM', 'Gaming Box - Hoa Bằng',   'GAMING',   'Trống', 'HN002', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10',   'Màn chiếu rộng kết hợp giàn PC đôi chơi game cực mượt.', 'Máy chiếu 4K, PC Couple RTX, Sofa đôi, Netflix 4K'),
-('HN002_HA', 'Hội An Box - Hoa Bằng',   'HOIAN',    'Trống', 'HN002', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10',    'Không gian phố cổ Hội An lãng mạn hoài niệm.', 'Máy chiếu 4K, Sofa bed, Đèn lồng trang trí, Netflix 4K'),
-('HN002_HK', 'HongKong Box - Hoa Bằng', 'HONGKONG', 'Trống', 'HN002', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10', 'Bầu không khí phố đêm Hongkong Neon cực chất.', 'Máy chiếu 4K, Sofa bed, Netflix 4K, Board game'),
-('HN002_MV', 'Marvel Box - Hoa Bằng',   'MARVEL',   'Đang dùng', 'HN002', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10',  'Phong cách Siêu anh hùng Marvel cá tính.', 'Máy chiếu 4K, Sofa bed, Âm thanh surround, Netflix 4K'),
-('HN002_NT', 'Natra Box - Hoa Bằng',    'NATRA',    'Trống', 'HN002', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10',    'Không gian huyền thoại Natra Ma Đồng Giáng Thế.', 'Máy chiếu 4K, Sofa bed, Netflix 4K'),
-('HN002_SR', 'Samurai Box - Hoa Bằng',  'SAMURAI',  'Trống', 'HN002', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10',  'Phong cách võ sĩ Samurai Nhật Bản ấn tượng.', 'Máy chiếu 4K, Sofa bed, Netflix 4K'),
+('HN002_FB', 'Football Box - Hoa Bằng', 'FOOTBALL', 'Trống', 'HN002', 'https://genzcinema.vn/wp-content/uploads/2025/06/IMG_5405-768x576.jpg', 'Không gian điện ảnh kết hợp giải trí thể thao sôi động.', 'Máy chiếu 4K, Sofa bed, Soundbar 5.1, Netflix 4K'),
+('HN002_GM', 'Gaming Box - Hoa Bằng',   'GAMING',   'Trống', 'HN002', 'https://genzcinema.vn/wp-content/uploads/2025/06/IMG_5399-768x576.jpg',   'Màn chiếu rộng kết hợp giàn PC đôi chơi game cực mượt.', 'Máy chiếu 4K, PC Couple RTX, Sofa đôi, Netflix 4K'),
+('HN002_HA', 'Hội An Box - Hoa Bằng',   'HOIAN',    'Trống', 'HN002', 'https://genzcinema.vn/wp-content/uploads/2025/06/7-768x576.jpg',    'Không gian phố cổ Hội An lãng mạn hoài niệm.', 'Máy chiếu 4K, Sofa bed, Đèn lồng trang trí, Netflix 4K'),
+('HN002_HK', 'HongKong Box - Hoa Bằng', 'HONGKONG', 'Trống', 'HN002', 'https://genzcinema.vn/wp-content/uploads/2025/06/1-1024x768.png', 'Bầu không khí phố đêm Hongkong Neon cực chất.', 'Máy chiếu 4K, Sofa bed, Netflix 4K, Board game'),
+('HN002_MV', 'Marvel Box - Hoa Bằng',   'MARVEL',   'Đang dùng', 'HN002', 'https://genzcinema.vn/wp-content/uploads/2025/06/8-768x576.png',  'Phong cách Siêu anh hùng Marvel cá tính.', 'Máy chiếu 4K, Sofa bed, Âm thanh surround, Netflix 4K'),
+('HN002_NT', 'Natra Box - Hoa Bằng',    'NATRA',    'Trống', 'HN002', 'https://genzcinema.vn/wp-content/uploads/2025/06/6-768x576.png',    'Không gian huyền thoại Natra Ma Đồng Giáng Thế.', 'Máy chiếu 4K, Sofa bed, Netflix 4K'),
+('HN002_SR', 'Samurai Box - Hoa Bằng',  'SAMURAI',  'Trống', 'HN002', 'https://genzcinema.vn/wp-content/uploads/2025/06/3-1-768x576.png',  'Phong cách võ sĩ Samurai Nhật Bản ấn tượng.', 'Máy chiếu 4K, Sofa bed, Netflix 4K'),
 
 -- 3. Cơ sở HN003 (Nguyễn Lương Bằng): 2 Queen, 2 King
-('HN003_Q01', 'Queen 01', 'QUEEN', 'Trống', 'HN003', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10', 'Phòng Queen riêng tư.', 'Máy chiếu 4K, Sofa bed, Netflix 4K'),
-('HN003_Q02', 'Queen 02', 'QUEEN', 'Trống', 'HN003', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10', 'Phòng Queen ngọt ngào.', 'Máy chiếu 4K, Sofa bed, Netflix 4K'),
+('HN003_Q01', 'Queen 01', 'QUEEN', 'Trống', 'HN003', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRGcHios9GsQ4LKiKRGqJ9cwW645mYEOwWEqDxNUTYwRB88RsKZz-BjMwU&s=10', 'Phòng Queen riêng tư.', 'Máy chiếu 4K, Sofa bed, Netflix 4K'),
+('HN003_Q02', 'Queen 02', 'QUEEN', 'Trống', 'HN003', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRGcHios9GsQ4LKiKRGqJ9cwW645mYEOwWEqDxNUTYwRB88RsKZz-BjMwU&s=10', 'Phòng Queen ngọt ngào.', 'Máy chiếu 4K, Sofa bed, Netflix 4K'),
 ('HN003_K01', 'King 01',  'KING',  'Trống', 'HN003', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10',  'Phòng King có PC đôi.', 'Máy chiếu 4K, PC Couple, Netflix 4K'),
 ('HN003_K02', 'King 02',  'KING',  'Trống', 'HN003', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10',  'Phòng King rộng rãi.', 'Máy chiếu 4K, PC Couple, Netflix 4K'),
 
 -- 4. Cơ sở HN004 (Hoàng Ngân): 2 Queen, 2 King
-('HN004_Q01', 'Queen 01', 'QUEEN', 'Trống', 'HN004', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10', 'Phòng Queen riêng tư.', 'Máy chiếu 4K, Sofa bed, Netflix 4K'),
-('HN004_Q02', 'Queen 02', 'QUEEN', 'Trống', 'HN004', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10', 'Phòng Queen hiện đại.', 'Máy chiếu 4K, Sofa bed, Netflix 4K'),
+('HN004_Q01', 'Queen 01', 'QUEEN', 'Trống', 'HN004', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRGcHios9GsQ4LKiKRGqJ9cwW645mYEOwWEqDxNUTYwRB88RsKZz-BjMwU&s=10', 'Phòng Queen riêng tư.', 'Máy chiếu 4K, Sofa bed, Netflix 4K'),
+('HN004_Q02', 'Queen 02', 'QUEEN', 'Trống', 'HN004', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRGcHios9GsQ4LKiKRGqJ9cwW645mYEOwWEqDxNUTYwRB88RsKZz-BjMwU&s=10', 'Phòng Queen hiện đại.', 'Máy chiếu 4K, Sofa bed, Netflix 4K'),
 ('HN004_K01', 'King 01',  'KING',  'Đang dọn', 'HN004', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10',  'Phòng King sang trọng.', 'Máy chiếu 4K, PC Couple, Netflix 4K'),
 ('HN004_K02', 'King 02',  'KING',  'Trống', 'HN004', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10',  'Phòng King đầy đủ tiện nghi.', 'Máy chiếu 4K, PC Couple, Netflix 4K'),
 
 -- 5. Cơ sở HN005 (Lĩnh Nam): 2 Queen, 2 King
-('HN005_Q01', 'Queen 01', 'QUEEN', 'Trống', 'HN005', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10', 'Phòng Queen Lĩnh Nam.', 'Máy chiếu 4K, Sofa bed, Netflix 4K'),
-('HN005_Q02', 'Queen 02', 'QUEEN', 'Trống', 'HN005', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10', 'Phòng Queen thư giãn.', 'Máy chiếu 4K, Sofa bed, Netflix 4K'),
+('HN005_Q01', 'Queen 01', 'QUEEN', 'Trống', 'HN005', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRGcHios9GsQ4LKiKRGqJ9cwW645mYEOwWEqDxNUTYwRB88RsKZz-BjMwU&s=10', 'Phòng Queen Lĩnh Nam.', 'Máy chiếu 4K, Sofa bed, Netflix 4K'),
+('HN005_Q02', 'Queen 02', 'QUEEN', 'Trống', 'HN005', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRGcHios9GsQ4LKiKRGqJ9cwW645mYEOwWEqDxNUTYwRB88RsKZz-BjMwU&s=10', 'Phòng Queen thư giãn.', 'Máy chiếu 4K, Sofa bed, Netflix 4K'),
 ('HN005_K01', 'King 01',  'KING',  'Trống', 'HN005', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10',  'Phòng King PC đôi Lĩnh Nam.', 'Máy chiếu 4K, PC Couple, Netflix 4K'),
 ('HN005_K02', 'King 02',  'KING',  'Trống', 'HN005', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10',  'Phòng King cao cấp Lĩnh Nam.', 'Máy chiếu 4K, PC Couple, Netflix 4K'),
 
 -- 6. Cơ sở HN006 (Hồ Tây): 2 Queen, 2 King
-('HN006_Q01', 'Queen 01', 'QUEEN', 'Trống', 'HN006', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10', 'Phòng Queen view Hồ Tây.', 'Máy chiếu 4K, Sofa bed, Netflix 4K'),
-('HN006_Q02', 'Queen 02', 'QUEEN', 'Trống', 'HN006', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10', 'Phòng Queen lãng mạn Hồ Tây.', 'Máy chiếu 4K, Sofa bed, Netflix 4K'),
+('HN006_Q01', 'Queen 01', 'QUEEN', 'Trống', 'HN006', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRGcHios9GsQ4LKiKRGqJ9cwW645mYEOwWEqDxNUTYwRB88RsKZz-BjMwU&s=10', 'Phòng Queen view Hồ Tây.', 'Máy chiếu 4K, Sofa bed, Netflix 4K'),
+('HN006_Q02', 'Queen 02', 'QUEEN', 'Trống', 'HN006', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRGcHios9GsQ4LKiKRGqJ9cwW645mYEOwWEqDxNUTYwRB88RsKZz-BjMwU&s=10', 'Phòng Queen lãng mạn Hồ Tây.', 'Máy chiếu 4K, Sofa bed, Netflix 4K'),
 ('HN006_K01', 'King 01',  'KING',  'Đang dùng', 'HN006', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10',  'Phòng King Hồ Tây với PC đôi.', 'Máy chiếu 4K, PC Couple, Netflix 4K'),
 ('HN006_K02', 'King 02',  'KING',  'Trống', 'HN006', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10',  'Phòng King sang trọng Hồ Tây.', 'Máy chiếu 4K, PC Couple, Netflix 4K'),
 
 -- 7. Cơ sở BN001 (Lý Đạo Thành - Bắc Ninh): 2 Queen, 2 King
-('BN001_Q01', 'Queen 01', 'QUEEN', 'Trống', 'BN001', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10', 'Phòng Queen Bắc Ninh.', 'Máy chiếu 4K, Sofa bed, Netflix 4K'),
-('BN001_Q02', 'Queen 02', 'QUEEN', 'Trống', 'BN001', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10', 'Phòng Queen ấm cúng Bắc Ninh.', 'Máy chiếu 4K, Sofa bed, Netflix 4K'),
+('BN001_Q01', 'Queen 01', 'QUEEN', 'Trống', 'BN001', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRGcHios9GsQ4LKiKRGqJ9cwW645mYEOwWEqDxNUTYwRB88RsKZz-BjMwU&s=10', 'Phòng Queen Bắc Ninh.', 'Máy chiếu 4K, Sofa bed, Netflix 4K'),
+('BN001_Q02', 'Queen 02', 'QUEEN', 'Trống', 'BN001', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRGcHios9GsQ4LKiKRGqJ9cwW645mYEOwWEqDxNUTYwRB88RsKZz-BjMwU&s=10', 'Phòng Queen ấm cúng Bắc Ninh.', 'Máy chiếu 4K, Sofa bed, Netflix 4K'),
 ('BN001_K01', 'King 01',  'KING',  'Trống', 'BN001', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10',  'Phòng King Bắc Ninh.', 'Máy chiếu 4K, PC Couple, Netflix 4K'),
 ('BN001_K02', 'King 02',  'KING',  'Trống', 'BN001', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10',  'Phòng King cao cấp Bắc Ninh.', 'Máy chiếu 4K, PC Couple, Netflix 4K'),
 
 -- 8. Cơ sở HCM001 (Nguyễn Thái Bình - TP.HCM): 9 Box chủ đề
-('HCM001_AN', 'Anime Box - Nguyễn Thái Bình',    'ANIME',    'Trống', 'HCM001', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10',    'Phòng phong cách Anime Nhật Bản ấn tượng.', 'Máy chiếu 4K, Sofa bed, Netflix 4K'),
-('HCM001_AQ', 'Aquaman Box - Nguyễn Thái Bình',  'AQUAMAN',  'Trống', 'HCM001', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10',  'Không gian đại dương sâu thẳm Aquaman độc đáo.', 'Máy chiếu 4K, Sofa bed, Soundbar 5.1, Netflix 4K'),
-('HCM001_AV', 'Avatar Box - Nguyễn Thái Bình',   'AVATAR',   'Trống', 'HCM001', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10',    'Vũ trụ Pandora huyền ảo.', 'Máy chiếu 4K, Sofa bed, Netflix 4K'),
-('HCM001_AG', 'Avenger Box - Nguyễn Thái Bình',  'AVENGER',  'Đang dùng', 'HCM001', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10',  'Phòng Siêu anh hùng Marvel cá tính.', 'Máy chiếu 4K, Sofa bed, Netflix 4K'),
-('HCM001_FB', 'Football Box - Nguyễn Thái Bình', 'FOOTBALL', 'Trống', 'HCM001', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10', 'Không gian điện ảnh kết hợp giải trí thể thao sôi động.', 'Máy chiếu 4K, Sofa bed, Soundbar, Netflix 4K'),
-('HCM001_GM', 'Gaming Box - Nguyễn Thái Bình',   'GAMING',   'Trống', 'HCM001', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10',   'Phòng màn chiếu rộng kèm dàn PC đôi RTX chơi game đỉnh cao.', 'Máy chiếu 4K, PC Couple RTX, Sofa đôi, Netflix 4K'),
-('HCM001_SK', 'Sakura Box - Nguyễn Thái Bình',   'SAKURA',   'Trống', 'HCM001', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10',   'Không gian hoa hoa anh đào Sakura lãng mạn.', 'Máy chiếu 4K, Sofa bed, Netflix 4K'),
-('HCM001_HK', 'HongKong Box - Nguyễn Thái Bình', 'HONGKONG', 'Trống', 'HCM001', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10', 'Phòng Hongkong Neon đêm huyền bí.', 'Máy chiếu 4K, Sofa bed, Netflix 4K'),
-('HCM001_TD', 'Teddy Box - Nguyễn Thái Bình',    'TEDDY',    'Trống', 'HCM001', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10',    'Không gian gấu Teddy đáng yêu và ấm áp.', 'Máy chiếu 4K, Gấu bông khổng lồ, Sofa bed, Netflix 4K'),
+('HCM001_AN', 'Anime Box - Nguyễn Thái Bình',    'ANIME',    'Trống', 'HCM001', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQgnuuLUItNOj1YmFsJvW98wWDCgWbnn23M52Pit7Jhnw&s=10',    'Phòng phong cách Anime Nhật Bản ấn tượng.', 'Máy chiếu 4K, Sofa bed, Netflix 4K'),
+('HCM001_AQ', 'Aquaman Box - Nguyễn Thái Bình',  'AQUAMAN',  'Trống', 'HCM001', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSNEbQwxT5t9KZ3tI31tzuVjCLgIg4xDDnFCnLe1jmV3s3M0SK8gvEZsLXm&s=10',  'Không gian đại dương sâu thẳm Aquaman độc đáo.', 'Máy chiếu 4K, Sofa bed, Soundbar 5.1, Netflix 4K'),
+('HCM001_AV', 'Avatar Box - Nguyễn Thái Bình',   'AVATAR',   'Trống', 'HCM001', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSIRWtXM0N9FJOChWCObhjkTX9n4YoGZgRiiwGNRP8bWjHNSAzT2aShxKo&s=10',    'Vũ trụ Pandora huyền ảo.', 'Máy chiếu 4K, Sofa bed, Netflix 4K'),
+('HCM001_AG', 'Avenger Box - Nguyễn Thái Bình',  'AVENGER',  'Đang dùng', 'HCM001', 'https://genzcinema.vn/wp-content/uploads/2024/11/avt-avenger-box-300x225.jpg',  'Phòng Siêu anh hùng Marvel cá tính.', 'Máy chiếu 4K, Sofa bed, Netflix 4K'),
+('HCM001_FB', 'Football Box - Nguyễn Thái Bình', 'FOOTBALL', 'Trống', 'HCM001', 'https://genzcinema.vn/wp-content/uploads/2024/12/z6125888051970_3856ef75cfffba75cb94ab48c2590a20-scaled.jpg', 'Không gian điện ảnh kết hợp giải trí thể thao sôi động.', 'Máy chiếu 4K, Sofa bed, Soundbar, Netflix 4K'),
+('HCM001_GM', 'Gaming Box - Nguyễn Thái Bình',   'GAMING',   'Trống', 'HCM001', 'https://genzcinema.vn/wp-content/uploads/2024/11/football-box-1.jpg',   'Phòng màn chiếu rộng kèm dàn PC đôi RTX chơi game đỉnh cao.', 'Máy chiếu 4K, PC Couple RTX, Sofa đôi, Netflix 4K'),
+('HCM001_SK', 'Sakura Box - Nguyễn Thái Bình',   'SAKURA',   'Trống', 'HCM001', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQn2PiltApSB54I3vPB_xnR_CGMEpW80obAg2VrSSVBccBrfYPwIaMXVmX3&s=10',   'Không gian hoa hoa anh đào Sakura lãng mạn.', 'Máy chiếu 4K, Sofa bed, Netflix 4K'),
+('HCM001_HK', 'HongKong Box - Nguyễn Thái Bình', 'HONGKONG', 'Trống', 'HCM001', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRc71z8pXM0lGdrJ1o2b4hgyv8kwlEh1XHyiVkp0AdP4tRYL49Y1-Azza0&s=10', 'Phòng Hongkong Neon đêm huyền bí.', 'Máy chiếu 4K, Sofa bed, Netflix 4K'),
+('HCM001_TD', 'Teddy Box - Nguyễn Thái Bình',    'TEDDY',    'Trống', 'HCM001', 'https://genzcinema.vn/wp-content/uploads/2025/06/11-768x576.png',    'Không gian gấu Teddy đáng yêu và ấm áp.', 'Máy chiếu 4K, Gấu bông khổng lồ, Sofa bed, Netflix 4K'),
 
 -- 9. Cơ sở HCM002 (Âu Cơ - TP.HCM): 2 Queen, 2 King
-('HCM002_Q01', 'Queen 01', 'QUEEN', 'Trống', 'HCM002', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10', 'Phòng Queen Âu Cơ.', 'Máy chiếu 4K, Sofa bed, Netflix 4K'),
-('HCM002_Q02', 'Queen 02', 'QUEEN', 'Trống', 'HCM002', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10', 'Phòng Queen ấm cúng Âu Cơ.', 'Máy chiếu 4K, Sofa bed, Netflix 4K'),
+('HCM002_Q01', 'Queen 01', 'QUEEN', 'Trống', 'HCM002', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRGcHios9GsQ4LKiKRGqJ9cwW645mYEOwWEqDxNUTYwRB88RsKZz-BjMwU&s=10', 'Phòng Queen Âu Cơ.', 'Máy chiếu 4K, Sofa bed, Netflix 4K'),
+('HCM002_Q02', 'Queen 02', 'QUEEN', 'Trống', 'HCM002', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRGcHios9GsQ4LKiKRGqJ9cwW645mYEOwWEqDxNUTYwRB88RsKZz-BjMwU&s=10', 'Phòng Queen ấm cúng Âu Cơ.', 'Máy chiếu 4K, Sofa bed, Netflix 4K'),
 ('HCM002_K01', 'King 01',  'KING',  'Trống', 'HCM002', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10',  'Phòng King Âu Cơ có PC đôi.', 'Máy chiếu 4K, PC Couple, Netflix 4K'),
 ('HCM002_K02', 'King 02',  'KING',  'Trống', 'HCM002', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10',  'Phòng King sang trọng Âu Cơ.', 'Máy chiếu 4K, PC Couple, Netflix 4K')
 ON CONFLICT (RoomId) DO NOTHING;
-
--- User test cho Admin, Staff và Customer - Mật khẩu chung: Genz@123
-INSERT INTO "user" (UserId, full_name, phone, email, password, RoleId, HotelId, IsLocked) VALUES
-('SEED_ADMIN',    'Trần Quản Lý (Admin)',  '0901111111', 'admin@genz.test',    '$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'ADMIN',    NULL,    FALSE),
-('SEED_STAFF',    'Lê Nhân Viên (Staff)',  '0902222222', 'staff@genz.test',    '$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'STAFF',    'HN002', FALSE),
-('STAFF_HN001',   'Nguyễn Văn Thành (Staff)',   '0902222223', 'staff.hn001@genz.test','$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'STAFF',    'HN001', FALSE),
-('STAFF_HCM001',  'Phạm Hoàng Nam (Staff)', '0902222224', 'staff.hcm001@genz.test','$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'STAFF',    'HCM001',FALSE),
-('SEED_CUSTOMER', 'Nguyễn Văn An (Khách)', '0903333333', 'customer@genz.test', '$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'CUSTOMER', NULL,    FALSE),
-('CUSTOMER_02',   'Phạm Thị Mai',          '0904444444', 'mai.pham@genz.test', '$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'CUSTOMER', NULL,    FALSE),
-('CUSTOMER_03',   'Hoàng Minh Huy',        '0905555555', 'huy.hoang@genz.test','$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'CUSTOMER', NULL,    FALSE),
-('CUSTOMER_04',   'Đặng Anh Tuấn',         '0906666666', 'tuan.dang@genz.test','$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'CUSTOMER', NULL,    FALSE),
-('CUSTOMER_05',   'Trịnh Khánh Linh',      '0907777777', 'linh.trinh@genz.test','$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'CUSTOMER', NULL,    FALSE),
-('CUSTOMER_06',   'Vũ Minh Hoàng',         '0908888888', 'hoang.vu@genz.test',  '$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'CUSTOMER', NULL,    FALSE)
-ON CONFLICT (UserId) DO NOTHING;
-
--- Voucher ưu đãi thực tế GenZ Cinema
-INSERT INTO Voucher (Code, Description, DiscountPercent, DiscountAmount, MinOrderAmount, ExpiryDate) VALUES
-('GENZ30',    'Ưu đãi Khai trương - Giảm 30% giá phòng',         30,   NULL,  0,      '2026-12-31 23:59:59'),
-('COUPLE',    'Gói hò hẹn lãng mạn cặp đôi - Giảm 50.000đ',       NULL, 50000, 200000, '2027-12-31 23:59:59'),
-('GENZ10',    'Giảm 10% cho thành viên GenZ Cinema',              10,   NULL,  0,      '2027-12-31 23:59:59'),
-('NIGHTOWL',  'Gói cày đêm cực phiêu - Giảm 40.000đ',             NULL, 40000, 180000, '2027-12-31 23:59:59'),
-('STUDENT20', 'Ưu đãi Học sinh / Sinh viên GenZ - Giảm 20%',      20,   NULL,  0,      '2027-12-31 23:59:59'),
-('VIPGIFT',   'Quà tặng Khách hàng VIP GenZ - Giảm 100.000đ',     NULL, 100000,350000, '2027-12-31 23:59:59')
-ON CONFLICT (Code) DO NOTHING;
-
--- Thực đơn Đồ ăn & Thức uống (F&B) với URL Hình ảnh sắc nét
-INSERT INTO FoodMenu (Name, Category, Price, ImageUrl, Description, IsAvailable) VALUES
-('Nước ép Trái cây Tươi', 'Nước uống', 49000, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTPq44HhMpLZ7BL-zWQeho22RteabBXpw1NQw7FdWWiqw&s=10', 'Nước ép cam, dưa hấu, táo tươi nguyên chất', TRUE),
-('Sinh tố Bơ / Mãng cầu', 'Nước uống', 49000, 'https://lypham.vn/wp-content/uploads/2025/11/cach-lam-sinh-to-mang-cau-bo.jpg', 'Sinh tố bơ béo ngậy hoặc mãng cầu tươi mát', TRUE),
-('Mỳ Ý Sốt Bò Băm (Spaghetti)', 'Đồ ăn Âu', 55000, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSqoMdfpUqZa5L4Wow3YHle7zxEo8rY10wOLnCg9pcyFw&s=10', 'Mỳ Ý sốt cà chua bò băm phô mai thơm ngon', TRUE),
-('Pizza Hải Sản / Bò Dứa Mini', 'Đồ ăn Âu', 89000, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTx-DuQ0c6eb1V4-7SGJvxbdIXbjTXyNgJ0iPzSYXwdYQ&s=10', 'Pizza nướng giòn rụm đậm đà hương vị', TRUE),
-('Set Combo Ăn Vặt GenZ', 'Set Combo', 79000, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ3pXB85n3UPbIV3p24_-n4AoFC0_E2scBLaCd2RD-Dyg&s', 'Khoai tây chiên, gà lắc phô mai, cá viên chiên', TRUE),
-('Chicken Love Set (Gà Rán + Nước)', 'Set Combo', 99000, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQu1EIiAbLrHTPg7MoTYIdSA_bxiIR5fyrsp5tZVhR6rQ&s=10', 'Set gà giòn sốt cay nhẹ kèm 2 ly nước ngọt', TRUE),
-('Bắp Nơ Bơ Tỏi (Popcorn 4K)', 'Mini Bar', 35000, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTtf8eoQ7g7en8TMlIFybGAyq5_acDOim3q6j7paeW-KYqr-23Sh4HnkGUT&s=10', 'Bắp rang bơ giòn rụm vị caramel / phô mai', TRUE);
-
--- Danh sách 9 Phim HOT Đề Cử Chuẩn Theo Hình Ảnh GenZ Cinema
-INSERT INTO Movie (Title, Category, Rating, Quality, PosterUrl, Description, IsHot) VALUES
-('Quật mộ trùng ma', 'Kinh Dị', 4.9, '4K Netflix', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTcVYlbxp9q5WH1brR8iaT3bx7zm4BD6U71k94leFi2bQ&s=10', 'Phim kinh dị Hàn Quốc về các thực thể tâm linh xuất hiện sau vụ quật mộ bí ẩn.', TRUE),
-('Godzilla x Kong: The New Empire', 'Hành Động', 5.0, '4K Netflix', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTOYLDdbqXvt4rvLa4S3dVO9i9qo0sEuIfu4XwEurAuTw&s=10', 'Cuộc đối đầu giữa các quái vật Godzilla và Kong khi titan mới xuất hiện.', TRUE),
-('Một điều ước', 'Hài Hước', 4.8, '4K Full HD', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT5dbTwKB0Y55JttYFfFC55XUsD00zb6RW-v9O6F1_2KQ&s=10', 'Câu chuyện gia đình Việt đầy cảm xúc và thông điệp ấm áp về tình yêu và tình bạn.', TRUE),
-('Kungfu Panda 4', 'Hoạt Hình', 4.9, '4K Full HD', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQuxQ_lk5uixOranAdVKhWjud5JQoKfzlFRM9fFsW2byw&s=10', 'Po cùng những người bạn đối đầu kẻ thù mới trong hành trình bảo vệ hòa bình.', TRUE),
-('Night Swim', 'Kinh Dị', 4.7, '4K Netflix', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTowuRj5RGN5IE3DAzakLIa9t3ADFJMWGk0-TjcgZ41yQ&s=10', 'Câu chuyện về gia đình bị ám ảnh bởi thực thể ma quái từ hồ bơi trong căn nhà mới.', TRUE),
-('Furiosa: A Mad Max Saga', 'Hành Động', 4.9, '4K Netflix', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTyKYgmLh7vCcCH28wp3ZPD0Wg6hL-14RX5Jui9AMFKkQ&s=10', 'Tiền truyện của Mad Max, xoay quanh hành trình của Furiosa trước sự kiện Mad Max.', TRUE),
-('The Beekeeper', 'Kịch Tính', 4.8, '4K Full HD', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTKf9eMTGbAowqAOSf3-Cmgns_YWUvhoHxXsTVgo1yKTA&s=10', 'Jason Statham vào vai người nuôi ong báo thù sau cái chết của người thân yêu.', TRUE),
-('Argylle Siêu Điệp Viên', 'Hành Động', 4.7, '4K Full HD', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRrWy2kSyIaCx3uTcAkGu9ENzoNbfLIIhDU10HQdj6Rsg&s=10', 'Một nữ nhà văn bị kéo vào những tình huống đời thực như trong sách của cô.', TRUE),
-('Venom', 'Khoa Học', 4.9, '4K Netflix', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQE_KRFJf3PjRWvSL55ZLgT9bfMFc5VdNdkwB10ghrlPA&s', 'Eddie Brock - một nhà báo bị biến thành vật chủ của symbiote Venom.', TRUE);
-
--- Script dữ liệu Đặt phòng đa dạng (Phục vụ màn Admin Stats & Staff Management)
-INSERT INTO Booking (RoomId, UserId, TypeBookingId, checkIn, checkOut, totalPrice, Status, voucherCode, discountAmount, note) VALUES
-('HN002_HK', 'SEED_CUSTOMER', 'TB_2H',    '2026-11-01 19:00:00', '2026-11-01 21:00:00', 276000, 'COMPLETED', NULL,     0,     'Khách xem phim cặp đôi'),
-('HN002_GM', 'CUSTOMER_02',   'TB_4H',    '2026-11-02 18:00:00', '2026-11-02 22:00:00', 326000, 'COMPLETED', 'GENZ10', 32600, 'Chơi PC Couple + Phim'),
-('HCM001_HK','CUSTOMER_03',   'TB_NIGHT', '2026-11-02 23:00:00', '2026-11-03 07:00:00', 296000, 'COMPLETED', NULL,     0,     'Trải nghiệm Homestay đêm'),
-('HN001_Q01', 'CUSTOMER_04',   'TB_DAY',   '2026-11-03 07:00:00', '2026-11-03 12:00:00', 196000, 'COMPLETED', 'COUPLE', 50000, 'Combo hẹn hò sáng'),
-('HN003_K01', 'SEED_CUSTOMER', 'TB_2H',    '2026-11-03 14:00:00', '2026-11-03 16:00:00', 286000, 'COMPLETED', NULL,     0,     'Khách đặt xem phim lẻ'),
-('HN001_K02', 'CUSTOMER_02',   'TB_2H',    '2026-11-03 14:00:00', '2026-11-03 16:00:00', 286000, 'CHECKED_IN', NULL,    0,     'Khách đang ở phòng'),
-('HN002_MV', 'CUSTOMER_03',   'TB_4H',    '2026-11-03 15:00:00', '2026-11-03 19:00:00', 296000, 'CHECKED_IN', NULL,    0,     'Khách đang dùng phòng Marvel'),
-('HCM001_AG','CUSTOMER_04',   'TB_NIGHT', '2026-11-03 23:00:00', '2026-11-04 07:00:00', 296000, 'CONFIRMED',  NULL,    0,     'Staff đã xác nhận lịch hẹn'),
-('HN002_HA', 'SEED_CUSTOMER', 'TB_2H',    '2026-11-04 19:00:00', '2026-11-04 21:00:00', 276000, 'PENDING',    NULL,    0,     'Chờ Staff xác nhận'),
-('HN004_K01', 'CUSTOMER_02',   'TB_2H',    '2026-11-03 10:00:00', '2026-11-03 10:00:00', 286000, 'CANCELLED',  NULL,    0,     'Khách hủy do bận việc'),
-('HCM001_AN', 'CUSTOMER_05',   'TB_2H',    '2026-11-04 14:00:00', '2026-11-04 16:00:00', 276000, 'PENDING',    'GENZ30',82800, 'Khách mới đặt phòng Anime Box'),
-('HN001_Q02', 'CUSTOMER_06',   'TB_4H',    '2026-11-03 08:00:00', '2026-11-03 12:00:00', 296000, 'REJECTED',   NULL,    0,     'Hết phòng trùng giờ');
-
--- Đánh giá khách hàng sinh động
-INSERT INTO Review (BookingId, RoomId, UserId, Rating, Comment) VALUES
-(1, 'HN002_HK', 'SEED_CUSTOMER', 5, 'Phòng Hongkong Neon cực kỳ đỉnh! Màn chiếu nét, bắp nước ngon, chắc chắn sẽ quay lại cùng người yêu.'),
-(2, 'HN002_GM', 'CUSTOMER_02',   5, 'Giàn PC Couple cấu hình rất mạnh, chơi game mượt mà. Rạp phim riêng tư vô cùng thoải mái!'),
-(3, 'HCM001_HK','CUSTOMER_03',   5, 'Trải nghiệm homestay đêm tuyệt vời tại cơ sở Nguyễn Thái Bình. Phòng ấm cúng, phục vụ chu đáo!'),
-(4, 'HN001_Q01', 'CUSTOMER_04',   4, 'Phòng sạch sẽ, chiếu phim cực kỳ chất lượng. Nhân viên nhiệt tình phục vụ đồ ăn tận phòng.'),
-(5, 'HN003_K01', 'SEED_CUSTOMER', 5, 'Phòng King rộng rãi, điều hòa mát rượi, âm thanh loa xịn vút tai!');
-
--- Thông báo phong phú dành cho Khách hàng & Staff các chi nhánh
-INSERT INTO Notification (UserId, BookingId, Title, Message, IsRead) VALUES
--- Thông báo Khách hàng
-('SEED_CUSTOMER', 1, 'Đặt phòng thành công! 🎟️', 'Mã đơn #1 tại GenZ Cinema Hoa Bằng - HongKong Box đã được ghi nhận.', TRUE),
-('SEED_CUSTOMER', 1, 'Check-in thành công! 🔑', 'Chào mừng bạn đến phòng HongKong Box tại Hoa Bằng. Chúc bạn xem phim vui vẻ!', TRUE),
-('SEED_CUSTOMER', 1, 'Cảm ơn bạn đã sử dụng dịch vụ! ⭐', 'Đơn #1 đã hoàn thành. Hãy chia sẻ trải nghiệm của bạn trên GenZ Cinema nhé!', TRUE),
-('CUSTOMER_03',   8, 'Đặt phòng đã được xác nhận! ✅', 'Staff đã xác nhận booking Avenger Box tại cơ sở Nguyễn Thái Bình của bạn.', FALSE),
-('CUSTOMER_05',   11,'Đặt phòng thành công! 🎟️', 'Đơn #11 tại Nguyễn Thái Bình - Anime Box đang chờ Nhân viên xác nhận.', FALSE),
-
--- Thông báo dành cho Staff (Vận hành từng Chi nhánh)
-('SEED_STAFF',    9, 'Đơn đặt phòng MỚI cần duyệt ⚡', 'Khách hàng Nguyễn Văn An vừa đặt phòng Hội An Box tại Hoa Bằng. Vui lòng kiểm tra và duyệt đơn.', FALSE),
-('SEED_STAFF',    2, 'Yêu cầu dọn dẹp phòng 🧹', 'Phòng Gaming Box - Hoa Bằng vừa check-out. Vui lòng tiến hành dọn dẹp để đón lượt khách tiếp theo.', TRUE),
-('STAFF_HN001',   6, 'Khách hàng đã Check-In 🔑', 'Khách hàng Phạm Thị Mai vừa check-in vào phòng King 02 tại Nguyễn Văn Lộc.', FALSE),
-('STAFF_HN001',   12,'Đơn đặt phòng BỊ TỪ CHỐI ❌', 'Đơn đặt phòng #12 tại Nguyễn Văn Lộc đã bị từ do do trùng lịch.', TRUE),
-('STAFF_HCM001',  11,'Đơn đặt phòng MỚI cần duyệt ⚡', 'Khách hàng Trịnh Khánh Linh vừa đặt phòng Anime Box tại Nguyễn Thái Bình. Vui lòng kiểm tra.', FALSE),
-('STAFF_HCM001',  3, 'Khách hàng đã Check-Out 🏁', 'Đơn #3 tại Nguyễn Thái Bình - HongKong Box đã hoàn thành thanh toán.', TRUE);
