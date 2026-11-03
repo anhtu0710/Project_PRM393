@@ -550,7 +550,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  // ── Không Gian Box Chủ Đề (100% Dynamic từ Database) ─────────────────────
+  // ── Không Gian Box Chủ Đề (100% Dynamic từ Database & Lọc theo Chi nhánh) ──
   Widget _buildDynamicThemedRooms(RoomListState roomState) {
     if (roomState.isLoading) {
       return const SizedBox(
@@ -563,7 +563,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       );
     }
 
-    if (roomState.error != null || roomState.rooms.isEmpty) {
+    final displayRooms = _selectedHotelId == null
+        ? roomState.rooms
+        : roomState.rooms.where((r) => r.hotel?.hotelId == _selectedHotelId).toList();
+
+    if (roomState.error != null || displayRooms.isEmpty) {
       return Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
@@ -573,7 +577,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ),
         child: const Center(
           child: Text(
-            'Không có dữ liệu phòng khả dụng',
+            'Không có dữ liệu phòng thuộc chi nhánh này',
             style: TextStyle(color: AppTheme.textGray),
           ),
         ),
@@ -585,9 +589,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         physics: const BouncingScrollPhysics(),
-        itemCount: roomState.rooms.length,
+        itemCount: displayRooms.length,
         itemBuilder: (context, index) {
-          final room = roomState.rooms[index];
+          final room = displayRooms[index];
           final typeName = room.typeRoom?.typeRoom ?? 'Cinema Box';
           final price = room.typeRoom?.pricePerHour;
           final priceText = price != null ? '${(price / 1000).toStringAsFixed(0)}k/h' : '';
