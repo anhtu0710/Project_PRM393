@@ -6,7 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../config/app_config.dart';
 import '../../config/app_theme.dart';
 import '../../models/admin_user_model.dart';
-import '../../models/hotel_model.dart';
+import '../../models/room_model.dart';
 import '../../providers/admin_provider.dart';
 import '../../providers/hotel_provider.dart';
 import '../../services/admin_service.dart';
