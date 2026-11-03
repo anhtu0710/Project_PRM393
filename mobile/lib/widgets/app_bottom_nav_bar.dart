@@ -36,125 +36,17 @@ class AppBottomNavBar extends ConsumerWidget {
 
   void _onTap(BuildContext context, WidgetRef ref, int index) {
     if (index == 3) {
-      _showAccountSheet(context, ref);
+      final user = ref.read(authProvider).user;
+      if (user == null) {
+        context.push('/login');
+      } else {
+        context.push('/profile');
+      }
       return;
     }
     if (index == currentIndex) return;
     final routes = ['/home', '/saved', '/rooms'];
     context.push(routes[index]);
-  }
-
-  void _showAccountSheet(BuildContext context, WidgetRef ref) {
-    final user = ref.read(authProvider).user;
-    final bool isLoggedIn = user != null;
-
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (ctx) {
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(height: 12),
-              Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-              ),
-              const SizedBox(height: 12),
-              if (isLoggedIn)
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 22,
-                        backgroundColor: AppTheme.primary.withOpacity(0.12),
-                        child: ShaderMask(
-                          shaderCallback: (b) => AppTheme.primaryGradient.createShader(b),
-                          child: const Icon(Icons.person, color: Colors.white, size: 24),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              user.fullName,
-                              style: const TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.bold,
-                                color: AppTheme.textPrimary,
-                              ),
-                            ),
-                            Text(
-                              user.email,
-                              style: const TextStyle(fontSize: 12, color: AppTheme.textGray),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              const Divider(),
-              if (!isLoggedIn)
-                ListTile(
-                  leading: const Icon(Icons.login_rounded, color: AppTheme.primary),
-                  title: const Text('Đăng nhập', style: TextStyle(fontWeight: FontWeight.w600)),
-                  onTap: () {
-                    Navigator.pop(ctx);
-                    context.go('/login');
-                  },
-                )
-              else ...[
-                ListTile(
-                  leading: const Icon(Icons.rate_review_outlined, color: AppTheme.primary),
-                  title: const Text('Đánh giá sau lưu trú', style: TextStyle(fontWeight: FontWeight.w600)),
-                  onTap: () {
-                    Navigator.pop(ctx);
-                    context.push('/reviews');
-                  },
-                ),
-                ListTile(
-                  leading: const Icon(Icons.history_rounded, color: AppTheme.primary),
-                  title: const Text('Lịch sử đặt phòng', style: TextStyle(fontWeight: FontWeight.w600)),
-                  onTap: () {
-                    Navigator.pop(ctx);
-                    context.push('/bookings');
-                  },
-                ),
-                ListTile(
-                  leading: const Icon(Icons.notifications_none_rounded, color: AppTheme.primary),
-                  title: const Text('Thông báo', style: TextStyle(fontWeight: FontWeight.w600)),
-                  onTap: () {
-                    Navigator.pop(ctx);
-                    context.push('/notifications');
-                  },
-                ),
-                ListTile(
-                  leading: const Icon(Icons.logout_rounded, color: AppTheme.primaryDark),
-                  title: const Text('Đăng xuất', style: TextStyle(fontWeight: FontWeight.w600, color: AppTheme.primaryDark)),
-                  onTap: () async {
-                    Navigator.pop(ctx);
-                    await ref.read(authProvider.notifier).logout();
-                    if (context.mounted) context.go('/login');
-                  },
-                ),
-              ],
-              const SizedBox(height: 12),
-            ],
-          ),
-        );
-      },
-    );
   }
 
   @override

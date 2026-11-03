@@ -21,6 +21,7 @@ import '../screens/customer/review/review_screen.dart';
 import '../screens/customer/voucher/voucher_list_screen.dart';
 import '../screens/customer/food/food_menu_screen.dart';
 import '../screens/customer/movie/movie_list_screen.dart';
+import '../screens/customer/profile/customer_profile_screen.dart';
 import '../screens/notification/notification_screen.dart';
 import '../screens/admin/admin_user_screen.dart';
 import '../screens/staff/staff_home_screen.dart';
@@ -199,6 +200,11 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/notifications',
         builder: (_, __) => const NotificationScreen(),
+      ),
+      GoRoute(
+        path: '/profile',
+        name: 'profile',
+        builder: (_, __) => const CustomerProfileScreen(),
       ),
 
       // ── Saved routes ─────────────────────────────────────────────────
