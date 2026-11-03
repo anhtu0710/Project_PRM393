@@ -4,6 +4,8 @@ class NotificationModel {
   final int? notificationId;
   final String userId;
   final int? bookingId;
+  final String type; // BOOKING_NEW, BOOKING_CONFIRMED, ROOM_CLEANING...
+  final String recipientRole; // CUSTOMER, STAFF, ADMIN
   final String title;
   final String message;
   final bool read;
@@ -13,6 +15,8 @@ class NotificationModel {
     this.notificationId,
     required this.userId,
     this.bookingId,
+    this.type = 'BOOKING_NEW',
+    this.recipientRole = 'CUSTOMER',
     required this.title,
     required this.message,
     this.read = false,
@@ -24,6 +28,8 @@ class NotificationModel {
       notificationId: json['notificationId'] as int?,
       userId: json['userId']?.toString() ?? '',
       bookingId: json['bookingId'] as int?,
+      type: json['type']?.toString() ?? 'BOOKING_NEW',
+      recipientRole: json['recipientRole']?.toString() ?? 'CUSTOMER',
       title: json['title']?.toString() ?? '',
       message: json['message']?.toString() ?? '',
       read: json['read'] == true,
@@ -36,6 +42,8 @@ class NotificationModel {
       if (notificationId != null) 'notificationId': notificationId,
       'userId': userId,
       if (bookingId != null) 'bookingId': bookingId,
+      'type': type,
+      'recipientRole': recipientRole,
       'title': title,
       'message': message,
       'read': read,

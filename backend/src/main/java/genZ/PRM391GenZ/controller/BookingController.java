@@ -86,11 +86,9 @@ public class BookingController {
     public ResponseEntity<ApiResponse<Booking>> createBooking(
             @RequestBody Booking booking, Principal principal) {
 
-        // 1. Lấy user từ token
         User user = userRepository.findByEmail(principal.getName())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy tài khoản"));
 
-        // 2. Kiểm tra dữ liệu đầu vào
         if (booking.getRoom() == null || booking.getRoom().getRoomId() == null) {
             throw new RuntimeException("Thiếu thông tin phòng");
         }
@@ -115,7 +113,6 @@ public class BookingController {
         TypeBooking typeBooking = typeBookingRepository.findById(booking.getTypeBooking().getTypeBookingId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy hình thức thuê"));
 
-        // 3. Tính giờ trả phòng
         LocalDateTime checkIn = booking.getCheckIn();
         LocalDateTime checkOut;
         if (typeBooking.getDurationHours() != null) {
@@ -126,7 +123,6 @@ public class BookingController {
             throw new RuntimeException("Giờ trả phòng không hợp lệ");
         }
 
-        // 4. Kiểm tra trùng lịch
         List<Booking> roomBookings = bookingRepository.findByRoom_RoomId(room.getRoomId());
         for (Booking other : roomBookings) {
             String status = other.getStatus();
@@ -146,7 +142,6 @@ public class BookingController {
             }
         }
 
-        // 5. Giá từ PriceConfig
         if (room.getTypeRoom() == null) {
             throw new RuntimeException("Phòng chưa có loại phòng, không tính được giá");
         }
@@ -156,7 +151,6 @@ public class BookingController {
                 .orElseThrow(() -> new RuntimeException("Chưa có giá cho loại phòng và combo này"));
         BigDecimal price = priceConfig.getPrice();
 
-        // 6. Áp voucher
         BigDecimal discount = BigDecimal.ZERO;
         String voucherCode = booking.getVoucherCode();
         if (voucherCode != null && !voucherCode.isBlank()) {
@@ -167,7 +161,6 @@ public class BookingController {
             voucherCode = null;
         }
 
-        // 7. Lưu booking
         booking.setUser(user);
         booking.setRoom(room);
         booking.setTypeBooking(typeBooking);
@@ -179,12 +172,14 @@ public class BookingController {
 
         Booking saved = bookingRepository.save(booking);
 
-        // 8. Tạo thông báo cho Khách hàng & Staff phụ trách chi nhánh đó
+        // Tạo thông báo chuẩn hóa cho Khách hàng & Staff phụ trách chi nhánh
         try {
             // Thông báo cho Khách
             notificationRepository.save(Notification.builder()
                     .userId(user.getUserId())
                     .bookingId(saved.getBookingId())
+                    .type("BOOKING_NEW")
+                    .recipientRole("CUSTOMER")
                     .title("Đặt phòng thành công! 🎟️")
                     .message("Mã đơn #" + saved.getBookingId() + " tại " + room.getHotel().getName() + " - " + room.getNameRoom() + " đã được ghi nhận. Vui lòng chờ xác nhận.")
                     .read(false)
@@ -199,6 +194,8 @@ public class BookingController {
                 notificationRepository.save(Notification.builder()
                         .userId(staffUser.getUserId())
                         .bookingId(saved.getBookingId())
+                        .type("BOOKING_NEW")
+                        .recipientRole("STAFF")
                         .title("Đơn đặt phòng MỚI cần duyệt ⚡")
                         .message("Khách hàng " + user.getFullName() + " vừa đặt phòng " + room.getNameRoom() + " tại " + room.getHotel().getName() + ".")
                         .read(false)
@@ -239,6 +236,8 @@ public class BookingController {
                 notificationRepository.save(Notification.builder()
                         .userId(staffUser.getUserId())
                         .bookingId(updated.getBookingId())
+                        .type("BOOKING_CANCELLED")
+                        .recipientRole("STAFF")
                         .title("Khách hàng đã HỦY đặt phòng ⚠️")
                         .message("Đơn #" + updated.getBookingId() + " tại phòng " + updated.getRoom().getNameRoom() + " đã bị hủy.")
                         .read(false)
@@ -259,9 +258,16 @@ public class BookingController {
 
             // Thông báo cho Khách hàng
             try {
+                String notifType = "BOOKING_CONFIRMED";
+                if ("REJECTED".equalsIgnoreCase(status)) notifType = "BOOKING_REJECTED";
+                if ("CHECKED_IN".equalsIgnoreCase(status)) notifType = "CHECK_IN";
+                if ("COMPLETED".equalsIgnoreCase(status)) notifType = "CHECK_OUT";
+
                 notificationRepository.save(Notification.builder()
                         .userId(b.getUser().getUserId())
                         .bookingId(b.getBookingId())
+                        .type(notifType)
+                        .recipientRole("CUSTOMER")
                         .title("Cập nhật trạng thái đơn đặt phòng 🔔")
                         .message("Đơn đặt phòng #" + b.getBookingId() + " tại " + b.getRoom().getHotel().getName() + " đã chuyển sang trạng thái: " + status)
                         .read(false)

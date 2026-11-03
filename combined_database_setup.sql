@@ -148,15 +148,17 @@ CREATE TABLE Review (
     FOREIGN KEY (UserId)    REFERENCES [User](UserId)
 );
 
--- 12. Bảng Notification
+-- 12. Bảng Notification (Chuẩn hóa Type & RecipientRole)
 CREATE TABLE Notification (
     NotificationId INT IDENTITY(1,1) PRIMARY KEY,
-    UserId    VARCHAR(50)   NOT NULL,
-    BookingId INT           NULL,
-    Title     NVARCHAR(255) NOT NULL,
-    Message   NVARCHAR(MAX) NOT NULL,
-    IsRead    BIT           NOT NULL DEFAULT 0,
-    CreatedAt DATETIME      NOT NULL DEFAULT GETDATE(),
+    UserId        VARCHAR(50)   NOT NULL,
+    BookingId     INT           NULL,
+    Type          VARCHAR(50)   NOT NULL DEFAULT 'BOOKING_NEW',
+    RecipientRole VARCHAR(20)   NOT NULL DEFAULT 'CUSTOMER',
+    Title         NVARCHAR(255) NOT NULL,
+    Message       NVARCHAR(MAX) NOT NULL,
+    IsRead        BIT           NOT NULL DEFAULT 0,
+    CreatedAt     DATETIME      NOT NULL DEFAULT GETDATE(),
     FOREIGN KEY (UserId)    REFERENCES [User](UserId),
     FOREIGN KEY (BookingId) REFERENCES Booking(BookingId)
 );
@@ -389,20 +391,20 @@ INSERT INTO Review (BookingId, RoomId, UserId, Rating, Comment) VALUES
 (4, 'HN001_Q01', 'CUSTOMER_04',   4, N'Phòng sạch sẽ, chiếu phim cực kỳ chất lượng. Nhân viên nhiệt tình phục vụ đồ ăn tận phòng.'),
 (5, 'HN003_K01', 'SEED_CUSTOMER', 5, N'Phòng King rộng rãi, điều hòa mát rượi, âm thanh loa xịn vút tai!');
 
--- Thông báo phong phú dành cho Khách hàng & Staff các chi nhánh
-INSERT INTO Notification (UserId, BookingId, Title, Message, IsRead) VALUES
+-- Thông báo phong phú dành cho Khách hàng & Staff các chi nhánh (Chuẩn hóa Format Type & RecipientRole)
+INSERT INTO Notification (UserId, BookingId, Type, RecipientRole, Title, Message, IsRead) VALUES
 -- Thông báo Khách hàng
-('SEED_CUSTOMER', 1, N'Đặt phòng thành công! 🎟️', N'Mã đơn #1 tại GenZ Cinema Hoa Bằng - HongKong Box đã được ghi nhận.', 1),
-('SEED_CUSTOMER', 1, N'Check-in thành công! 🔑', N'Chào mừng bạn đến phòng HongKong Box tại Hoa Bằng. Chúc bạn xem phim vui vẻ!', 1),
-('SEED_CUSTOMER', 1, N'Cảm ơn bạn đã sử dụng dịch vụ! ⭐', N'Đơn #1 đã hoàn thành. Hãy chia sẻ trải nghiệm của bạn trên GenZ Cinema nhé!', 1),
-('CUSTOMER_03',   8, N'Đặt phòng đã được xác nhận! ✅', N'Staff đã xác nhận booking Avenger Box tại cơ sở Nguyễn Thái Bình của bạn.', 0),
-('CUSTOMER_05',   11,N'Đặt phòng thành công! 🎟️', N'Đơn #11 tại Nguyễn Thái Bình - Anime Box đang chờ Nhân viên xác nhận.', 0),
+('SEED_CUSTOMER', 1, 'BOOKING_CONFIRMED', 'CUSTOMER', N'Đặt phòng thành công! 🎟️', N'Mã đơn #1 tại GenZ Cinema Hoa Bằng - HongKong Box đã được ghi nhận.', 1),
+('SEED_CUSTOMER', 1, 'CHECK_IN',          'CUSTOMER', N'Check-in thành công! 🔑', N'Chào mừng bạn đến phòng HongKong Box tại Hoa Bằng. Chúc bạn xem phim vui vẻ!', 1),
+('SEED_CUSTOMER', 1, 'CHECK_OUT',         'CUSTOMER', N'Cảm ơn bạn đã sử dụng dịch vụ! ⭐', N'Đơn #1 đã hoàn thành. Hãy chia sẻ trải nghiệm của bạn trên GenZ Cinema nhé!', 1),
+('CUSTOMER_03',   8, 'BOOKING_CONFIRMED', 'CUSTOMER', N'Đặt phòng đã được xác nhận! ✅', N'Staff đã xác nhận booking Avenger Box tại cơ sở Nguyễn Thái Bình của bạn.', 0),
+('CUSTOMER_05',   11,'BOOKING_NEW',       'CUSTOMER', N'Đặt phòng thành công! 🎟️', N'Đơn #11 tại Nguyễn Thái Bình - Anime Box đang chờ Nhân viên xác nhận.', 0),
 
 -- Thông báo dành cho Staff (Vận hành từng Chi nhánh)
-('SEED_STAFF',    9, N'Đơn đặt phòng MỚI cần duyệt ⚡', N'Khách hàng Nguyễn Văn An vừa đặt phòng Hội An Box tại Hoa Bằng. Vui lòng kiểm tra và duyệt đơn.', 0),
-('SEED_STAFF',    2, N'Yêu cầu dọn dẹp phòng 🧹', N'Phòng Gaming Box - Hoa Bằng vừa check-out. Vui lòng tiến hành dọn dẹp để đón lượt khách tiếp theo.', 1),
-('STAFF_HN001',   6, N'Khách hàng đã Check-In 🔑', N'Khách hàng Phạm Thị Mai vừa check-in vào phòng King 02 tại Nguyễn Văn Lộc.', 0),
-('STAFF_HN001',   12,N'Đơn đặt phòng BỊ TỪ CHỐI ❌', N'Đơn đặt phòng #12 tại Nguyễn Văn Lộc đã bị từ chối do trùng lịch.', 1),
-('STAFF_HCM001',  11,N'Đơn đặt phòng MỚI cần duyệt ⚡', N'Khách hàng Trịnh Khánh Linh vừa đặt phòng Anime Box tại Nguyễn Thái Bình. Vui lòng kiểm tra.', 0),
-('STAFF_HCM001',  3, N'Khách hàng đã Check-Out 🏁', N'Đơn #3 tại Nguyễn Thái Bình - HongKong Box đã hoàn thành thanh toán.', 1);
+('SEED_STAFF',    9, 'BOOKING_NEW',       'STAFF',    N'Đơn đặt phòng MỚI cần duyệt ⚡', N'Khách hàng Nguyễn Văn An vừa đặt phòng Hội An Box tại Hoa Bằng. Vui lòng kiểm tra và duyệt đơn.', 0),
+('SEED_STAFF',    2, 'ROOM_CLEANING',     'STAFF',    N'Yêu cầu dọn dẹp phòng 🧹', N'Phòng Gaming Box - Hoa Bằng vừa check-out. Vui lòng tiến hành dọn dẹp để đón lượt khách tiếp theo.', 1),
+('STAFF_HN001',   6, 'CHECK_IN',          'STAFF',    N'Khách hàng đã Check-In 🔑', N'Khách hàng Phạm Thị Mai vừa check-in vào phòng King 02 tại Nguyễn Văn Lộc.', 0),
+('STAFF_HN001',   12,'BOOKING_REJECTED',  'STAFF',    N'Đơn đặt phòng BỊ TỪ CHỐI ❌', N'Đơn đặt phòng #12 tại Nguyễn Văn Lộc đã bị từ chối do trùng lịch.', 1),
+('STAFF_HCM001',  11,'BOOKING_NEW',       'STAFF',    N'Đơn đặt phòng MỚI cần duyệt ⚡', N'Khách hàng Trịnh Khánh Linh vừa đặt phòng Anime Box tại Nguyễn Thái Bình. Vui lòng kiểm tra.', 0),
+('STAFF_HCM001',  3, 'CHECK_OUT',         'STAFF',    N'Khách hàng đã Check-Out 🏁', N'Đơn #3 tại Nguyễn Thái Bình - HongKong Box đã hoàn thành thanh toán.', 1);
 GO

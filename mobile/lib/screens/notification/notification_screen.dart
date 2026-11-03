@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../config/app_config.dart';
 import '../../config/app_theme.dart';
 import '../../models/notification_model.dart';
 import '../../providers/auth_provider.dart';
@@ -180,17 +181,19 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
   }
 
   Widget _buildNotificationCard(BuildContext context, NotificationModel notif, String userId) {
+    final (iconData, gradientColors, tagLabel) = _getNotificationTypeStyle(notif.type);
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: notif.read ? Colors.white : const Color(0xFFFAF5FF), // Soft purple highlight for unread
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: notif.read ? AppTheme.cardBorder : AppTheme.primary.withOpacity(0.3),
+          color: notif.read ? AppTheme.cardBorder : AppTheme.primary.withValues(alpha: 0.3),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -203,13 +206,31 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
           decoration: BoxDecoration(
             gradient: notif.read
                 ? const LinearGradient(colors: [Color(0xFF94A3B8), Color(0xFF64748B)])
-                : AppTheme.primaryGradient,
+                : LinearGradient(colors: gradientColors),
             shape: BoxShape.circle,
           ),
-          child: const Icon(Icons.notifications_rounded, color: Colors.white, size: 20),
+          child: Icon(iconData, color: Colors.white, size: 20),
         ),
         title: Row(
           children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: notif.read
+                    ? Colors.grey.shade200
+                    : gradientColors[0].withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Text(
+                tagLabel,
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  color: notif.read ? Colors.grey.shade600 : gradientColors[0],
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
             Expanded(
               child: Text(
                 notif.title,
@@ -218,6 +239,8 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
                   fontWeight: notif.read ? FontWeight.w600 : FontWeight.bold,
                   color: AppTheme.textPrimary,
                 ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
             if (!notif.read)
@@ -235,7 +258,7 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 4),
+            const SizedBox(height: 6),
             Text(
               notif.message,
               style: const TextStyle(fontSize: 12, color: AppTheme.textGray, height: 1.3),
@@ -263,10 +286,35 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
           }
           if (notif.bookingId != null) {
             context.push('/bookings/${notif.bookingId}');
+          } else if (notif.type == 'ROOM_CLEANING') {
+            context.push('/staff/room-map');
           }
         },
       ),
     );
+  }
+
+  (IconData, List<Color>, String) _getNotificationTypeStyle(String type) {
+    switch (type.toUpperCase()) {
+      case 'BOOKING_NEW':
+        return (Icons.flash_on_rounded, [const Color(0xFFFB8500), const Color(0xFFFFB703)], 'ĐƠN MỚI');
+      case 'BOOKING_CONFIRMED':
+        return (Icons.check_circle_rounded, [const Color(0xFF10B981), const Color(0xFF059669)], 'ĐÃ DUYỆT');
+      case 'BOOKING_CANCELLED':
+        return (Icons.warning_amber_rounded, [const Color(0xFFF97316), const Color(0xFFEA580C)], 'ĐÃ HỦY');
+      case 'BOOKING_REJECTED':
+        return (Icons.cancel_rounded, [const Color(0xFFEF4444), const Color(0xFFDC2626)], 'TỪ CHỐI');
+      case 'CHECK_IN':
+        return (Icons.key_rounded, [const Color(0xFF8B5CF6), const Color(0xFF7C3AED)], 'CHECK-IN');
+      case 'CHECK_OUT':
+        return (Icons.meeting_room_rounded, [const Color(0xFF6366F1), const Color(0xFF4F46E5)], 'CHECK-OUT');
+      case 'ROOM_CLEANING':
+        return (Icons.cleaning_services_rounded, [const Color(0xFFF59E0B), const Color(0xFFD97706)], 'DỌN PHÒNG');
+      case 'SYSTEM_PROMO':
+        return (Icons.card_giftcard_rounded, [const Color(0xFFEC4899), const Color(0xFFDB2777)], 'ƯU ĐÃI');
+      default:
+        return (Icons.notifications_rounded, [AppTheme.primary, AppTheme.primaryDark], 'THÔNG BÁO');
+    }
   }
 
   String _formatDate(String raw) {

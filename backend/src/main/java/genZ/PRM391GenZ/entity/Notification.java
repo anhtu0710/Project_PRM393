@@ -23,6 +23,12 @@ public class Notification {
     @Column(name = "BookingId")
     private Integer bookingId; // booking liên quan, có thể để trống
 
+    @Column(name = "Type", length = 50)
+    private String type; // BOOKING_NEW, BOOKING_CONFIRMED, ROOM_CLEANING...
+
+    @Column(name = "RecipientRole", length = 20)
+    private String recipientRole; // CUSTOMER, STAFF, ADMIN
+
     @Column(name = "Title", nullable = false)
     private String title;
 
@@ -32,7 +38,6 @@ public class Notification {
     @Column(name = "IsRead", nullable = false)
     private boolean read; // false = chưa đọc
 
-    // Database tự điền giờ tạo, Java không cần gán
     @Column(name = "CreatedAt", insertable = false, updatable = false)
     private LocalDateTime createdAt;
 }
