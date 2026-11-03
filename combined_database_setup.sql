@@ -239,14 +239,15 @@ INSERT INTO PriceConfig (TypeRoomId, TypeBookingId, Price) VALUES
 
 -- Danh sách 9 Chi nhánh với URL Hình Ảnh chuẩn
 INSERT INTO Hotel (HotelId, name, address, countRoom, phone, imageUrl, City) VALUES
-('HN001', N'GenZ Cinema - Nguyễn Văn Lộc',   N'Số 13, Ngõ 2 Nguyễn Văn Lộc, P. Mộ Lao, Hà Đông, Hà Nội',          4, '0876583333', 'https://genzcinema.vn/wp-content/uploads/2024/11/cropped-logo.png', N'Hà Nội'),
-('HN002', N'GenZ Cinema - Hoa Bằng',        N'Số 24 P. Hoa Bằng, Yên Hoà, Cầu Giấy, Hà Nội',                     7, '0877155379', 'https://genzcinema.vn/wp-content/uploads/2024/11/cropped-logo.png', N'Hà Nội'),
-('HN003', N'GenZ Cinema - Nguyễn Lương Bằng', N'Số 3, Ngõ 180 Nguyễn Lương Bằng, Quang Trung, Đống Đa, Hà Nội',    4, '0325186385', 'https://genzcinema.vn/wp-content/uploads/2024/11/cropped-logo.png', N'Hà Nội'),
-('HN004', N'GenZ Cinema - Hoàng Ngân',       N'Số 103 P. Hoàng Ngân, Nhân Chính, Thanh Xuân, Hà Nội',             4, '0823983881', 'https://genzcinema.vn/wp-content/uploads/2024/11/cropped-logo.png', N'Hà Nội'),
-('HN006', N'GenZ Cinema - Hồ Tây',           N'Số 135 P. Nhật Chiêu, Nhật Tân, Tây Hồ, Hà Nội',                  4, '0838408881', 'https://genzcinema.vn/wp-content/uploads/2024/11/cropped-logo.png', N'Hà Nội'),
-('BN001', N'GenZ Cinema - Lý Đạo Thành',     N'Số 63 P. Lý Đạo Thành, TP. Bắc Ninh',                             4, '0876583333', 'https://genzcinema.vn/wp-content/uploads/2024/11/cropped-logo.png', N'Bắc Ninh'),
-('HCM001', N'GenZ Cinema - Nguyễn Thái Bình',N'Số 419 Nguyễn Thái Bình, P. 12, Q. Tân Bình, TP. Hồ Chí Minh',     9, '0876583333', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTY0QDJlHk0yQOOk-cs8WjC4fp143Q3K1y46-E628VteA&s=10', N'TP. Hồ Chí Minh'),
-('HCM002', N'GenZ Cinema - Âu Cơ',          N'Số 547 Âu Cơ, P. Phú Trung, Q. Tân Phú, TP. Hồ Chí Minh',          4, '0876583333', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTY0QDJlHk0yQOOk-cs8WjC4fp143Q3K1y46-E628VteA&s=10', N'TP. Hồ Chí Minh');
+('HN001', N'GenZ Cinema - Nguyễn Văn Lộc',   N'Số 13, Ngõ 2 Nguyễn Văn Lộc, P. Mộ Lao, Hà Đông, Hà Nội',          4, '0876583333', 'https://genzcinema.vn/wp-content/uploads/2024/01/hadong.jpg', N'Hà Nội'),
+('HN002', N'GenZ Cinema - Hoa Bằng',        N'Số 24 P. Hoa Bằng, Yên Hoà, Cầu Giấy, Hà Nội',                     7, '0877155379', 'https://genzcinema.vn/wp-content/uploads/2024/01/caugiay.jpg', N'Hà Nội'),
+('HN003', N'GenZ Cinema - Nguyễn Lương Bằng', N'Số 3, Ngõ 180 Nguyễn Lương Bằng, Quang Trung, Đống Đa, Hà Nội',    4, '0325186385', 'https://genzcinema.vn/wp-content/uploads/2024/01/dongda.jpg', N'Hà Nội'),
+('HN004', N'GenZ Cinema - Hoàng Ngân',       N'Số 103 P. Hoàng Ngân, Nhân Chính, Thanh Xuân, Hà Nội',             4, '0823983881', 'https://genzcinema.vn/wp-content/uploads/2024/01/thanhxuan.jpg', N'Hà Nội'),
+('HN005', N'GenZ Cinema - Lĩnh Nam',         N'Số 130 P. Lĩnh Nam, Vĩnh Hưng, Hoàng Mai, Hà Nội',                 4, '0989838603', 'https://genzcinema.vn/wp-content/uploads/2024/01/linhnam.jpg', N'Hà Nội'),
+('HN006', N'GenZ Cinema - Hồ Tây',           N'Số 135 P. Nhật Chiêu, Nhật Tân, Tây Hồ, Hà Nội',                  4, '0838408881', 'https://genzcinema.vn/wp-content/uploads/2024/01/tayho.jpg', N'Hà Nội'),
+('BN001', N'GenZ Cinema - Lý Đạo Thành',     N'Số 63 P. Lý Đạo Thành, TP. Bắc Ninh',                             4, '0876583333', 'https://genzcinema.vn/wp-content/uploads/2024/01/bacninh.jpg', N'Bắc Ninh'),
+('HCM001', N'GenZ Cinema - Nguyễn Thái Bình',N'Số 419 Nguyễn Thái Bình, P. 12, Q. Tân Bình, TP. Hồ Chí Minh',     9, '0876583333', 'https://genzcinema.vn/wp-content/uploads/2024/01/tanbinh.jpg', N'TP. Hồ Chí Minh'),
+('HCM002', N'GenZ Cinema - Âu Cơ',          N'Số 547 Âu Cơ, P. Phú Trung, Q. Tân Phú, TP. Hồ Chí Minh',          4, '0876583333', 'https://genzcinema.vn/wp-content/uploads/2024/01/tanphu.jpg', N'TP. Hồ Chí Minh');
 
 -- Danh sách Phòng đúng chuẩn phân bổ yêu cầu với URL Hình Ảnh yêu cầu
 INSERT INTO Room (RoomId, nameRoom, TypeRoomId, Status, HotelId, imageUrl, description, amenities) VALUES
