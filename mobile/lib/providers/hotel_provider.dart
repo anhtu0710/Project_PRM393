@@ -74,12 +74,7 @@ class HotelListNotifier extends StateNotifier<HotelListState> {
       await loadHotels();
       return null; // Success, no error
     } catch (e) {
-      String msg = 'Xóa chi nhánh thất bại';
-      if (e.toString().contains('400') || e.toString().contains('phòng')) {
-        msg = 'Không thể xóa chi nhánh đang có phòng thuộc cơ sở này';
-      } else {
-        msg = e.toString().replaceAll('Exception: ', '');
-      }
+      final msg = e.toString(); // câu báo lỗi tiếng Việt từ HotelService
       state = state.copyWith(error: msg);
       return msg; // Return error message to UI
     }

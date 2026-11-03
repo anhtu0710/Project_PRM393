@@ -95,9 +95,10 @@ class PriceConfigListNotifier extends StateNotifier<PriceConfigListState> {
     }
   }
 
-  Future<bool> createTypeBooking(TypeBookingModel combo) async {
+  /// Tạo gói combo mới (màn Bảng giá dùng trước khi tạo giá cho gói đó)
+  Future<bool> createTypeBooking(TypeBookingModel typeBooking) async {
     try {
-      await _service.createTypeBooking(combo);
+      await _service.createTypeBooking(typeBooking);
       await loadData();
       return true;
     } catch (e) {

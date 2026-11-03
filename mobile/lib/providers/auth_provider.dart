@@ -136,18 +136,17 @@ class ResetNotifier extends StateNotifier<ResetState> {
   final AuthService _service;
   ResetNotifier(this._service) : super(const ResetState());
 
-  Future<bool> requestReset(String email) async {
+  /// Trả về mã đặt lại mật khẩu (null nếu lỗi).
+  /// Bản offline không gửi email, màn hình dùng mã này mở trang đặt mật khẩu mới.
+  Future<String?> requestReset(String email) async {
     state = state.copyWith(isLoading: true, clearError: true, clearSuccess: true);
     try {
-      await _service.requestPasswordReset(email);
-      state = state.copyWith(
-        isLoading: false,
-        success: 'Link đặt lại mật khẩu đã được gửi đến email của bạn',
-      );
-      return true;
+      final token = await _service.requestPasswordReset(email);
+      state = state.copyWith(isLoading: false);
+      return token;
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
-      return false;
+      return null;
     }
   }
 
