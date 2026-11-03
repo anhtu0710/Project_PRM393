@@ -251,10 +251,34 @@ public class BookingController {
     @PutMapping("/{id}/status")
     @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
     public ResponseEntity<ApiResponse<Booking>> updateStatus(
-            @PathVariable Integer id, @RequestParam String status) {
+            @PathVariable Integer id,
+            @RequestParam String status,
+            @RequestParam(required = false) BigDecimal totalPrice,
+            @RequestParam(required = false) String note) {
         return bookingRepository.findById(id).map(b -> {
             b.setStatus(status);
+            if (totalPrice != null) {
+                b.setTotalPrice(totalPrice);
+            }
+            if (note != null && !note.isBlank()) {
+                b.setNote(note.trim());
+            }
             Booking updated = bookingRepository.save(b);
+
+            // Cập nhật trạng thái phòng tương ứng (Check-in -> Đang dùng, Check-out -> Đang dọn, Hủy/Từ chối -> Trống)
+            Room room = b.getRoom();
+            if (room != null) {
+                if ("COMPLETED".equalsIgnoreCase(status)) {
+                    room.setStatus("Đang dọn");
+                    roomRepository.save(room);
+                } else if ("CHECKED_IN".equalsIgnoreCase(status)) {
+                    room.setStatus("Đang dùng");
+                    roomRepository.save(room);
+                } else if ("CANCELLED".equalsIgnoreCase(status) || "REJECTED".equalsIgnoreCase(status)) {
+                    room.setStatus("Trống");
+                    roomRepository.save(room);
+                }
+            }
 
             // Thông báo cho Khách hàng
             try {
@@ -274,7 +298,7 @@ public class BookingController {
                         .build());
             } catch (Exception ignored) {}
 
-            return ResponseEntity.ok(ApiResponse.success("Cập nhật trạng thái", updated));
+            return ResponseEntity.ok(ApiResponse.success("Cập nhật trạng thái thành công", updated));
         }).orElse(ResponseEntity.notFound().build());
     }
 

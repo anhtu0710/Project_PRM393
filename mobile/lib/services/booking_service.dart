@@ -43,10 +43,16 @@ class BookingService {
         .toList();
   }
 
-  /// Cập nhật trạng thái booking (Duyệt, Từ chối, Check-in, Check-out)
-  Future<BookingModel> updateBookingStatus(int id, String status) async {
-    final response =
-        await _dio.put('/bookings/$id/status', queryParameters: {'status': status});
+  /// Cập nhật trạng thái booking (Duyệt, Từ chối, Check-in, Check-out + Tính tổng tiền)
+  Future<BookingModel> updateBookingStatus(int id, String status, {double? totalPrice, String? note}) async {
+    final response = await _dio.put(
+      '/bookings/$id/status',
+      queryParameters: {
+        'status': status,
+        if (totalPrice != null) 'totalPrice': totalPrice,
+        if (note != null && note.isNotEmpty) 'note': note,
+      },
+    );
     return BookingModel.fromJson(
         response.data['data'] as Map<String, dynamic>);
   }

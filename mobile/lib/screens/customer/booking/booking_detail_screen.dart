@@ -9,6 +9,7 @@ import '../../../models/booking_model.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../providers/booking_provider.dart';
 import '../../../services/booking_service.dart';
+import '../../../widgets/checkout_modal_dialog.dart';
 import 'booking_ui.dart';
 
 class BookingDetailScreen extends ConsumerStatefulWidget {
@@ -265,13 +266,13 @@ class _BookingDetailScreenState extends ConsumerState<BookingDetailScreen> {
                 SizedBox(
                   height: 48,
                   child: ElevatedButton.icon(
-                    onPressed: _cancelling ? null : () => _updateStaffStatus(AppConfig.bookingCompleted, 'Check-out hoàn tất'),
+                    onPressed: _cancelling ? null : () => CheckoutModalDialog.show(context, b),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF6366F1),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
-                    icon: const Icon(Icons.meeting_room_rounded, color: Colors.white),
-                    label: const Text('Check-out hoàn tất', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                    icon: const Icon(Icons.receipt_long_rounded, color: Colors.white),
+                    label: const Text('Thanh toán & Check-out', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                   ),
                 ),
               ],

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../config/app_config.dart';
 import '../../models/booking_model.dart';
 import '../../providers/booking_provider.dart';
+import '../../widgets/checkout_modal_dialog.dart';
 
 class StaffBookingScreen extends ConsumerWidget {
   const StaffBookingScreen({super.key});
@@ -214,7 +215,12 @@ class _BookingListView extends StatelessWidget {
           style: ElevatedButton.styleFrom(backgroundColor: Colors.purple),
           icon: const Icon(Icons.logout, color: Colors.white),
           label: const Text('Check-out (Thu tiền)', style: TextStyle(color: Colors.white)),
-          onPressed: () => _updateStatus(context, b.bookingId!, AppConfig.bookingCompleted),
+          onPressed: () async {
+            final ok = await CheckoutModalDialog.show(context, b);
+            if (ok == true) {
+              ref.invalidate(staffBookingsProvider);
+            }
+          },
         ),
       );
     }
