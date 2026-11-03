@@ -247,69 +247,69 @@ INSERT INTO Hotel (HotelId, name, address, countRoom, phone, imageUrl, City) VAL
 ('HCM001', N'GenZ Cinema - Nguyễn Thái Bình',N'Số 419 Nguyễn Thái Bình, P. 12, Q. Tân Bình, TP. Hồ Chí Minh',     9, '0876583333', 'https://genzcinema.vn/wp-content/uploads/2024/01/tanbinh.jpg', N'TP. Hồ Chí Minh'),
 ('HCM002', N'GenZ Cinema - Âu Cơ',          N'Số 547 Âu Cơ, P. Phú Trung, Q. Tân Phú, TP. Hồ Chí Minh',          4, '0876583333', 'https://genzcinema.vn/wp-content/uploads/2024/01/tanphu.jpg', N'TP. Hồ Chí Minh');
 
--- Danh sách Phòng đúng chuẩn phân bổ yêu cầu
+-- Danh sách Phòng đúng chuẩn phân bổ yêu cầu với URL Hình Ảnh yêu cầu
 INSERT INTO Room (RoomId, nameRoom, TypeRoomId, Status, HotelId, imageUrl, description, amenities) VALUES
 -- 1. Cơ sở HN001 (Nguyễn Văn Lộc): 2 Queen, 2 King
-('HN001_Q01', N'Queen 01', 'QUEEN', N'Trống', 'HN001', 'https://genzcinema.vn/wp-content/uploads/2024/01/queen.jpg', N'Phòng Queen chiếu phim riêng tư ấm cúng.', N'Máy chiếu 4K, Sofa bed, Điều hòa 2 chiều, Netflix 4K'),
-('HN001_Q02', N'Queen 02', 'QUEEN', N'Trống', 'HN001', 'https://genzcinema.vn/wp-content/uploads/2024/01/queen.jpg', N'Phòng Queen xem phim không gian thoáng mát.', N'Máy chiếu 4K, Sofa bed, Máy lọc không khí, Netflix 4K'),
-('HN001_K01', N'King 01',  'KING',  N'Trống', 'HN001', 'https://genzcinema.vn/wp-content/uploads/2024/01/king.jpg',  N'Phòng King cao cấp trang bị PC đôi chơi game.', N'Máy chiếu 4K, PC Couple RTX, Sofa đôi, Netflix 4K'),
-('HN001_K02', N'King 02',  'KING',  N'Đang dùng', 'HN001', 'https://genzcinema.vn/wp-content/uploads/2024/01/king.jpg',  N'Phòng King rạp chiếu phim kết hợp dàn máy gaming.', N'Máy chiếu 4K, PC Couple RTX, Sofa đôi, Board game'),
+('HN001_Q01', N'Queen 01', 'QUEEN', N'Trống', 'HN001', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10', N'Phòng Queen chiếu phim riêng tư ấm cúng.', N'Máy chiếu 4K, Sofa bed, Điều hòa 2 chiều, Netflix 4K'),
+('HN001_Q02', N'Queen 02', 'QUEEN', N'Trống', 'HN001', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10', N'Phòng Queen xem phim không gian thoáng mát.', N'Máy chiếu 4K, Sofa bed, Máy lọc không khí, Netflix 4K'),
+('HN001_K01', N'King 01',  'KING',  N'Trống', 'HN001', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10',  N'Phòng King cao cấp trang bị PC đôi chơi game.', N'Máy chiếu 4K, PC Couple RTX, Sofa đôi, Netflix 4K'),
+('HN001_K02', N'King 02',  'KING',  N'Đang dùng', 'HN001', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10',  N'Phòng King rạp chiếu phim kết hợp dàn máy gaming.', N'Máy chiếu 4K, PC Couple RTX, Sofa đôi, Board game'),
 
 -- 2. Cơ sở HN002 (Hoa Bằng - Hà Nội): 7 Box chủ đề
-('HN002_FB', N'Football Box - Hoa Bằng', 'FOOTBALL', N'Trống', 'HN002', 'https://genzcinema.vn/wp-content/uploads/2024/01/football.jpg', N'Không gian điện ảnh kết hợp giải trí thể thao sôi động.', N'Máy chiếu 4K, Sofa bed, Soundbar 5.1, Netflix 4K'),
-('HN002_GM', N'Gaming Box - Hoa Bằng',   'GAMING',   N'Trống', 'HN002', 'https://genzcinema.vn/wp-content/uploads/2024/01/gaming.jpg',   N'Màn chiếu rộng kết hợp giàn PC đôi chơi game cực mượt.', N'Máy chiếu 4K, PC Couple RTX, Sofa đôi, Netflix 4K'),
-('HN002_HA', N'Hội An Box - Hoa Bằng',   'HOIAN',    N'Trống', 'HN002', 'https://genzcinema.vn/wp-content/uploads/2024/01/hoian.jpg',    N'Không gian phố cổ Hội An lãng mạn hoài niệm.', N'Máy chiếu 4K, Sofa bed, Đèn lồng trang trí, Netflix 4K'),
-('HN002_HK', N'HongKong Box - Hoa Bằng', 'HONGKONG', N'Trống', 'HN002', 'https://genzcinema.vn/wp-content/uploads/2024/01/hongkong.jpg', N'Bầu không khí phố đêm Hongkong Neon cực chất.', N'Máy chiếu 4K, Sofa bed, Netflix 4K, Board game'),
-('HN002_MV', N'Marvel Box - Hoa Bằng',   'MARVEL',   N'Đang dùng', 'HN002', 'https://genzcinema.vn/wp-content/uploads/2024/01/avenger.jpg',  N'Phong cách Siêu anh hùng Marvel cá tính.', N'Máy chiếu 4K, Sofa bed, Âm thanh surround, Netflix 4K'),
-('HN002_NT', N'Natra Box - Hoa Bằng',    'NATRA',    N'Trống', 'HN002', 'https://genzcinema.vn/wp-content/uploads/2024/01/natra.jpg',    N'Không gian huyền thoại Natra Ma Đồng Giáng Thế.', N'Máy chiếu 4K, Sofa bed, Netflix 4K'),
-('HN002_SR', N'Samurai Box - Hoa Bằng',  'SAMURAI',  N'Trống', 'HN002', 'https://genzcinema.vn/wp-content/uploads/2024/01/samurai.jpg',  N'Phong cách võ sĩ Samurai Nhật Bản ấn tượng.', N'Máy chiếu 4K, Sofa bed, Netflix 4K'),
+('HN002_FB', N'Football Box - Hoa Bằng', 'FOOTBALL', N'Trống', 'HN002', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10', N'Không gian điện ảnh kết hợp giải trí thể thao sôi động.', N'Máy chiếu 4K, Sofa bed, Soundbar 5.1, Netflix 4K'),
+('HN002_GM', N'Gaming Box - Hoa Bằng',   'GAMING',   N'Trống', 'HN002', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10',   N'Màn chiếu rộng kết hợp giàn PC đôi chơi game cực mượt.', N'Máy chiếu 4K, PC Couple RTX, Sofa đôi, Netflix 4K'),
+('HN002_HA', N'Hội An Box - Hoa Bằng',   'HOIAN',    N'Trống', 'HN002', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10',    N'Không gian phố cổ Hội An lãng mạn hoài niệm.', N'Máy chiếu 4K, Sofa bed, Đèn lồng trang trí, Netflix 4K'),
+('HN002_HK', N'HongKong Box - Hoa Bằng', 'HONGKONG', N'Trống', 'HN002', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10', N'Bầu không khí phố đêm Hongkong Neon cực chất.', N'Máy chiếu 4K, Sofa bed, Netflix 4K, Board game'),
+('HN002_MV', N'Marvel Box - Hoa Bằng',   'MARVEL',   N'Đang dùng', 'HN002', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10',  N'Phong cách Siêu anh hùng Marvel cá tính.', N'Máy chiếu 4K, Sofa bed, Âm thanh surround, Netflix 4K'),
+('HN002_NT', N'Natra Box - Hoa Bằng',    'NATRA',    N'Trống', 'HN002', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10',    N'Không gian huyền thoại Natra Ma Đồng Giáng Thế.', N'Máy chiếu 4K, Sofa bed, Netflix 4K'),
+('HN002_SR', N'Samurai Box - Hoa Bằng',  'SAMURAI',  N'Trống', 'HN002', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10',  N'Phong cách võ sĩ Samurai Nhật Bản ấn tượng.', N'Máy chiếu 4K, Sofa bed, Netflix 4K'),
 
 -- 3. Cơ sở HN003 (Nguyễn Lương Bằng): 2 Queen, 2 King
-('HN003_Q01', N'Queen 01', 'QUEEN', N'Trống', 'HN003', 'https://genzcinema.vn/wp-content/uploads/2024/01/queen.jpg', N'Phòng Queen riêng tư.', N'Máy chiếu 4K, Sofa bed, Netflix 4K'),
-('HN003_Q02', N'Queen 02', 'QUEEN', N'Trống', 'HN003', 'https://genzcinema.vn/wp-content/uploads/2024/01/queen.jpg', N'Phòng Queen ngọt ngào.', N'Máy chiếu 4K, Sofa bed, Netflix 4K'),
-('HN003_K01', N'King 01',  'KING',  N'Trống', 'HN003', 'https://genzcinema.vn/wp-content/uploads/2024/01/king.jpg',  N'Phòng King có PC đôi.', N'Máy chiếu 4K, PC Couple, Netflix 4K'),
-('HN003_K02', N'King 02',  'KING',  N'Trống', 'HN003', 'https://genzcinema.vn/wp-content/uploads/2024/01/king.jpg',  N'Phòng King rộng rãi.', N'Máy chiếu 4K, PC Couple, Netflix 4K'),
+('HN003_Q01', N'Queen 01', 'QUEEN', N'Trống', 'HN003', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10', N'Phòng Queen riêng tư.', N'Máy chiếu 4K, Sofa bed, Netflix 4K'),
+('HN003_Q02', N'Queen 02', 'QUEEN', N'Trống', 'HN003', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10', N'Phòng Queen ngọt ngào.', N'Máy chiếu 4K, Sofa bed, Netflix 4K'),
+('HN003_K01', N'King 01',  'KING',  N'Trống', 'HN003', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10',  N'Phòng King có PC đôi.', N'Máy chiếu 4K, PC Couple, Netflix 4K'),
+('HN003_K02', N'King 02',  'KING',  N'Trống', 'HN003', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10',  N'Phòng King rộng rãi.', N'Máy chiếu 4K, PC Couple, Netflix 4K'),
 
 -- 4. Cơ sở HN004 (Hoàng Ngân): 2 Queen, 2 King
-('HN004_Q01', N'Queen 01', 'QUEEN', N'Trống', 'HN004', 'https://genzcinema.vn/wp-content/uploads/2024/01/queen.jpg', N'Phòng Queen riêng tư.', N'Máy chiếu 4K, Sofa bed, Netflix 4K'),
-('HN004_Q02', N'Queen 02', 'QUEEN', N'Trống', 'HN004', 'https://genzcinema.vn/wp-content/uploads/2024/01/queen.jpg', N'Phòng Queen hiện đại.', N'Máy chiếu 4K, Sofa bed, Netflix 4K'),
-('HN004_K01', N'King 01',  'KING',  N'Đang dọn', 'HN004', 'https://genzcinema.vn/wp-content/uploads/2024/01/king.jpg',  N'Phòng King sang trọng.', N'Máy chiếu 4K, PC Couple, Netflix 4K'),
-('HN004_K02', N'King 02',  'KING',  N'Trống', 'HN004', 'https://genzcinema.vn/wp-content/uploads/2024/01/king.jpg',  N'Phòng King đầy đủ tiện nghi.', N'Máy chiếu 4K, PC Couple, Netflix 4K'),
+('HN004_Q01', N'Queen 01', 'QUEEN', N'Trống', 'HN004', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10', N'Phòng Queen riêng tư.', N'Máy chiếu 4K, Sofa bed, Netflix 4K'),
+('HN004_Q02', N'Queen 02', 'QUEEN', N'Trống', 'HN004', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10', N'Phòng Queen hiện đại.', N'Máy chiếu 4K, Sofa bed, Netflix 4K'),
+('HN004_K01', N'King 01',  'KING',  N'Đang dọn', 'HN004', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10',  N'Phòng King sang trọng.', N'Máy chiếu 4K, PC Couple, Netflix 4K'),
+('HN004_K02', N'King 02',  'KING',  N'Trống', 'HN004', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10',  N'Phòng King đầy đủ tiện nghi.', N'Máy chiếu 4K, PC Couple, Netflix 4K'),
 
 -- 5. Cơ sở HN005 (Lĩnh Nam): 2 Queen, 2 King
-('HN005_Q01', N'Queen 01', 'QUEEN', N'Trống', 'HN005', 'https://genzcinema.vn/wp-content/uploads/2024/01/queen.jpg', N'Phòng Queen Lĩnh Nam.', N'Máy chiếu 4K, Sofa bed, Netflix 4K'),
-('HN005_Q02', N'Queen 02', 'QUEEN', N'Trống', 'HN005', 'https://genzcinema.vn/wp-content/uploads/2024/01/queen.jpg', N'Phòng Queen thư giãn.', N'Máy chiếu 4K, Sofa bed, Netflix 4K'),
-('HN005_K01', N'King 01',  'KING',  N'Trống', 'HN005', 'https://genzcinema.vn/wp-content/uploads/2024/01/king.jpg',  N'Phòng King PC đôi Lĩnh Nam.', N'Máy chiếu 4K, PC Couple, Netflix 4K'),
-('HN005_K02', N'King 02',  'KING',  N'Trống', 'HN005', 'https://genzcinema.vn/wp-content/uploads/2024/01/king.jpg',  N'Phòng King cao cấp Lĩnh Nam.', N'Máy chiếu 4K, PC Couple, Netflix 4K'),
+('HN005_Q01', N'Queen 01', 'QUEEN', N'Trống', 'HN005', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10', N'Phòng Queen Lĩnh Nam.', N'Máy chiếu 4K, Sofa bed, Netflix 4K'),
+('HN005_Q02', N'Queen 02', 'QUEEN', N'Trống', 'HN005', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10', N'Phòng Queen thư giãn.', N'Máy chiếu 4K, Sofa bed, Netflix 4K'),
+('HN005_K01', N'King 01',  'KING',  N'Trống', 'HN005', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10',  N'Phòng King PC đôi Lĩnh Nam.', N'Máy chiếu 4K, PC Couple, Netflix 4K'),
+('HN005_K02', N'King 02',  'KING',  N'Trống', 'HN005', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10',  N'Phòng King cao cấp Lĩnh Nam.', N'Máy chiếu 4K, PC Couple, Netflix 4K'),
 
 -- 6. Cơ sở HN006 (Hồ Tây): 2 Queen, 2 King
-('HN006_Q01', N'Queen 01', 'QUEEN', N'Trống', 'HN006', 'https://genzcinema.vn/wp-content/uploads/2024/01/queen.jpg', N'Phòng Queen view Hồ Tây.', N'Máy chiếu 4K, Sofa bed, Netflix 4K'),
-('HN006_Q02', N'Queen 02', 'QUEEN', N'Trống', 'HN006', 'https://genzcinema.vn/wp-content/uploads/2024/01/queen.jpg', N'Phòng Queen lãng mạn Hồ Tây.', N'Máy chiếu 4K, Sofa bed, Netflix 4K'),
-('HN006_K01', N'King 01',  'KING',  N'Đang dùng', 'HN006', 'https://genzcinema.vn/wp-content/uploads/2024/01/king.jpg',  N'Phòng King Hồ Tây với PC đôi.', N'Máy chiếu 4K, PC Couple, Netflix 4K'),
-('HN006_K02', N'King 02',  'KING',  N'Trống', 'HN006', 'https://genzcinema.vn/wp-content/uploads/2024/01/king.jpg',  N'Phòng King sang trọng Hồ Tây.', N'Máy chiếu 4K, PC Couple, Netflix 4K'),
+('HN006_Q01', N'Queen 01', 'QUEEN', N'Trống', 'HN006', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10', N'Phòng Queen view Hồ Tây.', N'Máy chiếu 4K, Sofa bed, Netflix 4K'),
+('HN006_Q02', N'Queen 02', 'QUEEN', N'Trống', 'HN006', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10', N'Phòng Queen lãng mạn Hồ Tây.', N'Máy chiếu 4K, Sofa bed, Netflix 4K'),
+('HN006_K01', N'King 01',  'KING',  N'Đang dùng', 'HN006', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10',  N'Phòng King Hồ Tây với PC đôi.', N'Máy chiếu 4K, PC Couple, Netflix 4K'),
+('HN006_K02', N'King 02',  'KING',  N'Trống', 'HN006', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10',  N'Phòng King sang trọng Hồ Tây.', N'Máy chiếu 4K, PC Couple, Netflix 4K'),
 
 -- 7. Cơ sở BN001 (Lý Đạo Thành - Bắc Ninh): 2 Queen, 2 King
-('BN001_Q01', N'Queen 01', 'QUEEN', N'Trống', 'BN001', 'https://genzcinema.vn/wp-content/uploads/2024/01/queen.jpg', N'Phòng Queen Bắc Ninh.', N'Máy chiếu 4K, Sofa bed, Netflix 4K'),
-('BN001_Q02', N'Queen 02', 'QUEEN', N'Trống', 'BN001', 'https://genzcinema.vn/wp-content/uploads/2024/01/queen.jpg', N'Phòng Queen ấm cúng Bắc Ninh.', N'Máy chiếu 4K, Sofa bed, Netflix 4K'),
-('BN001_K01', N'King 01',  'KING',  N'Trống', 'BN001', 'https://genzcinema.vn/wp-content/uploads/2024/01/king.jpg',  N'Phòng King Bắc Ninh.', N'Máy chiếu 4K, PC Couple, Netflix 4K'),
-('BN001_K02', N'King 02',  'KING',  N'Trống', 'BN001', 'https://genzcinema.vn/wp-content/uploads/2024/01/king.jpg',  N'Phòng King cao cấp Bắc Ninh.', N'Máy chiếu 4K, PC Couple, Netflix 4K'),
+('BN001_Q01', N'Queen 01', 'QUEEN', N'Trống', 'BN001', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10', N'Phòng Queen Bắc Ninh.', N'Máy chiếu 4K, Sofa bed, Netflix 4K'),
+('BN001_Q02', N'Queen 02', 'QUEEN', N'Trống', 'BN001', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10', N'Phòng Queen ấm cúng Bắc Ninh.', N'Máy chiếu 4K, Sofa bed, Netflix 4K'),
+('BN001_K01', N'King 01',  'KING',  N'Trống', 'BN001', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10',  N'Phòng King Bắc Ninh.', N'Máy chiếu 4K, PC Couple, Netflix 4K'),
+('BN001_K02', N'King 02',  'KING',  N'Trống', 'BN001', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10',  N'Phòng King cao cấp Bắc Ninh.', N'Máy chiếu 4K, PC Couple, Netflix 4K'),
 
 -- 8. Cơ sở HCM001 (Nguyễn Thái Bình - TP.HCM): 9 Box chủ đề
-('HCM001_AN', N'Anime Box - Nguyễn Thái Bình',    'ANIME',    N'Trống', 'HCM001', 'https://genzcinema.vn/wp-content/uploads/2024/01/anime.jpg',    N'Phòng phong cách Anime Nhật Bản ấn tượng.', N'Máy chiếu 4K, Sofa bed, Netflix 4K'),
-('HCM001_AQ', N'Aquaman Box - Nguyễn Thái Bình',  'AQUAMAN',  N'Trống', 'HCM001', 'https://genzcinema.vn/wp-content/uploads/2024/01/aquaman.jpg',  N'Không gian đại dương sâu thẳm Aquaman độc đáo.', N'Máy chiếu 4K, Sofa bed, Soundbar 5.1, Netflix 4K'),
-('HCM001_AV', N'Avatar Box - Nguyễn Thái Bình',   'AVATAR',   N'Trống', 'HCM001', 'https://genzcinema.vn/wp-content/uploads/2024/01/space.jpg',    N'Vũ trụ Pandora huyền ảo.', N'Máy chiếu 4K, Sofa bed, Netflix 4K'),
-('HCM001_AG', N'Avenger Box - Nguyễn Thái Bình',  'AVENGER',  N'Đang dùng', 'HCM001', 'https://genzcinema.vn/wp-content/uploads/2024/01/avenger.jpg',  N'Phòng Siêu anh hùng Marvel cá tính.', N'Máy chiếu 4K, Sofa bed, Netflix 4K'),
-('HCM001_FB', N'Football Box - Nguyễn Thái Bình', 'FOOTBALL', N'Trống', 'HCM001', 'https://genzcinema.vn/wp-content/uploads/2024/01/football.jpg', N'Không gian điện ảnh kết hợp thể thao sôi động.', N'Máy chiếu 4K, Sofa bed, Soundbar, Netflix 4K'),
-('HCM001_GM', N'Gaming Box - Nguyễn Thái Bình',   'GAMING',   N'Trống', 'HCM001', 'https://genzcinema.vn/wp-content/uploads/2024/01/gaming.jpg',   N'Phòng màn chiếu rộng kèm dàn PC đôi RTX chơi game đỉnh cao.', N'Máy chiếu 4K, PC Couple RTX, Sofa đôi, Netflix 4K'),
-('HCM001_SK', N'Sakura Box - Nguyễn Thái Bình',   'SAKURA',   N'Trống', 'HCM001', 'https://genzcinema.vn/wp-content/uploads/2024/01/sakura.jpg',   N'Không gian hoa hoa anh đào Sakura lãng mạn.', N'Máy chiếu 4K, Sofa bed, Netflix 4K'),
-('HCM001_HK', N'HongKong Box - Nguyễn Thái Bình', 'HONGKONG', N'Trống', 'HCM001', 'https://genzcinema.vn/wp-content/uploads/2024/01/hongkong.jpg', N'Phòng Hongkong Neon đêm huyền bí.', N'Máy chiếu 4K, Sofa bed, Netflix 4K'),
-('HCM001_TD', N'Teddy Box - Nguyễn Thái Bình',    'TEDDY',    N'Trống', 'HCM001', 'https://genzcinema.vn/wp-content/uploads/2024/01/teddy.jpg',    N'Không gian gấu Teddy đáng yêu và ấm áp.', N'Máy chiếu 4K, Gấu bông khổng lồ, Sofa bed, Netflix 4K'),
+('HCM001_AN', N'Anime Box - Nguyễn Thái Bình',    'ANIME',    N'Trống', 'HCM001', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10',    N'Phòng phong cách Anime Nhật Bản ấn tượng.', N'Máy chiếu 4K, Sofa bed, Netflix 4K'),
+('HCM001_AQ', N'Aquaman Box - Nguyễn Thái Bình',  'AQUAMAN',  N'Trống', 'HCM001', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10',  N'Không gian đại dương sâu thẳm Aquaman độc đáo.', N'Máy chiếu 4K, Sofa bed, Soundbar 5.1, Netflix 4K'),
+('HCM001_AV', N'Avatar Box - Nguyễn Thái Bình',   'AVATAR',   N'Trống', 'HCM001', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10',    N'Vũ trụ Pandora huyền ảo.', N'Máy chiếu 4K, Sofa bed, Netflix 4K'),
+('HCM001_AG', N'Avenger Box - Nguyễn Thái Bình',  'AVENGER',  N'Đang dùng', 'HCM001', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10',  N'Phòng Siêu anh hùng Marvel cá tính.', N'Máy chiếu 4K, Sofa bed, Netflix 4K'),
+('HCM001_FB', N'Football Box - Nguyễn Thái Bình', 'FOOTBALL', N'Trống', 'HCM001', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10', N'Không gian điện ảnh kết hợp thể thao sôi động.', N'Máy chiếu 4K, Sofa bed, Soundbar, Netflix 4K'),
+('HCM001_GM', N'Gaming Box - Nguyễn Thái Bình',   'GAMING',   N'Trống', 'HCM001', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10',   N'Phòng màn chiếu rộng kèm dàn PC đôi RTX chơi game đỉnh cao.', N'Máy chiếu 4K, PC Couple RTX, Sofa đôi, Netflix 4K'),
+('HCM001_SK', N'Sakura Box - Nguyễn Thái Bình',   'SAKURA',   N'Trống', 'HCM001', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10',   N'Không gian hoa hoa anh đào Sakura lãng mạn.', N'Máy chiếu 4K, Sofa bed, Netflix 4K'),
+('HCM001_HK', N'HongKong Box - Nguyễn Thái Bình', 'HONGKONG', N'Trống', 'HCM001', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10', N'Phòng Hongkong Neon đêm huyền bí.', N'Máy chiếu 4K, Sofa bed, Netflix 4K'),
+('HCM001_TD', N'Teddy Box - Nguyễn Thái Bình',    'TEDDY',    N'Trống', 'HCM001', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10',    N'Không gian gấu Teddy đáng yêu và ấm áp.', N'Máy chiếu 4K, Gấu bông khổng lồ, Sofa bed, Netflix 4K'),
 
 -- 9. Cơ sở HCM002 (Âu Cơ - TP.HCM): 2 Queen, 2 King
-('HCM002_Q01', N'Queen 01', 'QUEEN', N'Trống', 'HCM002', 'https://genzcinema.vn/wp-content/uploads/2024/01/queen.jpg', N'Phòng Queen Âu Cơ.', N'Máy chiếu 4K, Sofa bed, Netflix 4K'),
-('HCM002_Q02', N'Queen 02', 'QUEEN', N'Trống', 'HCM002', 'https://genzcinema.vn/wp-content/uploads/2024/01/queen.jpg', N'Phòng Queen ấm cúng Âu Cơ.', N'Máy chiếu 4K, Sofa bed, Netflix 4K'),
-('HCM002_K01', N'King 01',  'KING',  N'Trống', 'HCM002', 'https://genzcinema.vn/wp-content/uploads/2024/01/king.jpg',  N'Phòng King Âu Cơ có PC đôi.', N'Máy chiếu 4K, PC Couple, Netflix 4K'),
-('HCM002_K02', N'King 02',  'KING',  N'Trống', 'HCM002', 'https://genzcinema.vn/wp-content/uploads/2024/01/king.jpg',  N'Phòng King sang trọng Âu Cơ.', N'Máy chiếu 4K, PC Couple, Netflix 4K');
+('HCM002_Q01', N'Queen 01', 'QUEEN', N'Trống', 'HCM002', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10', N'Phòng Queen Âu Cơ.', N'Máy chiếu 4K, Sofa bed, Netflix 4K'),
+('HCM002_Q02', N'Queen 02', 'QUEEN', N'Trống', 'HCM002', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10', N'Phòng Queen ấm cúng Âu Cơ.', N'Máy chiếu 4K, Sofa bed, Netflix 4K'),
+('HCM002_K01', N'King 01',  'KING',  N'Trống', 'HCM002', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10',  N'Phòng King Âu Cơ có PC đôi.', N'Máy chiếu 4K, PC Couple, Netflix 4K'),
+('HCM002_K02', N'King 02',  'KING',  N'Trống', 'HCM002', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10',  N'Phòng King sang trọng Âu Cơ.', N'Máy chiếu 4K, PC Couple, Netflix 4K');
 
 -- User test cho Admin, Staff và Customer - Mật khẩu chung: Genz@123
 INSERT INTO [User] (UserId, full_name, phone, email, password, RoleId, IsLocked) VALUES
