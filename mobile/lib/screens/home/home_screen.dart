@@ -1,11 +1,18 @@
 // lib/screens/home/home_screen.dart
 
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../config/app_theme.dart';
+import '../../models/food_menu_model.dart';
+import '../../models/movie_model.dart';
+import '../../models/room_model.dart';
+import '../../providers/food_provider.dart';
+import '../../providers/hotel_provider.dart';
+import '../../providers/movie_provider.dart';
+import '../../providers/room_provider.dart';
 import '../../widgets/app_bottom_nav_bar.dart';
-import 'dart:async';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -15,124 +22,12 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-  // Kỹ thuật "giả vô hạn": itemCount rất lớn, luôn lấy index % banners.length
-  // để hiển thị đúng ảnh. Nhờ vậy PageView không cần nhảy (jump) về trang đầu
-  // khi hết danh sách, tránh hiện tượng giật khi tự động chuyển hoặc vuốt liên tục.
   static const int _kInfiniteMultiplier = 10000;
-  late final int _initialPage;
   late final PageController _bannerController;
   Timer? _bannerTimer;
+  int _currentBannerIndex = 0;
 
-  final List<String> comboImages = [
-    'assets/images/Banner_combo_day.PNG',
-    'assets/images/Banner_combo_night.PNG',
-    'assets/images/Banner_combo_2h.PNG',
-    'assets/images/Banner_combo_4h.PNG',
-  ];
-  late final int _comboInitialPage;
-  final ScrollController _comboScrollController = ScrollController();
-  double _comboCardWidth = 160; // sẽ được tính lại đúng theo màn hình khi build
-  static const double _comboSpacing = 12;
-  Timer? _comboTimer;
-
-  @override
-  void initState() {
-    super.initState();
-    // Căn initialPage là một số lớn, chia hết theo banners.length,
-    // để index % banners.length == 0 ngay từ đầu (hiển thị đúng ảnh đầu tiên).
-    final int totalItems = banners.length * _kInfiniteMultiplier;
-    _initialPage = (totalItems ~/ 2) - ((totalItems ~/ 2) % banners.length);
-    _bannerController = PageController(initialPage: _initialPage);
-
-    _bannerTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
-      if (!mounted) return;
-      _bannerController.nextPage(
-        duration: const Duration(milliseconds: 400),
-        curve: Curves.easeInOut,
-      );
-    });
-
-    final int comboTotalItems = comboImages.length * _kInfiniteMultiplier;
-    _comboInitialPage = comboTotalItems ~/ 2; // chỉ dùng để tính tổng item, giữ tương thích
-
-    _comboTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
-      if (!mounted || !_comboScrollController.hasClients) return;
-      final double target =
-          _comboScrollController.offset + _comboCardWidth + _comboSpacing;
-      _comboScrollController.animateTo(
-        target,
-        duration: const Duration(milliseconds: 600),
-        curve: Curves.easeInOut,
-      );
-    });
-  }
-
-  @override
-  void dispose() {
-    _bannerTimer?.cancel();
-    _bannerController.dispose();
-    _comboTimer?.cancel();
-    _comboScrollController.dispose();
-    super.dispose();
-  }
-
-  void _onComingSoon(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Chức năng đang được phát triển')),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 12),
-              _buildHeader(),
-              const SizedBox(height: 16),
-              _buildBanner(),
-              const SizedBox(height: 16),
-              _buildQuickActions(context),
-              const SizedBox(height: 24),
-              _buildSectionHeader('Combo HOT', context,
-                  onViewMore: () => context.push('/rooms')),
-              const SizedBox(height: 12),
-              _buildComboHot(context),
-              const SizedBox(height: 24),
-              _buildSectionHeader('Đặc biệt', context,
-                  onViewMore: () => context.push('/rooms')),
-              const SizedBox(height: 12),
-              _buildRoomTypesCard(context),
-              const SizedBox(height: 16),
-            ],
-          ),
-        ),
-      ),
-      bottomNavigationBar: const AppBottomNavBar(currentIndex: 0),
-    );
-  }
-
-  Widget _buildHeader() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        const SizedBox(width: 40),
-        Image.asset(
-          'assets/images/logo.png',
-          height: 48,
-        ),
-        IconButton(
-          onPressed: () => _onComingSoon(context),
-          icon: const Icon(Icons.notifications_none, size: 28, color: AppTheme.textPrimary),
-        ),
-      ],
-    );
-  }
+  String? _selectedHotelId;
 
   final List<String> banners = [
     'assets/images/Banner_01.png',
@@ -142,46 +37,294 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     'assets/images/Banner_combo_4h.PNG',
   ];
 
-  Widget _buildBanner() {
-    return SizedBox(
-      height: 167,
-      child: PageView.builder(
-        controller: _bannerController,
-        // itemCount = null → vô hạn thật sự. Không dùng số lớn (banners.length * 10000)
-        // vì PageView là sliver fixed-extent: maxScrollOffset = itemCount * chiều rộng,
-        // chiều rộng lẻ (vd 360.727) nhân số lớn gây sai số dấu phẩy động → assertion
-        // "computeMaxScrollOffset() returned a value that is not an even multiple of its itemExtent".
-        itemCount: null,
-        itemBuilder: (context, index) {
-          final int realIndex = index % banners.length;
-          return Container(
-            margin: const EdgeInsets.symmetric(horizontal: 4),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
+  @override
+  void initState() {
+    super.initState();
+    final int totalItems = banners.length * _kInfiniteMultiplier;
+    final int initialPage = (totalItems ~/ 2) - ((totalItems ~/ 2) % banners.length);
+    _bannerController = PageController(initialPage: initialPage);
+
+    _bannerTimer = Timer.periodic(const Duration(seconds: 3), (_) {
+      if (!mounted) return;
+      _bannerController.nextPage(
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeInOut,
+      );
+    });
+  }
+
+  @override
+  void dispose() {
+    _bannerTimer?.cancel();
+    _bannerController.dispose();
+    super.dispose();
+  }
+
+  void _showBranchSelector(List<HotelModel> hotels) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => Padding(
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
             ),
-            clipBehavior: Clip.hardEdge,
-            child: Image.asset(
-              banners[realIndex],
-              fit: BoxFit.cover,
+            const SizedBox(height: 16),
+            const Text(
+              'Chọn Cơ Sở / Chi Nhánh',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: AppTheme.textPrimary,
+              ),
             ),
-          );
-        },
+            const SizedBox(height: 12),
+            ListTile(
+              leading: ShaderMask(
+                shaderCallback: (b) => AppTheme.primaryGradient.createShader(b),
+                child: const Icon(Icons.location_city, color: Colors.white),
+              ),
+              title: const Text('Tất cả chi nhánh', style: TextStyle(fontWeight: FontWeight.w600)),
+              trailing: _selectedHotelId == null
+                  ? const Icon(Icons.check_circle, color: AppTheme.primary)
+                  : null,
+              onTap: () {
+                setState(() => _selectedHotelId = null);
+                ref.read(roomListProvider.notifier).loadRooms();
+                Navigator.pop(ctx);
+              },
+            ),
+            const Divider(),
+            Flexible(
+              child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: hotels.length,
+                itemBuilder: (_, index) {
+                  final h = hotels[index];
+                  final isSelected = h.hotelId == _selectedHotelId;
+                  return ListTile(
+                    leading: const Icon(Icons.location_on_outlined, color: AppTheme.primary),
+                    title: Text(h.name, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                    subtitle: Text(h.address, style: const TextStyle(fontSize: 12, color: AppTheme.textGray), maxLines: 1, overflow: TextOverflow.ellipsis),
+                    trailing: isSelected
+                        ? const Icon(Icons.check_circle, color: AppTheme.primary)
+                        : null,
+                    onTap: () {
+                      setState(() => _selectedHotelId = h.hotelId);
+                      ref.read(roomListProvider.notifier).loadRooms(hotelId: h.hotelId);
+                      Navigator.pop(ctx);
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
+  @override
+  Widget build(BuildContext context) {
+    final hotelState = ref.watch(hotelListProvider);
+    final roomState = ref.watch(roomListProvider);
+    final foodState = ref.watch(foodMenuListProvider);
+    final movieState = ref.watch(movieListProvider);
+
+    final selectedHotel = hotelState.hotels.firstWhere(
+      (h) => h.hotelId == _selectedHotelId,
+      orElse: () => const HotelModel(hotelId: '', name: 'Tất cả cơ sở', address: ''),
+    );
+
+    return Scaffold(
+      backgroundColor: AppTheme.surface,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 12),
+              _buildHeader(context, selectedHotel.name, hotelState.hotels),
+              const SizedBox(height: 16),
+              _buildHeroBanner(),
+              const SizedBox(height: 16),
+              _buildQuickActions(context),
+              const SizedBox(height: 24),
+
+              // ── Phim Hot GenZ Cinema Đề Cử (Dữ liệu ĐỘNG 100% từ Database) ──────────
+              _buildSectionHeader('Phim Hot Đề Cử 4K', context, onViewMore: () => context.push('/movies')),
+              const SizedBox(height: 12),
+              _buildHotMoviesSection(movieState),
+              const SizedBox(height: 24),
+
+              // ── Không Gian Box Chủ Đề (Dữ liệu ĐỘNG 100% từ Database) ──────────────
+              _buildSectionHeader('Không Gian Box Chủ Đề', context, onViewMore: () => context.push('/rooms')),
+              const SizedBox(height: 12),
+              _buildDynamicThemedRooms(roomState),
+              const SizedBox(height: 24),
+
+              // ── Thực Đơn Đồ Ăn & Thức Uống (Dữ liệu ĐỘNG 100% từ Database) ──────────
+              _buildSectionHeader('Menu Đồ Ăn & Thức Uống F&B', context, onViewMore: () => context.push('/food-menu')),
+              const SizedBox(height: 12),
+              _buildDynamicFoodMenu(foodState),
+              const SizedBox(height: 24),
+            ],
+          ),
+        ),
+      ),
+      bottomNavigationBar: const AppBottomNavBar(currentIndex: 0),
+    );
+  }
+
+  // ── Header với selector Chi nhánh động ────────────────────────────────────
+  Widget _buildHeader(BuildContext context, String currentBranchName, List<HotelModel> hotels) {
+    return Row(
+      children: [
+        Image.asset(
+          'assets/images/logo.png',
+          height: 38,
+          errorBuilder: (_, __, ___) => const Text(
+            'GenZ Cinema',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: AppTheme.primary,
+            ),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: GestureDetector(
+            onTap: () => _showBranchSelector(hotels),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: AppTheme.cardBorder),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppTheme.primary.withOpacity(0.08),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ShaderMask(
+                    shaderCallback: (b) => AppTheme.primaryGradient.createShader(b),
+                    child: const Icon(Icons.location_on, size: 14, color: Colors.white),
+                  ),
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: Text(
+                      currentBranchName,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: AppTheme.textPrimary,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  const Icon(Icons.keyboard_arrow_down, size: 16, color: AppTheme.textGray),
+                ],
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 8),
+        IconButton(
+          onPressed: () => context.push('/notifications'),
+          icon: const Icon(Icons.notifications_none, size: 26, color: AppTheme.textPrimary),
+        ),
+      ],
+    );
+  }
+
+  // ── Hero Banner Carousel ───────────────────────────────────────────────────
+  Widget _buildHeroBanner() {
+    return Column(
+      children: [
+        SizedBox(
+          height: 165,
+          child: PageView.builder(
+            controller: _bannerController,
+            onPageChanged: (i) => setState(() => _currentBannerIndex = i % banners.length),
+            itemBuilder: (context, index) {
+              final realIndex = index % banners.length;
+              return Container(
+                margin: const EdgeInsets.symmetric(horizontal: 4),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.08),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                clipBehavior: Clip.hardEdge,
+                child: Image.asset(
+                  banners[realIndex],
+                  fit: BoxFit.cover,
+                ),
+              );
+            },
+          ),
+        ),
+        const SizedBox(height: 8),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(
+            banners.length,
+            (i) => AnimatedContainer(
+              duration: const Duration(milliseconds: 250),
+              margin: const EdgeInsets.symmetric(horizontal: 3),
+              width: i == _currentBannerIndex ? 18 : 6,
+              height: 6,
+              decoration: BoxDecoration(
+                gradient: i == _currentBannerIndex ? AppTheme.primaryGradient : null,
+                color: i == _currentBannerIndex ? null : Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(3),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ── Quick Actions ─────────────────────────────────────────────────────────
   Widget _buildQuickActions(BuildContext context) {
     final items = [
-      {'icon': Icons.credit_card, 'label': 'Voucher'},
-      // 'route': mục nào có route thì mở màn đó, chưa có thì báo "sắp ra mắt"
-      {'icon': Icons.inventory_2_outlined, 'label': 'Lịch sử', 'route': '/bookings'},
-      {'icon': Icons.chat_bubble_outline, 'label': 'Feedback'},
+      {'icon': Icons.confirmation_number_outlined, 'label': 'Voucher', 'route': '/vouchers'},
+      {'icon': Icons.history, 'label': 'Lịch sử', 'route': '/bookings'},
+      {'icon': Icons.restaurant_menu_outlined, 'label': 'Menu F&B', 'route': '/food-menu'},
+      {'icon': Icons.rate_review_outlined, 'label': 'Đánh giá', 'route': '/reviews'},
     ];
 
     return Row(
-      children: items
-          .map(
-            (item) => Expanded(
+      children: items.map((item) {
+        return Expanded(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4),
             child: InkWell(
@@ -189,33 +332,39 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 final route = item['route'] as String?;
                 if (route != null) {
                   context.push(route);
-                } else {
-                  _onComingSoon(context);
                 }
               },
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(14),
               child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 16),
+                padding: const EdgeInsets.symmetric(vertical: 14),
                 decoration: BoxDecoration(
-                  color: AppTheme.surface,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFFE5E7EB)),
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: AppTheme.cardBorder),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.03),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
                 ),
                 child: Column(
                   children: [
-                    ShaderMask(
-                      shaderCallback: (bounds) =>
-                          AppTheme.primaryGradient.createShader(bounds),
-                      child: Icon(
-                        item['icon'] as IconData,
-                        color: Colors.white,
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: const BoxDecoration(
+                        gradient: AppTheme.primaryGradient,
+                        shape: BoxShape.circle,
                       ),
+                      child: Icon(item['icon'] as IconData, color: Colors.white, size: 20),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 6),
                     Text(
                       item['label'] as String,
                       style: const TextStyle(
-                        fontSize: 13,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
                         color: AppTheme.textPrimary,
                       ),
                     ),
@@ -224,9 +373,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ),
             ),
           ),
-        ),
-      )
-          .toList(),
+        );
+      }).toList(),
     );
   }
 
@@ -234,123 +382,464 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          title,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: AppTheme.textPrimary,
-          ),
+        Row(
+          children: [
+            Container(
+              width: 4,
+              height: 18,
+              decoration: BoxDecoration(
+                gradient: AppTheme.primaryGradient,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: AppTheme.textPrimary,
+              ),
+            ),
+          ],
         ),
         if (onViewMore != null)
           GestureDetector(
             onTap: onViewMore,
-            child: const Text(
-              'Xem thêm',
-              style: TextStyle(
-                fontSize: 13,
-                color: AppTheme.primary,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-
-  Widget _buildComboHot(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        // Hiển thị khoảng 2.3 banner trong khung nhìn (giống Figma: thấy đủ
-        // banner thứ 2 và hé một phần banner thứ 3) -> cảm giác đang "trượt".
-        const double visibleCount = 2.3;
-        _comboCardWidth =
-            (constraints.maxWidth - _comboSpacing * (visibleCount - 1)) /
-                visibleCount;
-
-        return SizedBox(
-          height: 100,
-          child: ListView.builder(
-            controller: _comboScrollController,
-            scrollDirection: Axis.horizontal,
-            physics: const BouncingScrollPhysics(),
-            itemCount: comboImages.length * _kInfiniteMultiplier, // giả vô hạn
-            itemBuilder: (context, index) {
-              final int realIndex = index % comboImages.length;
-              return Padding(
-                padding: EdgeInsets.only(right: _comboSpacing),
-                child: GestureDetector(
-                  onTap: () => context.push('/rooms'),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Image.asset(
-                      comboImages[realIndex],
-                      width: _comboCardWidth,
-                      height: 100,
-                      fit: BoxFit.cover,
-                    ),
+            child: const Row(
+              children: [
+                Text(
+                  'Xem tất cả',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppTheme.primary,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
-              );
-            },
+                SizedBox(width: 2),
+                Icon(Icons.arrow_forward_ios, size: 10, color: AppTheme.primary),
+              ],
+            ),
           ),
-        );
-      },
-    );
-  }
-
-  Widget _buildRoomTypesCard(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(child: _buildTypeCard(context, 'QUEEN', 'Phòng Queen', '96k/h',
-            Icons.movie_outlined, 'Máy chiếu')),
-        const SizedBox(width: 12),
-        Expanded(child: _buildTypeCard(context, 'KING', 'Phòng King', '106k/h',
-            Icons.tv_outlined, 'Máy chiếu + PC Couple')),
       ],
     );
   }
 
-  Widget _buildTypeCard(BuildContext context, String typeId, String name,
-      String price, IconData icon, String feature) {
-    return GestureDetector(
-      onTap: () => context.push('/rooms?type=$typeId'),
-      child: Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: AppTheme.surface,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: const Color(0xFFE5E7EB)),
+  // ── Phim Hot Đề Cử 4K (Dữ liệu ĐỘNG 100% từ Database) ─────────────────────
+  Widget _buildHotMoviesSection(MovieListState movieState) {
+    if (movieState.isLoading) {
+      return const SizedBox(
+        height: 140,
+        child: Center(
+          child: CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primary),
+          ),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ShaderMask(
-              shaderCallback: (b) => AppTheme.primaryGradient.createShader(b),
-              child: Icon(icon, color: Colors.white, size: 28),
+      );
+    }
+
+    if (movieState.movies.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return SizedBox(
+      height: 140,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        itemCount: movieState.movies.length,
+        itemBuilder: (context, index) {
+          final movie = movieState.movies[index];
+          return GestureDetector(
+            onTap: () => context.push('/movies'),
+            child: Container(
+              width: 230,
+              margin: const EdgeInsets.only(right: 12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: AppTheme.cardBorder),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.04),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              clipBehavior: Clip.hardEdge,
+              child: Row(
+                children: [
+                  ClipRRect(
+                    borderRadius: const BorderRadius.horizontal(left: Radius.circular(14)),
+                    child: movie.posterUrl != null && movie.posterUrl!.isNotEmpty
+                        ? Image.network(
+                            movie.posterUrl!,
+                            width: 90,
+                            height: double.infinity,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => _posterPlaceholder(),
+                          )
+                        : _posterPlaceholder(),
+                  ),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(10),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              gradient: AppTheme.accentGradient,
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              movie.quality,
+                              style: const TextStyle(fontSize: 9, color: Colors.white, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            movie.title,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                              color: AppTheme.textPrimary,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          Text(
+                            movie.category,
+                            style: const TextStyle(fontSize: 11, color: AppTheme.textGray),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 6),
+                          Row(
+                            children: [
+                              const Icon(Icons.star, size: 14, color: AppTheme.goldAccent),
+                              const SizedBox(width: 4),
+                              Text(
+                                movie.rating.toStringAsFixed(1),
+                                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.textPrimary),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 8),
-            Text(name,
-                style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: AppTheme.textPrimary)),
-            const SizedBox(height: 2),
-            ShaderMask(
-              shaderCallback: (b) => AppTheme.primaryGradient.createShader(b),
-              child: Text(price,
-                  style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white)),
-            ),
-            const SizedBox(height: 4),
-            Text(feature,
-                style: TextStyle(fontSize: 11, color: Colors.grey.shade500)),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
 
+  Widget _posterPlaceholder() {
+    return Container(
+      width: 90,
+      height: double.infinity,
+      color: const Color(0xFFF3E8FF),
+      child: const Icon(Icons.movie_filter_outlined, color: AppTheme.primary, size: 32),
+    );
+  }
+
+  // ── Không Gian Box Chủ Đề (100% Dynamic từ Database) ─────────────────────
+  Widget _buildDynamicThemedRooms(RoomListState roomState) {
+    if (roomState.isLoading) {
+      return const SizedBox(
+        height: 180,
+        child: Center(
+          child: CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primary),
+          ),
+        ),
+      );
+    }
+
+    if (roomState.error != null || roomState.rooms.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: AppTheme.cardBorder),
+        ),
+        child: const Center(
+          child: Text(
+            'Không có dữ liệu phòng khả dụng',
+            style: TextStyle(color: AppTheme.textGray),
+          ),
+        ),
+      );
+    }
+
+    return SizedBox(
+      height: 225,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        itemCount: roomState.rooms.length,
+        itemBuilder: (context, index) {
+          final room = roomState.rooms[index];
+          final typeName = room.typeRoom?.typeRoom ?? 'Cinema Box';
+          final price = room.typeRoom?.pricePerHour;
+          final priceText = price != null ? '${(price / 1000).toStringAsFixed(0)}k/h' : '';
+
+          return GestureDetector(
+            onTap: () => context.push('/rooms/${room.roomId}'),
+            child: Container(
+              width: 170,
+              margin: const EdgeInsets.only(right: 12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: AppTheme.cardBorder),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.04),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              clipBehavior: Clip.hardEdge,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    height: 105,
+                    width: double.infinity,
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        room.imageUrl != null && room.imageUrl!.isNotEmpty
+                            ? Image.network(
+                                room.imageUrl!,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) => _buildImagePlaceholder(),
+                              )
+                            : _buildImagePlaceholder(),
+                        Positioned(
+                          top: 8,
+                          left: 8,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.65),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 6,
+                                  height: 6,
+                                  decoration: const BoxDecoration(
+                                    color: AppTheme.success,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  room.status ?? 'Trống',
+                                  style: const TextStyle(fontSize: 10, color: Colors.white, fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          room.nameRoom,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.textPrimary,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          typeName,
+                          style: const TextStyle(fontSize: 11, color: AppTheme.textGray),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 6),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            ShaderMask(
+                              shaderCallback: (b) => AppTheme.primaryGradient.createShader(b),
+                              child: Text(
+                                priceText,
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                            Row(
+                              children: [
+                                const Icon(Icons.star, size: 12, color: AppTheme.goldAccent),
+                                const SizedBox(width: 2),
+                                Text(
+                                  room.averageRating > 0 ? room.averageRating.toStringAsFixed(1) : '5.0',
+                                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildImagePlaceholder() {
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Color(0xFFF3E8FF), Color(0xFFE0D0F8)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: const Center(
+        child: Icon(Icons.bedroom_parent_outlined, size: 36, color: AppTheme.primary),
+      ),
+    );
+  }
+
+  // ── Menu Đồ Ăn F&B (100% Dynamic từ Database) ──────────────────────────────
+  Widget _buildDynamicFoodMenu(FoodMenuState foodState) {
+    if (foodState.isLoading) {
+      return const SizedBox(
+        height: 120,
+        child: Center(
+          child: CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primary),
+          ),
+        ),
+      );
+    }
+
+    if (foodState.items.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return SizedBox(
+      height: 120,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        itemCount: foodState.items.length,
+        itemBuilder: (context, index) {
+          final food = foodState.items[index];
+          final priceText = '${(food.price / 1000).toStringAsFixed(0)}k';
+
+          return GestureDetector(
+            onTap: () => context.push('/food-menu'),
+            child: Container(
+              width: 200,
+              margin: const EdgeInsets.only(right: 12),
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: AppTheme.cardBorder),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.03),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: food.imageUrl != null && food.imageUrl!.isNotEmpty
+                        ? Image.network(
+                            food.imageUrl!,
+                            width: 65,
+                            height: 65,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => _foodIconPlaceholder(),
+                          )
+                        : _foodIconPlaceholder(),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          food.name,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.textPrimary,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          food.category,
+                          style: const TextStyle(fontSize: 10, color: AppTheme.textGray),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          priceText,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.primary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _foodIconPlaceholder() {
+    return Container(
+      width: 65,
+      height: 65,
+      color: const Color(0xFFF3E8FF),
+      child: const Icon(Icons.fastfood_outlined, color: AppTheme.primary, size: 28),
+    );
+  }
 }

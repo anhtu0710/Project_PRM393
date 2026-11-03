@@ -43,7 +43,7 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen> {
     final detailState = ref.watch(roomDetailProvider(widget.roomId));
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppTheme.surface,
       body: detailState.isLoading
           ? const Center(
               child: CircularProgressIndicator(
@@ -59,7 +59,7 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen> {
         mainAxisSize: MainAxisSize.min,
         children: [
           if (detailState.room != null && !detailState.isLoading)
-            _buildBookButton(context),
+            _buildBookButton(context, detailState.room!),
           const AppBottomNavBar(currentIndex: 2),
         ],
       ),
@@ -79,11 +79,24 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen> {
                 _buildPriceAndStatus(room),
                 const SizedBox(height: 10),
                 _buildRoomTitle(room),
-                const SizedBox(height: 14),
+                if (room.description != null && room.description!.isNotEmpty) ...[
+                  const SizedBox(height: 12),
+                  Text(
+                    room.description!,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: AppTheme.textGray,
+                      height: 1.4,
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 16),
                 _buildPriceOptions(room),
-                const SizedBox(height: 16),
+                const SizedBox(height: 20),
                 _buildAmenities(room),
-                const SizedBox(height: 16),
+                const SizedBox(height: 20),
+                _buildHotelBranchCard(room),
+                const SizedBox(height: 20),
                 _buildRatingHeader(room),
                 const SizedBox(height: 12),
                 if (room.reviews.isEmpty)
@@ -100,7 +113,7 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen> {
     );
   }
 
-  // ── Image carousel ────────────────────────────────────────────────────────────
+  // ── Image Carousel ────────────────────────────────────────────────────────────
   Widget _buildImageCarousel(RoomModel room) {
     final List<String> images =
         (room.imageUrl != null && room.imageUrl!.isNotEmpty)
@@ -109,10 +122,10 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen> {
     final int count = images.isEmpty ? 1 : images.length;
 
     final savedIds = ref.watch(savedRoomsProvider);
-    final isSaved = savedIds.contains(room.roomId ?? '');
+    final isSaved = savedIds.contains(room.roomId);
 
     return SizedBox(
-      height: 260,
+      height: 270,
       child: Stack(
         children: [
           PageView.builder(
@@ -131,7 +144,7 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen> {
                   ),
                   child: const Center(
                     child: Icon(Icons.bedroom_parent_outlined,
-                        size: 64, color: Color(0xFFCFB3F0)),
+                        size: 64, color: AppTheme.primary),
                   ),
                 );
               }
@@ -149,40 +162,50 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen> {
               );
             },
           ),
-          // Nút back
+          // Top Back button
           Positioned(
             top: 44,
             left: 12,
             child: GestureDetector(
               onTap: () => context.pop(),
               child: Container(
-                width: 36,
-                height: 36,
+                width: 38,
+                height: 38,
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.9),
                   shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 6,
+                    ),
+                  ],
                 ),
                 child: const Icon(Icons.arrow_back,
                     size: 20, color: AppTheme.textPrimary),
               ),
             ),
           ),
-          // Nút save (kết nối với savedRoomsProvider)
+          // Top Bookmark button
           Positioned(
             top: 44,
             right: 12,
             child: GestureDetector(
               onTap: () {
-                if (room.roomId != null) {
-                  ref.read(savedRoomsProvider.notifier).toggle(room.roomId!);
-                }
+                ref.read(savedRoomsProvider.notifier).toggle(room.roomId);
               },
               child: Container(
-                width: 36,
-                height: 36,
+                width: 38,
+                height: 38,
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.9),
                   shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 6,
+                    ),
+                  ],
                 ),
                 child: Icon(
                   isSaved ? Icons.bookmark : Icons.bookmark_border,
@@ -207,9 +230,12 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen> {
                   width: i == _currentImageIndex ? 20 : 6,
                   height: 6,
                   decoration: BoxDecoration(
+                    gradient: i == _currentImageIndex
+                        ? AppTheme.primaryGradient
+                        : null,
                     color: i == _currentImageIndex
-                        ? AppTheme.primary
-                        : Colors.grey.shade400,
+                        ? null
+                        : Colors.white.withOpacity(0.6),
                     borderRadius: BorderRadius.circular(3),
                   ),
                 ),
@@ -226,11 +252,11 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen> {
     final isAvailable = room.status?.toLowerCase() == 'trống' ||
         room.status?.toLowerCase() == 'available';
     final price = room.typeRoom?.pricePerHour;
-    final priceText = price != null ? '${_formatVND(price)} vnd' : 'Liên hệ';
+    final priceText = price != null ? '${_formatVND(price)} đ' : 'Liên hệ';
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         RichText(
           text: TextSpan(
@@ -241,31 +267,49 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen> {
                 style: const TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
+                  color: AppTheme.primary,
                 ),
               ),
               const TextSpan(
-                text: '/giờ',
-                style: TextStyle(fontSize: 14, color: AppTheme.textGray),
+                text: ' / giờ',
+                style: TextStyle(fontSize: 14, color: AppTheme.textGray, fontWeight: FontWeight.normal),
               ),
             ],
           ),
         ),
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
           decoration: BoxDecoration(
-            color:
-                isAvailable ? const Color(0xFFE8F5E9) : const Color(0xFFFCE4EC),
+            color: isAvailable
+                ? AppTheme.success.withOpacity(0.12)
+                : AppTheme.error.withOpacity(0.12),
             borderRadius: BorderRadius.circular(20),
-          ),
-          child: Text(
-            room.status ?? 'N/A',
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
+            border: Border.all(
               color: isAvailable
-                  ? const Color(0xFF2E7D32)
-                  : const Color(0xFFC62828),
+                  ? AppTheme.success.withOpacity(0.3)
+                  : AppTheme.error.withOpacity(0.3),
             ),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 6,
+                height: 6,
+                decoration: BoxDecoration(
+                  color: isAvailable ? AppTheme.success : AppTheme.error,
+                  shape: BoxShape.circle,
+                ),
+              ),
+              const SizedBox(width: 6),
+              Text(
+                room.status ?? 'Trống',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: isAvailable ? AppTheme.success : AppTheme.error,
+                ),
+              ),
+            ],
           ),
         ),
       ],
@@ -274,128 +318,248 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen> {
 
   // ── Room title ─────────────────────────────────────────────────────────────
   Widget _buildRoomTitle(RoomModel room) {
-    final typeName = room.typeRoom?.typeRoom ?? '';
-    final address = room.hotel?.address ?? room.hotel?.name ?? '';
+    final typeName = room.typeRoom?.typeRoom ?? 'Cinema Box';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          room.nameRoom ?? '',
+          room.nameRoom,
           style: const TextStyle(
-            fontSize: 18,
+            fontSize: 20,
             fontWeight: FontWeight.bold,
             color: AppTheme.textPrimary,
           ),
         ),
-        if (typeName.isNotEmpty) ...[
-          const SizedBox(height: 4),
-          Text(
+        const SizedBox(height: 4),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+          decoration: BoxDecoration(
+            gradient: AppTheme.primaryGradient,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Text(
             typeName,
-            style: const TextStyle(fontSize: 13, color: AppTheme.textGray),
+            style: const TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.bold),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ── Price Options ─────────────────────────────────────────────────────────
+  Widget _buildPriceOptions(RoomModel room) {
+    if (room.priceOptions.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Bảng Giá Theo Gói Thuê',
+          style: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.bold,
+            color: AppTheme.textPrimary,
+          ),
+        ),
+        const SizedBox(height: 10),
+        SizedBox(
+          height: 80,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            physics: const BouncingScrollPhysics(),
+            itemCount: room.priceOptions.length,
+            itemBuilder: (context, index) {
+              final option = room.priceOptions[index];
+              return Container(
+                width: 140,
+                margin: const EdgeInsets.only(right: 10),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppTheme.cardBorder),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.02),
+                      blurRadius: 6,
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      option.typeName,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: AppTheme.textPrimary,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '${_formatVND(option.price)} đ',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.primary,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ── Amenities Grid ─────────────────────────────────────────────────────────
+  Widget _buildAmenities(RoomModel room) {
+    final amenitiesText = room.amenities ?? 'Máy chiếu 4K, Sofa bed, Điều hòa 2 chiều, Netflix 4K, Wifi 5G';
+    final items = amenitiesText.split(',').map((e) => e.trim()).toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Tiện Nghi Phòng',
+          style: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.bold,
+            color: AppTheme.textPrimary,
+          ),
+        ),
+        const SizedBox(height: 10),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: items.map((a) {
+            IconData iconData = Icons.star_border;
+            if (a.toLowerCase().contains('máy chiếu')) iconData = Icons.movie_outlined;
+            if (a.toLowerCase().contains('sofa')) iconData = Icons.weekend_outlined;
+            if (a.toLowerCase().contains('điều hòa')) iconData = Icons.ac_unit;
+            if (a.toLowerCase().contains('netflix')) iconData = Icons.tv_outlined;
+            if (a.toLowerCase().contains('pc')) iconData = Icons.computer_outlined;
+            if (a.toLowerCase().contains('board')) iconData = Icons.sports_esports_outlined;
+            if (a.toLowerCase().contains('wifi')) iconData = Icons.wifi;
+
+            return Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: AppTheme.cardBorder),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ShaderMask(
+                    shaderCallback: (b) => AppTheme.primaryGradient.createShader(b),
+                    child: Icon(iconData, size: 16, color: Colors.white),
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    a,
+                    style: const TextStyle(fontSize: 12, color: AppTheme.textPrimary, fontWeight: FontWeight.w500),
+                  ),
+                ],
+              ),
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  }
+
+  // ── Hotel Branch Info Card ────────────────────────────────────────────────
+  Widget _buildHotelBranchCard(RoomModel room) {
+    if (room.hotel == null) return const SizedBox.shrink();
+    final h = room.hotel!;
+
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppTheme.cardBorder),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 6,
           ),
         ],
-        if (address.isNotEmpty) ...[
-          const SizedBox(height: 4),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
           Row(
             children: [
-              ShaderMask(
-                shaderCallback: (b) => AppTheme.primaryGradient.createShader(b),
-                child: const Icon(Icons.location_on_outlined,
-                    size: 14, color: Colors.white),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  gradient: AppTheme.primaryGradient,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(Icons.storefront_outlined, color: Colors.white, size: 20),
               ),
-              const SizedBox(width: 4),
+              const SizedBox(width: 10),
               Expanded(
-                child: Text(
-                  address,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: AppTheme.textGray,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      h.name,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.textPrimary,
+                      ),
+                    ),
+                    if (h.city != null && h.city!.isNotEmpty)
+                      Text(
+                        h.city!,
+                        style: const TextStyle(fontSize: 11, color: AppTheme.primary, fontWeight: FontWeight.w600),
+                      ),
+                  ],
                 ),
               ),
             ],
           ),
-        ],
-      ],
-    );
-  }
-
-  // ── Amenities ──────────────────────────────────────────────────────────────
-  Widget _buildAmenities(RoomModel room) {
-    final typeId = room.typeRoom?.typeRoomId?.toUpperCase() ?? '';
-    final amenities = typeId == 'KING'
-        ? [
-            {'icon': Icons.weekend_outlined, 'label': 'Sofa'},
-            {'icon': Icons.ac_unit, 'label': 'Điều hòa'},
-            {'icon': Icons.movie_outlined, 'label': 'Máy chiếu'},
-            {'icon': Icons.computer_outlined, 'label': 'PC Couple'},
-          ]
-        : [
-            {'icon': Icons.weekend_outlined, 'label': 'Sofa'},
-            {'icon': Icons.ac_unit, 'label': 'Điều hòa'},
-            {'icon': Icons.movie_outlined, 'label': 'Máy chiếu'},
-            {'icon': Icons.sports_esports_outlined, 'label': 'Board Game'},
-          ];
-
-    return Wrap(
-      spacing: 16,
-      runSpacing: 8,
-      children: amenities
-          .map(
-            (a) => Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ShaderMask(
-                  shaderCallback: (bounds) =>
-                      AppTheme.primaryGradient.createShader(bounds),
-                  child: Icon(a['icon'] as IconData,
-                      size: 16, color: Colors.white),
+          const SizedBox(height: 8),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Icon(Icons.location_on_outlined, size: 16, color: AppTheme.textGray),
+              const SizedBox(width: 4),
+              Expanded(
+                child: Text(
+                  h.address,
+                  style: const TextStyle(fontSize: 12, color: AppTheme.textGray),
                 ),
+              ),
+            ],
+          ),
+          if (h.phone != null && h.phone!.isNotEmpty) ...[
+            const SizedBox(height: 6),
+            Row(
+              children: [
+                const Icon(Icons.phone_outlined, size: 16, color: AppTheme.textGray),
                 const SizedBox(width: 4),
                 Text(
-                  a['label'] as String,
-                  style: const TextStyle(
-                      fontSize: 12, color: AppTheme.textPrimary),
+                  'Hotline: ${h.phone!}',
+                  style: const TextStyle(fontSize: 12, color: AppTheme.textPrimary, fontWeight: FontWeight.w600),
                 ),
               ],
             ),
-          )
-          .toList(),
-    );
-  }
-
-  Widget _buildPriceOptions(RoomModel room) {
-    if (room.priceOptions.isEmpty) return const SizedBox.shrink();
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text('Giá theo kiểu đặt',
-            style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: AppTheme.textPrimary)),
-        const SizedBox(height: 8),
-        ...room.priceOptions.map((option) => Padding(
-              padding: const EdgeInsets.only(bottom: 6),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(option.typeName,
-                        style: const TextStyle(
-                            fontSize: 13, color: AppTheme.textPrimary)),
-                  ),
-                  Text('${_formatVND(option.price)} đ',
-                      style: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                          color: AppTheme.primary)),
-                ],
-              ),
-            )),
-      ],
+          ],
+        ],
+      ),
     );
   }
 
@@ -404,21 +568,21 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen> {
     return Row(
       children: [
         Text(
-          room.averageRating.toStringAsFixed(1),
+          room.averageRating > 0 ? room.averageRating.toStringAsFixed(1) : '5.0',
           style: const TextStyle(
-            fontSize: 18,
+            fontSize: 20,
             fontWeight: FontWeight.bold,
             color: AppTheme.textPrimary,
           ),
         ),
         const SizedBox(width: 6),
-        const Icon(Icons.star, color: Color(0xFFFFC107), size: 20),
+        const Icon(Icons.star, color: AppTheme.goldAccent, size: 22),
         const SizedBox(width: 6),
         Text(
           'Đánh giá (${room.reviewCount})',
           style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
+            fontSize: 15,
+            fontWeight: FontWeight.bold,
             color: AppTheme.textPrimary,
           ),
         ),
@@ -429,19 +593,12 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen> {
   // ── Review card ────────────────────────────────────────────────────────────
   Widget _buildReviewCard(ReviewModel review) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(14),
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFF3E5F5)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        border: Border.all(color: AppTheme.cardBorder),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -449,13 +606,11 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen> {
           Row(
             children: [
               CircleAvatar(
-                radius: 18,
+                radius: 16,
                 backgroundColor: const Color(0xFFF3E5F5),
                 child: ShaderMask(
-                  shaderCallback: (b) =>
-                      AppTheme.primaryGradient.createShader(b),
-                  child:
-                      const Icon(Icons.person, size: 20, color: Colors.white),
+                  shaderCallback: (b) => AppTheme.primaryGradient.createShader(b),
+                  child: const Icon(Icons.person, size: 18, color: Colors.white),
                 ),
               ),
               const SizedBox(width: 10),
@@ -466,15 +621,14 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen> {
                     Text(
                       review.reviewerName,
                       style: const TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
                         color: AppTheme.textPrimary,
                       ),
                     ),
                     Text(
                       _formatReviewDate(review.createdAt),
-                      style: const TextStyle(
-                          fontSize: 11, color: AppTheme.textGray),
+                      style: const TextStyle(fontSize: 11, color: AppTheme.textGray),
                     ),
                   ],
                 ),
@@ -484,7 +638,7 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen> {
                   5,
                   (i) => Icon(
                     i < review.rating ? Icons.star : Icons.star_border,
-                    color: const Color(0xFFFFC107),
+                    color: AppTheme.goldAccent,
                     size: 14,
                   ),
                 ),
@@ -494,7 +648,7 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen> {
           const SizedBox(height: 8),
           if (review.comment != null && review.comment!.isNotEmpty)
             Text(review.comment!,
-                style: const TextStyle(fontSize: 13, color: AppTheme.textGray)),
+                style: const TextStyle(fontSize: 12, color: AppTheme.textGray, height: 1.3)),
         ],
       ),
     );
@@ -506,15 +660,16 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen> {
   }
 
   // ── Book button ────────────────────────────────────────────────────────────
-  Widget _buildBookButton(BuildContext context) {
+  Widget _buildBookButton(BuildContext context, RoomModel room) {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
       decoration: BoxDecoration(
         color: Colors.white,
+        border: const Border(top: BorderSide(color: AppTheme.cardBorder)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
-            blurRadius: 10,
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 8,
             offset: const Offset(0, -4),
           ),
         ],
@@ -529,28 +684,25 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen> {
             boxShadow: [
               BoxShadow(
                 color: AppTheme.primary.withOpacity(0.35),
-                blurRadius: 12,
+                blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
             ],
           ),
           child: ElevatedButton(
             onPressed: () {
-              final room = ref.read(roomDetailProvider(widget.roomId)).room;
-              if (room != null) {
-                final isAvailable = room.status?.toLowerCase() == 'trống' ||
-                    room.status?.toLowerCase() == 'available';
-                if (!isAvailable) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Phòng đang ${room.status?.toLowerCase() ?? "bận"}, tạm thời khóa đặt phòng!'),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
-                  return;
-                }
-                context.push('/rooms/${room.roomId}/booking', extra: room);
+              final isAvailable = room.status?.toLowerCase() == 'trống' ||
+                  room.status?.toLowerCase() == 'available';
+              if (!isAvailable) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Phòng đang ${room.status?.toLowerCase() ?? "bận"}, tạm thời khóa đặt phòng!'),
+                    backgroundColor: AppTheme.error,
+                  ),
+                );
+                return;
               }
+              context.push('/rooms/${room.roomId}/booking', extra: room);
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.transparent,
@@ -559,10 +711,10 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen> {
                   borderRadius: BorderRadius.circular(14)),
             ),
             child: const Text(
-              'Đặt phòng',
+              'Đặt Phòng Ngay',
               style: TextStyle(
                 fontSize: 16,
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.bold,
                 color: Colors.white,
               ),
             ),

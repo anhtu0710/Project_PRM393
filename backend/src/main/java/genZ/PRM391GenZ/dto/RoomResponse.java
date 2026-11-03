@@ -11,11 +11,13 @@ public record RoomResponse(
         String status,
         HotelData hotel,
         String imageUrl,
+        String description,
+        String amenities,
         BigDecimal averageRating,
         long reviewCount,
         List<PriceOptionResponse> priceOptions,
         List<ReviewResponse> reviews
 ) {
     public record TypeRoomData(String typeRoomId, String typeRoom, BigDecimal pricePerHour) {}
-    public record HotelData(String hotelId, String name, String address, String phone, String imageUrl) {}
+    public record HotelData(String hotelId, String name, String address, String phone, String imageUrl, String city) {}
 }

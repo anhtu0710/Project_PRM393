@@ -33,4 +33,10 @@ public class Room {
 
     @Column(name = "imageUrl", columnDefinition = "NVARCHAR(MAX)")
     private String imageUrl;
+
+    @Column(name = "description", columnDefinition = "NVARCHAR(MAX)")
+    private String description;
+
+    @Column(name = "amenities", columnDefinition = "NVARCHAR(MAX)")
+    private String amenities;
 }

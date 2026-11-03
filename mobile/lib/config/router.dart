@@ -18,12 +18,14 @@ import '../screens/customer/booking/booking_screen.dart';
 import '../screens/customer/booking/booking_history_screen.dart';
 import '../screens/customer/booking/booking_detail_screen.dart';
 import '../screens/customer/review/review_screen.dart';
+import '../screens/customer/voucher/voucher_list_screen.dart';
+import '../screens/customer/food/food_menu_screen.dart';
+import '../screens/customer/movie/movie_list_screen.dart';
 import '../screens/notification/notification_screen.dart';
 import '../screens/admin/admin_user_screen.dart';
 import '../screens/staff/staff_home_screen.dart';
 import '../screens/staff/staff_booking_screen.dart';
 import '../screens/staff/staff_room_map_screen.dart';
-import '../screens/staff/staff_room_manage_screen.dart';
 import '../screens/staff/staff_price_screen.dart';
 import '../screens/staff/staff_voucher_screen.dart';
 import '../screens/staff/staff_hotel_screen.dart';
@@ -33,9 +35,6 @@ import '../models/room_model.dart';
 import '../models/review_eligible_booking_model.dart';
 
 // ── Listenable bridge: Riverpod → GoRouter ────────────────────────────────────
-// GoRouter cần một ChangeNotifier để biết khi nào chạy lại redirect.
-// Class này lắng nghe authProvider và notify GoRouter khi state thay đổi,
-// nhưng KHÔNG rebuild routerProvider → GoRouter không bị tạo lại.
 class _AuthNotifierListenable extends ChangeNotifier {
   _AuthNotifierListenable(this._ref) {
     _ref.listen<AuthState>(authProvider, (_, __) => notifyListeners());
@@ -45,15 +44,12 @@ class _AuthNotifierListenable extends ChangeNotifier {
 }
 
 // ── Router provider ───────────────────────────────────────────────────────────
-// Dùng ref.read (không phải ref.watch) → Provider này chỉ chạy 1 lần duy nhất
-// → GoRouter không bao giờ bị tạo lại → initialLocation không reset.
 final routerProvider = Provider<GoRouter>((ref) {
   final notifier = _AuthNotifierListenable(ref);
 
   final router = GoRouter(
-    initialLocation: '/home', // mở app vào thẳng trang chủ, chưa đăng nhập vẫn xem được phòng
-    refreshListenable:
-        notifier, // GoRouter tự gọi lại redirect khi auth thay đổi
+    initialLocation: '/home',
+    refreshListenable: notifier,
     redirect: (context, state) {
       final isResetWithToken =
           state.matchedLocation.startsWith('/reset-password') &&
@@ -69,18 +65,18 @@ final routerProvider = Provider<GoRouter>((ref) {
           state.matchedLocation.startsWith('/request-reset') ||
           state.matchedLocation.startsWith('/reset-password');
 
-      // Trang khách chưa đăng nhập vẫn xem được: trang chủ, danh sách phòng,
-      // chi tiết phòng, phòng đã lưu. Đặt phòng (/rooms/:id/booking) vẫn phải đăng nhập.
       final loc = state.matchedLocation;
       final isPublicRoute = loc == '/home' ||
           loc == '/saved' ||
           loc == '/rooms' ||
+          loc == '/vouchers' ||
+          loc == '/food-menu' ||
+          loc == '/movies' ||
           (loc.startsWith('/rooms/') && !loc.endsWith('/booking'));
 
       if (!isLoggedIn && !isAuthRoute && !isPublicRoute) return '/login';
       if (isLoggedIn && isAuthRoute) return _homeForRole(authState.user?.roleId);
 
-      // Admin / Staff đã đăng nhập mà mở trang chủ khách thì chuyển về trang của mình
       if (isLoggedIn && loc == '/home') {
         final home = _homeForRole(authState.user?.roleId);
         if (home != '/home') return home;
@@ -127,7 +123,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/admin/users',
-        builder: (_, __) => const AdminUserScreen(), // TV1
+        builder: (_, __) => const AdminUserScreen(),
       ),
 
       // ── Staff routes ──────────────────────────────────────────────────
@@ -137,7 +133,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/staff/bookings',
-        builder: (_, __) => const StaffBookingScreen(), // TV4
+        builder: (_, __) => const StaffBookingScreen(),
       ),
       GoRoute(
         path: '/staff/room-map',
@@ -149,42 +145,60 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/staff/prices',
-        builder: (_, __) => const StaffPriceScreen(), // TV5
+        builder: (_, __) => const StaffPriceScreen(),
       ),
       GoRoute(
         path: '/staff/vouchers',
-        builder: (_, __) => const StaffVoucherScreen(), // TV5
+        builder: (_, __) => const StaffVoucherScreen(),
       ),
       GoRoute(
         path: '/staff/hotels',
-        builder: (_, __) => const StaffHotelScreen(), // TV5
+        builder: (_, __) => const StaffHotelScreen(),
       ),
       GoRoute(
         path: '/staff/profile',
-        builder: (_, __) => const StaffProfileScreen(),      ),
+        builder: (_, __) => const StaffProfileScreen(),
+      ),
+
+      // ── System Vouchers, Food Menu, Movies ────────────────────────────
+      GoRoute(
+        path: '/vouchers',
+        name: 'vouchers',
+        builder: (_, __) => const VoucherListScreen(),
+      ),
+      GoRoute(
+        path: '/food-menu',
+        name: 'food-menu',
+        builder: (_, __) => const FoodMenuScreen(),
+      ),
+      GoRoute(
+        path: '/movies',
+        name: 'movies',
+        builder: (_, __) => const MovieListScreen(),
+      ),
 
       // ── Lịch sử, đánh giá, thông báo của khách ────────────────────────
       GoRoute(
         path: '/bookings',
-        builder: (_, __) => const BookingHistoryScreen(), // TV3
+        builder: (_, __) => const BookingHistoryScreen(),
       ),
       GoRoute(
         path: '/bookings/:id',
         builder: (_, state) {
           final id = int.parse(state.pathParameters['id']!);
-          return BookingDetailScreen(bookingId: id); // TV3
+          return BookingDetailScreen(bookingId: id);
         },
       ),
       GoRoute(
         path: '/bookings/:id/review',
         builder: (_, state) {
           final id = int.parse(state.pathParameters['id']!);
-          return ReviewBookingLoader(bookingId: id); // TV2
+          return ReviewBookingLoader(bookingId: id);
         },
       ),
       GoRoute(
         path: '/notifications',
-        builder: (_, __) => const NotificationScreen(), // TV4
+        builder: (_, __) => const NotificationScreen(),
       ),
 
       // ── Saved routes ─────────────────────────────────────────────────
@@ -233,17 +247,14 @@ final routerProvider = Provider<GoRouter>((ref) {
           final id = state.pathParameters['id'] ?? '';
           final extra = state.extra;
           if (extra != null) {
-            // Room đã được truyền trực tiếp từ màn hình chi tiết
             return BookingScreen(room: extra as RoomModel);
           }
-          // Fallback: load room rồi mới mở BookingScreen
           return _RoomBookingLoader(roomId: id);
         },
       ),
     ],
   );
 
-  // Hủy notifier khi provider bị dispose
   ref.onDispose(notifier.dispose);
 
   return router;
@@ -261,7 +272,6 @@ String _homeForRole(String? roleId) {
   }
 }
 
-// ── Helper: load room rồi mở BookingScreen (fallback khi không có extra) ─────
 class _RoomBookingLoader extends ConsumerWidget {
   final String roomId;
   const _RoomBookingLoader({required this.roomId});

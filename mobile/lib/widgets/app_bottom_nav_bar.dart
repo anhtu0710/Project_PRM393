@@ -7,7 +7,6 @@ import '../config/app_theme.dart';
 import '../providers/auth_provider.dart';
 
 class AppBottomNavBar extends ConsumerWidget {
-  // currentIndex: 0=Trang chủ, 1=Đã lưu, 2=Đặt chỗ
   final int currentIndex;
 
   const AppBottomNavBar({super.key, required this.currentIndex});
@@ -15,18 +14,22 @@ class AppBottomNavBar extends ConsumerWidget {
   static const _items = [
     {
       'icon': Icons.home_outlined,
-      'activeIcon': Icons.home,
+      'activeIcon': Icons.home_rounded,
       'label': 'Trang chủ'
     },
     {
-      'icon': Icons.bookmark_border,
-      'activeIcon': Icons.bookmark,
+      'icon': Icons.bookmark_border_rounded,
+      'activeIcon': Icons.bookmark_rounded,
       'label': 'Đã lưu'
     },
-    {'icon': Icons.work_outline, 'activeIcon': Icons.work, 'label': 'Đặt chỗ'},
     {
-      'icon': Icons.person_outline,
-      'activeIcon': Icons.person,
+      'icon': Icons.king_bed_outlined,
+      'activeIcon': Icons.king_bed_rounded,
+      'label': 'Đặt chỗ'
+    },
+    {
+      'icon': Icons.person_outline_rounded,
+      'activeIcon': Icons.person_rounded,
       'label': 'Tài khoản'
     },
   ];
@@ -64,11 +67,48 @@ class AppBottomNavBar extends ConsumerWidget {
                   borderRadius: BorderRadius.circular(4),
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 12),
+              if (isLoggedIn)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 22,
+                        backgroundColor: AppTheme.primary.withOpacity(0.12),
+                        child: ShaderMask(
+                          shaderCallback: (b) => AppTheme.primaryGradient.createShader(b),
+                          child: const Icon(Icons.person, color: Colors.white, size: 24),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              user.fullName,
+                              style: const TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                                color: AppTheme.textPrimary,
+                              ),
+                            ),
+                            Text(
+                              user.email,
+                              style: const TextStyle(fontSize: 12, color: AppTheme.textGray),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              const Divider(),
               if (!isLoggedIn)
                 ListTile(
-                  leading: const Icon(Icons.login, color: AppTheme.primary),
-                  title: const Text('Đăng nhập'),
+                  leading: const Icon(Icons.login_rounded, color: AppTheme.primary),
+                  title: const Text('Đăng nhập', style: TextStyle(fontWeight: FontWeight.w600)),
                   onTap: () {
                     Navigator.pop(ctx);
                     context.go('/login');
@@ -76,38 +116,32 @@ class AppBottomNavBar extends ConsumerWidget {
                 )
               else ...[
                 ListTile(
-                  leading: const Icon(Icons.person, color: AppTheme.primary),
-                  title: const Text('Tài khoản'),
-                  onTap: () => Navigator.pop(ctx),
-                ),
-                ListTile(
-                  leading: const Icon(Icons.rate_review_outlined,
-                      color: AppTheme.primary),
-                  title: const Text('Đánh giá sau lưu trú'),
+                  leading: const Icon(Icons.rate_review_outlined, color: AppTheme.primary),
+                  title: const Text('Đánh giá sau lưu trú', style: TextStyle(fontWeight: FontWeight.w600)),
                   onTap: () {
                     Navigator.pop(ctx);
                     context.push('/reviews');
                   },
                 ),
                 ListTile(
-                  leading: const Icon(Icons.history, color: AppTheme.primary),
-                  title: const Text('Lịch sử đặt phòng'),
+                  leading: const Icon(Icons.history_rounded, color: AppTheme.primary),
+                  title: const Text('Lịch sử đặt phòng', style: TextStyle(fontWeight: FontWeight.w600)),
                   onTap: () {
                     Navigator.pop(ctx);
                     context.push('/bookings');
                   },
                 ),
                 ListTile(
-                  leading: const Icon(Icons.notifications, color: AppTheme.primary),
-                  title: const Text('Thông báo'),
+                  leading: const Icon(Icons.notifications_none_rounded, color: AppTheme.primary),
+                  title: const Text('Thông báo', style: TextStyle(fontWeight: FontWeight.w600)),
                   onTap: () {
                     Navigator.pop(ctx);
                     context.push('/notifications');
                   },
                 ),
                 ListTile(
-                  leading: const Icon(Icons.logout, color: AppTheme.primaryDark),
-                  title: const Text('Đăng xuất'),
+                  leading: const Icon(Icons.logout_rounded, color: AppTheme.primaryDark),
+                  title: const Text('Đăng xuất', style: TextStyle(fontWeight: FontWeight.w600, color: AppTheme.primaryDark)),
                   onTap: () async {
                     Navigator.pop(ctx);
                     await ref.read(authProvider.notifier).logout();
@@ -128,10 +162,11 @@ class AppBottomNavBar extends ConsumerWidget {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
+        border: const Border(top: BorderSide(color: AppTheme.cardBorder)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
+            color: AppTheme.primary.withOpacity(0.06),
+            blurRadius: 10,
             offset: const Offset(0, -2),
           ),
         ],
@@ -148,49 +183,41 @@ class AppBottomNavBar extends ConsumerWidget {
               return Expanded(
                 child: InkWell(
                   onTap: () => _onTap(context, ref, index),
-                  child: isSelected
-                      ? ShaderMask(
-                          shaderCallback: (bounds) =>
-                              AppTheme.primaryGradient.createShader(bounds),
-                          child: _navItemContent(
-                            icon: item['activeIcon'] as IconData,
-                            label: item['label'] as String,
-                            color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    padding: const EdgeInsets.symmetric(vertical: 6),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (isSelected)
+                          ShaderMask(
+                            shaderCallback: (bounds) =>
+                                AppTheme.primaryGradient.createShader(bounds),
+                            child: Icon(item['activeIcon'] as IconData,
+                                color: Colors.white, size: 24),
+                          )
+                        else
+                          Icon(item['icon'] as IconData,
+                              color: AppTheme.textGray, size: 24),
+                        const SizedBox(height: 4),
+                        Text(
+                          item['label'] as String,
+                          style: TextStyle(
+                            color: isSelected ? AppTheme.primary : AppTheme.textGray,
+                            fontSize: 11,
+                            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                           ),
-                        )
-                      : _navItemContent(
-                          icon: item['icon'] as IconData,
-                          label: item['label'] as String,
-                          color: AppTheme.textGray,
                         ),
+                      ],
+                    ),
+                  ),
                 ),
               );
             }),
           ),
         ),
       ),
-    );
-  }
-
-  Widget _navItemContent({
-    required IconData icon,
-    required String label,
-    required Color color,
-  }) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, color: color, size: 24),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: TextStyle(
-            color: color,
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ],
     );
   }
 }

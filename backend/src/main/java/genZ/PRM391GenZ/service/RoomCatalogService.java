@@ -63,7 +63,7 @@ public class RoomCatalogService {
                         room.getTypeRoom().getTypeRoom(), room.getTypeRoom().getPricePerHour());
         RoomResponse.HotelData hotel = room.getHotel() == null ? null :
                 new RoomResponse.HotelData(room.getHotel().getHotelId(), room.getHotel().getName(),
-                        room.getHotel().getAddress(), room.getHotel().getPhone(), room.getHotel().getImageUrl());
+                        room.getHotel().getAddress(), room.getHotel().getPhone(), room.getHotel().getImageUrl(), room.getHotel().getCity());
 
         List<PriceOptionResponse> prices = includeDetails && room.getTypeRoom() != null
                 ? priceConfigRepository.findByTypeRoom_TypeRoomIdOrderByTypeBooking_DurationHoursAsc(
@@ -74,7 +74,7 @@ public class RoomCatalogService {
                 : List.of();
 
         return new RoomResponse(room.getRoomId(), room.getNameRoom(), typeRoom, room.getStatus(), hotel,
-                room.getImageUrl(), average, reviews.size(), prices, reviewResponses);
+                room.getImageUrl(), room.getDescription(), room.getAmenities(), average, reviews.size(), prices, reviewResponses);
     }
 
     private PriceOptionResponse toPriceOption(PriceConfig price) {

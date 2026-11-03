@@ -31,4 +31,7 @@ public class Hotel {
 
     @Column(name = "imageUrl", columnDefinition = "NVARCHAR(MAX)")
     private String imageUrl;
+
+    @Column(name = "City", length = 100)
+    private String city;
 }

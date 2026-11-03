@@ -31,6 +31,7 @@ class HotelModel {
   final String? phone;
   final String? imageUrl;
   final int? countRoom;
+  final String? city;
 
   const HotelModel({
     required this.hotelId,
@@ -39,6 +40,7 @@ class HotelModel {
     this.phone,
     this.imageUrl,
     this.countRoom,
+    this.city,
   });
 
   factory HotelModel.fromJson(Map<String, dynamic> json) => HotelModel(
@@ -48,6 +50,7 @@ class HotelModel {
         phone: json['phone'] as String?,
         imageUrl: json['imageUrl'] as String?,
         countRoom: json['countRoom'] as int?,
+        city: json['city'] as String?,
       );
 
   Map<String, dynamic> toJson() => {
@@ -57,6 +60,7 @@ class HotelModel {
         if (phone != null) 'phone': phone,
         if (imageUrl != null) 'imageUrl': imageUrl,
         if (countRoom != null) 'countRoom': countRoom,
+        if (city != null) 'city': city,
       };
 }
 
@@ -121,6 +125,8 @@ class RoomModel {
   final String? status;
   final HotelModel? hotel;
   final String? imageUrl;
+  final String? description;
+  final String? amenities;
   final double averageRating;
   final int reviewCount;
   final List<PriceOptionModel> priceOptions;
@@ -133,6 +139,8 @@ class RoomModel {
     this.status,
     this.hotel,
     this.imageUrl,
+    this.description,
+    this.amenities,
     this.averageRating = 0,
     this.reviewCount = 0,
     this.priceOptions = const [],
@@ -150,6 +158,8 @@ class RoomModel {
             ? HotelModel.fromJson(json['hotel'] as Map<String, dynamic>)
             : null,
         imageUrl: json['imageUrl'] as String?,
+        description: json['description'] as String?,
+        amenities: json['amenities'] as String?,
         averageRating: (json['averageRating'] as num?)?.toDouble() ?? 0,
         reviewCount: (json['reviewCount'] as num?)?.toInt() ?? 0,
         priceOptions: (json['priceOptions'] as List<dynamic>? ?? const [])
@@ -167,5 +177,7 @@ class RoomModel {
         if (status != null) 'status': status,
         if (hotel != null) 'hotel': hotel!.toJson(),
         if (imageUrl != null) 'imageUrl': imageUrl,
+        if (description != null) 'description': description,
+        if (amenities != null) 'amenities': amenities,
       };
 }

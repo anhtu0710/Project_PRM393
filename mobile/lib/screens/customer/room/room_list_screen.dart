@@ -1,7 +1,6 @@
 // lib/screens/customer/room/room_list_screen.dart
 
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -22,9 +21,8 @@ class _RoomListScreenState extends ConsumerState<RoomListScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
 
-  // ── Filter state ───────────────────────────────────────────────────────────
-  String? _selectedTypeId; // 'QUEEN' | 'KING' | null
-  String? _selectedHotelId; // hotelId | null
+  String? _selectedTypeId;
+  String? _selectedHotelId;
   String? _selectedPriceRange; // 'low' | 'high' | null
   DateTime? _checkIn;
   DateTime? _checkOut;
@@ -58,7 +56,6 @@ class _RoomListScreenState extends ConsumerState<RoomListScreen> {
         );
   }
 
-  // ── Filtering ──────────────────────────────────────────────────────────────
   List<RoomModel> _filterRooms(List<RoomModel> rooms) {
     var result = rooms;
 
@@ -136,8 +133,9 @@ class _RoomListScreenState extends ConsumerState<RoomListScreen> {
         DateTime(date.year, date.month, date.day, start.hour, start.minute);
     var checkOut =
         DateTime(date.year, date.month, date.day, end.hour, end.minute);
-    if (!checkOut.isAfter(checkIn))
+    if (!checkOut.isAfter(checkIn)) {
       checkOut = checkOut.add(const Duration(days: 1));
+    }
     setState(() {
       _checkIn = checkIn;
       _checkOut = checkOut;
@@ -145,7 +143,6 @@ class _RoomListScreenState extends ConsumerState<RoomListScreen> {
     _reloadRooms();
   }
 
-  // ── Filter bottom sheets ───────────────────────────────────────────────────
   void _showBranchFilter(List<RoomModel> rooms) {
     final hotels = <String, String>{};
     for (final r in rooms) {
@@ -158,7 +155,7 @@ class _RoomListScreenState extends ConsumerState<RoomListScreen> {
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (_) => _FilterSheet(
-        title: 'Chi nhánh',
+        title: 'Chi Nhánh GenZ Cinema',
         options: [
           const _FilterOption(value: null, label: 'Tất cả chi nhánh'),
           ...hotels.entries
@@ -176,14 +173,28 @@ class _RoomListScreenState extends ConsumerState<RoomListScreen> {
   void _showTypeFilter() {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (_) => _FilterSheet(
-        title: 'Loại phòng',
+        title: 'Loại Phòng Box Chủ Đề',
         options: const [
-          _FilterOption(value: null, label: 'Tất cả'),
+          _FilterOption(value: null, label: 'Tất cả loại phòng'),
           _FilterOption(value: 'QUEEN', label: 'Phòng Queen  •  96k/h'),
-          _FilterOption(value: 'KING', label: 'Phòng King  •  106k/h'),
+          _FilterOption(value: 'KING', label: 'Phòng King (PC Couple)  •  106k/h'),
+          _FilterOption(value: 'FOOTBALL', label: 'Football Box  •  106k/h'),
+          _FilterOption(value: 'GAMING', label: 'Gaming Box (PC Couple)  •  106k/h'),
+          _FilterOption(value: 'HOIAN', label: 'Hội An Box  •  96k/h'),
+          _FilterOption(value: 'HONGKONG', label: 'HongKong Box  •  96k/h'),
+          _FilterOption(value: 'MARVEL', label: 'Marvel Box  •  96k/h'),
+          _FilterOption(value: 'NATRA', label: 'Natra Box  •  96k/h'),
+          _FilterOption(value: 'SAMURAI', label: 'Samurai Box  •  96k/h'),
+          _FilterOption(value: 'ANIME', label: 'Anime Box  •  96k/h'),
+          _FilterOption(value: 'AQUAMAN', label: 'Aquaman Box  •  96k/h'),
+          _FilterOption(value: 'AVATAR', label: 'Avatar Box  •  96k/h'),
+          _FilterOption(value: 'AVENGER', label: 'Avenger Box  •  96k/h'),
+          _FilterOption(value: 'SAKURA', label: 'Sakura Box  •  96k/h'),
+          _FilterOption(value: 'TEDDY', label: 'Teddy Box  •  96k/h'),
         ],
         selected: _selectedTypeId,
         onSelect: (v) {
@@ -200,11 +211,11 @@ class _RoomListScreenState extends ConsumerState<RoomListScreen> {
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (_) => _FilterSheet(
-        title: 'Mức giá',
+        title: 'Mức Giá Theo Giờ',
         options: const [
           _FilterOption(value: null, label: 'Tất cả mức giá'),
-          _FilterOption(value: 'low', label: 'Dưới 100k/h  (Phòng Queen)'),
-          _FilterOption(value: 'high', label: 'Từ 100k/h  (Phòng King)'),
+          _FilterOption(value: 'low', label: 'Dưới 100k/h  (96k/h)'),
+          _FilterOption(value: 'high', label: 'Từ 100k/h  (106k/h)'),
         ],
         selected: _selectedPriceRange,
         onSelect: (v) {
@@ -215,14 +226,13 @@ class _RoomListScreenState extends ConsumerState<RoomListScreen> {
     );
   }
 
-  // ── Build ──────────────────────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
     final roomState = ref.watch(roomListProvider);
     final filtered = _filterRooms(roomState.rooms);
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppTheme.surface,
       bottomNavigationBar: const AppBottomNavBar(currentIndex: 2),
       body: SafeArea(
         child: Column(
@@ -256,12 +266,13 @@ class _RoomListScreenState extends ConsumerState<RoomListScreen> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: const Color(0xFFE5E7EB)),
+          border: Border.all(color: AppTheme.cardBorder),
           boxShadow: [
             BoxShadow(
-                color: Colors.black.withOpacity(0.04),
-                blurRadius: 8,
-                offset: const Offset(0, 2))
+              color: AppTheme.primary.withOpacity(0.04),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            )
           ],
         ),
         child: TextField(
@@ -273,7 +284,7 @@ class _RoomListScreenState extends ConsumerState<RoomListScreen> {
                 Timer(const Duration(milliseconds: 350), _reloadRooms);
           },
           decoration: InputDecoration(
-            hintText: 'Tìm kiếm',
+            hintText: 'Tìm kiếm phòng, chi nhánh...',
             hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 14),
             prefixIcon:
                 Icon(Icons.search, color: Colors.grey.shade400, size: 20),
@@ -330,12 +341,13 @@ class _RoomListScreenState extends ConsumerState<RoomListScreen> {
               height: 36,
               decoration: BoxDecoration(
                 gradient: _hasActiveFilter ? AppTheme.primaryGradient : null,
-                color: _hasActiveFilter ? null : const Color(0xFFF3F4F6),
-                borderRadius: BorderRadius.circular(8),
+                color: _hasActiveFilter ? null : Colors.white,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: AppTheme.cardBorder),
               ),
               child: Icon(
                 _hasActiveFilter ? Icons.filter_alt : Icons.tune,
-                color: _hasActiveFilter ? Colors.white : Colors.grey.shade500,
+                color: _hasActiveFilter ? Colors.white : AppTheme.textGray,
                 size: 18,
               ),
             ),
@@ -360,7 +372,7 @@ class _RoomListScreenState extends ConsumerState<RoomListScreen> {
           color: active ? null : Colors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-              color: active ? Colors.transparent : const Color(0xFFE5E7EB)),
+              color: active ? Colors.transparent : AppTheme.cardBorder),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -384,15 +396,10 @@ class _RoomListScreenState extends ConsumerState<RoomListScreen> {
 
   Widget _buildActiveFilterBar() {
     final parts = <String>[];
-    if (_selectedTypeId != null)
-      parts.add(_selectedTypeId == 'QUEEN' ? 'Queen' : 'King');
+    if (_selectedTypeId != null) parts.add(_selectedTypeId!);
     if (_selectedHotelId != null) parts.add('1 chi nhánh');
-    if (_selectedPriceRange != null)
+    if (_selectedPriceRange != null) {
       parts.add(_selectedPriceRange == 'low' ? '< 100k/h' : '≥ 100k/h');
-    if (_checkIn != null && _checkOut != null) {
-      parts.add(
-          '${_checkIn!.hour.toString().padLeft(2, '0')}:${_checkIn!.minute.toString().padLeft(2, '0')} - '
-          '${_checkOut!.hour.toString().padLeft(2, '0')}:${_checkOut!.minute.toString().padLeft(2, '0')}');
     }
 
     return Padding(
@@ -401,7 +408,7 @@ class _RoomListScreenState extends ConsumerState<RoomListScreen> {
         children: [
           Expanded(
             child: Text('Đang lọc: ${parts.join(' · ')}',
-                style: TextStyle(fontSize: 12, color: Colors.grey.shade500)),
+                style: const TextStyle(fontSize: 12, color: AppTheme.textGray)),
           ),
           GestureDetector(
             onTap: _clearAllFilters,
@@ -409,7 +416,7 @@ class _RoomListScreenState extends ConsumerState<RoomListScreen> {
                 style: TextStyle(
                     fontSize: 12,
                     color: AppTheme.primary,
-                    fontWeight: FontWeight.w500)),
+                    fontWeight: FontWeight.w600)),
           ),
         ],
       ),
@@ -423,131 +430,159 @@ class _RoomListScreenState extends ConsumerState<RoomListScreen> {
         crossAxisCount: 2,
         crossAxisSpacing: 12,
         mainAxisSpacing: 12,
-        childAspectRatio: 0.78,
+        childAspectRatio: 0.72,
       ),
       itemCount: rooms.length,
       itemBuilder: (context, index) => _buildRoomCard(context, rooms[index]),
     );
   }
 
-  Widget _buildRoomImage(String? imageUrl) {
-    const radius = BorderRadius.vertical(top: Radius.circular(12));
-    if (imageUrl != null && imageUrl.isNotEmpty) {
-      return ClipRRect(
-        borderRadius: radius,
-        child: Image.network(
-          imageUrl,
-          fit: BoxFit.cover,
-          width: double.infinity,
-          loadingBuilder: (_, child, prog) {
-            if (prog == null) return child;
-            return Container(
-              decoration: const BoxDecoration(
-                  borderRadius: radius, color: Color(0xFFF8E8FF)),
-              child: Center(
-                child: CircularProgressIndicator(
-                  value: prog.expectedTotalBytes != null
-                      ? prog.cumulativeBytesLoaded / prog.expectedTotalBytes!
-                      : null,
-                  strokeWidth: 2,
-                  valueColor:
-                      const AlwaysStoppedAnimation<Color>(AppTheme.primary),
-                ),
-              ),
-            );
-          },
-          errorBuilder: (_, __, ___) => _buildImagePlaceholder(radius),
-        ),
-      );
-    }
-    return _buildImagePlaceholder(radius);
-  }
-
-  Widget _buildImagePlaceholder(BorderRadius radius) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: radius,
-        gradient: const LinearGradient(
-          colors: [Color(0xFFF8E8FF), Color(0xFFEDD5F5)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-      ),
-      child: Center(
-        child: ShaderMask(
-          shaderCallback: (bounds) =>
-              AppTheme.primaryGradient.createShader(bounds),
-          child: const Icon(Icons.bedroom_parent_outlined,
-              size: 40, color: Colors.white),
-        ),
-      ),
-    );
-  }
-
   Widget _buildRoomCard(BuildContext context, RoomModel room) {
-    final typeLabel = room.typeRoom?.typeRoom ?? 'Phòng';
-    final address = room.hotel?.address ?? room.hotel?.name ?? 'N/A';
+    final typeLabel = room.typeRoom?.typeRoom ?? 'Cinema Box';
+    final hotelName = room.hotel?.name ?? 'GenZ Cinema';
     final price = room.typeRoom?.pricePerHour;
     final priceText =
         price != null ? '${(price / 1000).toStringAsFixed(0)}k/h' : '';
+    final isAvailable = room.status?.toLowerCase() == 'trống' ||
+        room.status?.toLowerCase() == 'available';
 
     return GestureDetector(
       onTap: () => context.push('/rooms/${room.roomId}'),
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: const Color(0xFFF3E5F5)),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: AppTheme.cardBorder),
           boxShadow: [
             BoxShadow(
-                color: Colors.black.withOpacity(0.04),
-                blurRadius: 8,
-                offset: const Offset(0, 2))
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            )
           ],
         ),
+        clipBehavior: Clip.hardEdge,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(child: _buildRoomImage(room.imageUrl)),
+            // Image Stack
+            Expanded(
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  room.imageUrl != null && room.imageUrl!.isNotEmpty
+                      ? Image.network(
+                          room.imageUrl!,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => _buildPlaceholder(),
+                        )
+                      : _buildPlaceholder(),
+                  // Status Badge
+                  Positioned(
+                    top: 8,
+                    left: 8,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.65),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 6,
+                            height: 6,
+                            decoration: BoxDecoration(
+                              color: isAvailable ? AppTheme.success : AppTheme.error,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            room.status ?? 'Trống',
+                            style: const TextStyle(
+                              fontSize: 10,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // Info
             Padding(
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(10),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    '${room.nameRoom} - $typeLabel',
+                    room.nameRoom,
                     style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: AppTheme.textPrimary),
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.textPrimary,
+                    ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 2),
-                  ShaderMask(
-                    shaderCallback: (bounds) =>
-                        AppTheme.primaryGradient.createShader(bounds),
-                    child: Text(priceText,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.white)),
+                  Text(
+                    typeLabel,
+                    style: const TextStyle(fontSize: 11, color: AppTheme.textGray),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 3),
+                  const SizedBox(height: 4),
                   Row(
                     children: [
                       const Icon(Icons.location_on_outlined,
-                          size: 10, color: AppTheme.textGray),
+                          size: 11, color: AppTheme.primary),
                       const SizedBox(width: 2),
                       Expanded(
-                        child: Text(address,
+                        child: Text(
+                          hotelName,
+                          style: const TextStyle(fontSize: 10, color: AppTheme.textGray),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      ShaderMask(
+                        shaderCallback: (bounds) =>
+                            AppTheme.primaryGradient.createShader(bounds),
+                        child: Text(
+                          priceText,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                      Row(
+                        children: [
+                          const Icon(Icons.star, size: 12, color: AppTheme.goldAccent),
+                          const SizedBox(width: 2),
+                          Text(
+                            room.averageRating > 0
+                                ? room.averageRating.toStringAsFixed(1)
+                                : '5.0',
                             style: const TextStyle(
-                                fontSize: 10, color: AppTheme.textGray),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis),
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                              color: AppTheme.textPrimary,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -556,6 +591,21 @@ class _RoomListScreenState extends ConsumerState<RoomListScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildPlaceholder() {
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Color(0xFFF3E8FF), Color(0xFFE0D0F8)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: const Center(
+        child: Icon(Icons.bedroom_parent_outlined, size: 36, color: AppTheme.primary),
       ),
     );
   }
@@ -574,11 +624,6 @@ class _RoomListScreenState extends ConsumerState<RoomListScreen> {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: _reloadRooms,
-              style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.primary,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8))),
               child: const Text('Thử lại'),
             ),
           ],
@@ -614,7 +659,6 @@ class _RoomListScreenState extends ConsumerState<RoomListScreen> {
   }
 }
 
-// ── Reusable filter bottom sheet ───────────────────────────────────────────────
 class _FilterOption {
   final String? value;
   final String label;
@@ -658,7 +702,6 @@ class _FilterSheetState extends State<_FilterSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Handle bar
             Center(
               child: Container(
                 width: 40,
@@ -672,10 +715,9 @@ class _FilterSheetState extends State<_FilterSheet> {
             Text(widget.title,
                 style: const TextStyle(
                     fontSize: 16,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.bold,
                     color: AppTheme.textPrimary)),
             const SizedBox(height: 12),
-            // Scrollable options list
             Flexible(
               child: SingleChildScrollView(
                 child: Column(
@@ -686,7 +728,6 @@ class _FilterSheetState extends State<_FilterSheet> {
               ),
             ),
             const SizedBox(height: 8),
-            // Fixed apply button
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -694,15 +735,8 @@ class _FilterSheetState extends State<_FilterSheet> {
                   widget.onSelect(_current);
                   Navigator.pop(context);
                 },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.primary,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
-                ),
                 child: const Text('Áp dụng',
-                    style: TextStyle(fontWeight: FontWeight.w600)),
+                    style: TextStyle(fontWeight: FontWeight.bold)),
               ),
             ),
           ],
