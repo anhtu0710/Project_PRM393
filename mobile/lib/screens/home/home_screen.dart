@@ -8,9 +8,11 @@ import '../../config/app_theme.dart';
 import '../../models/food_menu_model.dart';
 import '../../models/movie_model.dart';
 import '../../models/room_model.dart';
+import '../../providers/auth_provider.dart';
 import '../../providers/food_provider.dart';
 import '../../providers/hotel_provider.dart';
 import '../../providers/movie_provider.dart';
+import '../../providers/notification_provider.dart';
 import '../../providers/room_provider.dart';
 import '../../widgets/app_bottom_nav_bar.dart';
 
@@ -43,6 +45,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final int totalItems = banners.length * _kInfiniteMultiplier;
     final int initialPage = (totalItems ~/ 2) - ((totalItems ~/ 2) % banners.length);
     _bannerController = PageController(initialPage: initialPage);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final user = ref.read(authProvider).user;
+      if (user != null) {
+        ref.read(notificationListProvider.notifier).loadNotifications(user.userId);
+      }
+    });
 
     _bannerTimer = Timer.periodic(const Duration(seconds: 3), (_) {
       if (!mounted) return;

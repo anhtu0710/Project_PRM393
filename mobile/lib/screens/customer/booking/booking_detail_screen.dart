@@ -1,11 +1,12 @@
 // lib/screens/customer/booking/booking_detail_screen.dart
-// Phụ trách: TV3
+// Phụ trách: TV3 — Chi tiết Booking (Hỗ trợ Khách hàng và nút xử lý Duyệt/Check-in cho Staff)
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../config/app_config.dart';
 import '../../../config/app_theme.dart';
 import '../../../models/booking_model.dart';
+import '../../../providers/auth_provider.dart';
 import '../../../providers/booking_provider.dart';
 import '../../../services/booking_service.dart';
 import 'booking_ui.dart';
@@ -71,9 +72,60 @@ class _BookingDetailScreenState extends ConsumerState<BookingDetailScreen> {
     }
   }
 
+  Future<void> _updateStaffStatus(String newStatus, String actionLabel) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Text(actionLabel),
+        content: Text('Bạn có chắc chắn muốn $actionLabel đơn booking #${widget.bookingId}?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Hủy', style: TextStyle(color: AppTheme.textGray)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: newStatus == AppConfig.bookingRejected || newStatus == AppConfig.bookingCancelled
+                  ? AppTheme.error
+                  : AppTheme.primary,
+            ),
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('Xác nhận', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+    if (confirm != true) return;
+
+    setState(() => _cancelling = true);
+    try {
+      await ref.read(bookingServiceProvider).updateBookingStatus(widget.bookingId, newStatus);
+      ref.invalidate(bookingDetailProvider(widget.bookingId));
+      ref.invalidate(myBookingsProvider);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Thao tác "$actionLabel" thành công!')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(BookingService.errorMessage(e, 'Thao tác thất bại')),
+          backgroundColor: AppTheme.error,
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _cancelling = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final asyncBooking = ref.watch(bookingDetailProvider(widget.bookingId));
+    final user = ref.watch(authProvider).user;
+    final isStaffOrAdmin = user != null &&
+        (user.roleId == AppConfig.roleStaff || user.roleId == AppConfig.roleAdmin);
 
     return Scaffold(
       appBar: AppBar(title: Text('Booking #${widget.bookingId}')),
@@ -165,7 +217,65 @@ class _BookingDetailScreenState extends ConsumerState<BookingDetailScreen> {
                 ],
               ),
             ),
-            if (_canCancel(b)) ...[
+
+            // Nút xử lý nghiệp vụ cho Staff hoặc Hủy cho Khách
+            if (isStaffOrAdmin) ...[
+              const SizedBox(height: 24),
+              if (b.status?.toUpperCase() == AppConfig.bookingPending) ...[
+                SizedBox(
+                  height: 48,
+                  child: ElevatedButton.icon(
+                    onPressed: _cancelling ? null : () => _updateStaffStatus(AppConfig.bookingConfirmed, 'Duyệt booking'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.primary,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    icon: const Icon(Icons.check_circle_outline, color: Colors.white),
+                    label: const Text('Duyệt booking ngay', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                SizedBox(
+                  height: 44,
+                  child: OutlinedButton.icon(
+                    onPressed: _cancelling ? null : () => _updateStaffStatus(AppConfig.bookingRejected, 'Từ chối booking'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppTheme.error,
+                      side: const BorderSide(color: AppTheme.error),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    icon: const Icon(Icons.cancel_outlined),
+                    label: const Text('Từ chối đơn'),
+                  ),
+                ),
+              ] else if (b.status?.toUpperCase() == AppConfig.bookingConfirmed) ...[
+                SizedBox(
+                  height: 48,
+                  child: ElevatedButton.icon(
+                    onPressed: _cancelling ? null : () => _updateStaffStatus(AppConfig.bookingCheckedIn, 'Check-in nhận phòng'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.success,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    icon: const Icon(Icons.key_rounded, color: Colors.white),
+                    label: const Text('Check-in nhận phòng', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                  ),
+                ),
+              ] else if (b.status?.toUpperCase() == AppConfig.bookingCheckedIn) ...[
+                SizedBox(
+                  height: 48,
+                  child: ElevatedButton.icon(
+                    onPressed: _cancelling ? null : () => _updateStaffStatus(AppConfig.bookingCompleted, 'Check-out hoàn tất'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF6366F1),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    icon: const Icon(Icons.meeting_room_rounded, color: Colors.white),
+                    label: const Text('Check-out hoàn tất', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                  ),
+                ),
+              ],
+            ] else if (_canCancel(b)) ...[
               const SizedBox(height: 24),
               SizedBox(
                 height: 48,

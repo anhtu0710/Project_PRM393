@@ -18,7 +18,7 @@ public class NotificationController {
 
     @GetMapping("/user/{userId}")
     public ResponseEntity<ApiResponse<List<Notification>>> getNotificationsByUserId(@PathVariable String userId) {
-        List<Notification> list = notificationRepository.findByUserId(userId);
+        List<Notification> list = notificationRepository.findByUserIdOrderByNotificationIdDesc(userId);
         return ResponseEntity.ok(ApiResponse.success("Danh sách thông báo", list));
     }
 
@@ -35,7 +35,7 @@ public class NotificationController {
 
     @PutMapping("/user/{userId}/read-all")
     public ResponseEntity<ApiResponse<Void>> markAllAsRead(@PathVariable String userId) {
-        List<Notification> list = notificationRepository.findByUserId(userId);
+        List<Notification> list = notificationRepository.findByUserIdOrderByNotificationIdDesc(userId);
         for (Notification notif : list) {
             notif.setRead(true);
         }

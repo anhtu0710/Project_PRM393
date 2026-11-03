@@ -315,16 +315,22 @@ INSERT INTO Room (RoomId, nameRoom, TypeRoomId, Status, HotelId, imageUrl, descr
 
 -- User test cho Admin, Staff và Customer - Mật khẩu chung: Genz@123
 INSERT INTO [User] (UserId, full_name, phone, email, password, RoleId, HotelId, IsLocked) VALUES
-('SEED_ADMIN',    N'Trần Quản Lý (Admin)',  '0901111111', 'admin@genz.test',    '$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'ADMIN',    NULL,    0),
-('SEED_STAFF',    N'Lê Nhân Viên (Staff)',  '0902222222', 'staff@genz.test',    '$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'STAFF',    'HN002', 0),
-('STAFF_HN001',   N'Nguyễn Văn Thành (Staff)',   '0902222223', 'staff.hn001@genz.test','$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'STAFF',    'HN001', 0),
+('SEED_ADMIN',    N'Trần Quản Lý (Admin)',    '0901111111', 'admin@genz.test',      '$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'ADMIN',    NULL,    0),
+('SEED_STAFF',    N'Lê Nhân Viên (Staff)',    '0902222222', 'staff@genz.test',      '$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'STAFF',    'HN002', 0),
+('STAFF_HN001',   N'Nguyễn Văn Thành (Staff)', '0902222223', 'staff.hn001@genz.test', '$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'STAFF',    'HN001', 0),
+('STAFF_HN003',   N'Trần Minh Đức (Staff)',   '0902222225', 'staff.hn003@genz.test', '$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'STAFF',    'HN003', 0),
+('STAFF_HN004',   N'Hoàng Quốc Việt (Staff)', '0902222226', 'staff.hn004@genz.test', '$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'STAFF',    'HN004', 0),
+('STAFF_HN005',   N'Đỗ Thái Hà (Staff)',     '0902222227', 'staff.hn005@genz.test', '$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'STAFF',    'HN005', 0),
+('STAFF_HN006',   N'Vũ Bích Ngọc (Staff)',   '0902222228', 'staff.hn006@genz.test', '$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'STAFF',    'HN006', 0),
+('STAFF_BN001',   N'Đặng Quang Huy (Staff)',  '0902222229', 'staff.bn001@genz.test', '$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'STAFF',    'BN001', 0),
 ('STAFF_HCM001',  N'Phạm Hoàng Nam (Staff)', '0902222224', 'staff.hcm001@genz.test','$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'STAFF',    'HCM001',0),
-('SEED_CUSTOMER', N'Nguyễn Văn An (Khách)', '0903333333', 'customer@genz.test', '$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'CUSTOMER', NULL,    0),
-('CUSTOMER_02',   N'Phạm Thị Mai',          '0904444444', 'mai.pham@genz.test', '$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'CUSTOMER', NULL,    0),
-('CUSTOMER_03',   N'Hoàng Minh Huy',        '0905555555', 'huy.hoang@genz.test','$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'CUSTOMER', NULL,    0),
-('CUSTOMER_04',   N'Đặng Anh Tuấn',         '0906666666', 'tuan.dang@genz.test','$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'CUSTOMER', NULL,    0),
-('CUSTOMER_05',   N'Trịnh Khánh Linh',      '0907777777', 'linh.trinh@genz.test','$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'CUSTOMER', NULL,    0),
-('CUSTOMER_06',   N'Vũ Minh Hoàng',         '0908888888', 'hoang.vu@genz.test',  '$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'CUSTOMER', NULL,    0);
+('STAFF_HCM002',  N'Trịnh Tuấn Kiệt (Staff)','0902222230', 'staff.hcm002@genz.test','$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'STAFF',    'HCM002',0),
+('SEED_CUSTOMER', N'Nguyễn Văn An (Khách)',   '0903333333', 'customer@genz.test',   '$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'CUSTOMER', NULL,    0),
+('CUSTOMER_02',   N'Phạm Thị Mai',            '0904444444', 'mai.pham@genz.test',   '$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'CUSTOMER', NULL,    0),
+('CUSTOMER_03',   N'Hoàng Minh Huy',          '0905555555', 'huy.hoang@genz.test',  '$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'CUSTOMER', NULL,    0),
+('CUSTOMER_04',   N'Đặng Anh Tuấn',           '0906666666', 'tuan.dang@genz.test',  '$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'CUSTOMER', NULL,    0),
+('CUSTOMER_05',   N'Trịnh Khánh Linh',        '0907777777', 'linh.trinh@genz.test', '$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'CUSTOMER', NULL,    0),
+('CUSTOMER_06',   N'Vũ Minh Hoàng',           '0908888888', 'hoang.vu@genz.test',   '$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'CUSTOMER', NULL,    0);
 
 -- Voucher ưu đãi thực tế GenZ Cinema
 INSERT INTO Voucher (Code, Description, DiscountPercent, DiscountAmount, MinOrderAmount, ExpiryDate) VALUES
