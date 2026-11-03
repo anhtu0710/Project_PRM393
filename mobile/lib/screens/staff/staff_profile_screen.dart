@@ -403,19 +403,43 @@ class _StaffProfileScreenState extends ConsumerState<StaffProfileScreen> {
                           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
                         ),
                         onPressed: () {
+                          final currentName = _nameController.text.trim();
+                          final currentEmail = _emailController.text.trim();
+                          final currentPhone = _phoneController.text.trim();
+
+                          final hasChanges = currentName != _initialName ||
+                              currentEmail != _initialEmail ||
+                              currentPhone != _initialPhone;
+
+                          if (!hasChanges) {
+                            setState(() {
+                              _isEditing = false;
+                            });
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Thông tin của bạn vẫn giữ nguyên'),
+                                backgroundColor: AppTheme.primary,
+                                duration: Duration(seconds: 2),
+                              ),
+                            );
+                            return;
+                          }
+
                           ref.read(authProvider.notifier).updateProfile(
-                                fullName: _nameController.text.trim(),
-                                email: _emailController.text.trim(),
+                                fullName: currentName,
+                                email: currentEmail,
                               );
                           setState(() {
-                            _initialName = _nameController.text.trim();
-                            _initialEmail = _emailController.text.trim();
-                            _initialPhone = _phoneController.text.trim();
+                            _initialName = currentName;
+                            _initialEmail = currentEmail;
+                            _initialPhone = currentPhone;
                             _isEditing = false;
                           });
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text('Đã cập nhật thông tin cá nhân thành công!'),
+                              backgroundColor: AppTheme.primary,
+                              duration: Duration(seconds: 2),
                             ),
                           );
                         },
