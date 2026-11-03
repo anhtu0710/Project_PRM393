@@ -125,9 +125,11 @@ class _CheckoutModalDialogState extends ConsumerState<CheckoutModalDialog> {
                 children: [
                   // Thông tin phòng & thời gian
                   _buildSectionCard(
-                    title: 'Phòng ${b.roomName ?? b.roomId}',
+                    title: 'Thông Tin Phòng',
+                    icon: Icons.meeting_room_outlined,
                     child: Column(
                       children: [
+                        _infoRow('Tên phòng', b.roomName ?? b.roomId),
                         _infoRow('Khách hàng', b.userFullName ?? b.userId),
                         _infoRow('Giờ hẹn trả', '${formatTime(scheduledCheckOut)} ${formatDate(scheduledCheckOut)}'),
                         _infoRow('Giờ trả thực tế', '${formatTime(now)} ${formatDate(now)}'),
@@ -139,49 +141,98 @@ class _CheckoutModalDialogState extends ConsumerState<CheckoutModalDialog> {
                   // Phần 1: Phụ Thu Trễ Giờ
                   _buildSectionCard(
                     title: '1. Phụ Thu Ra Muộn (Late Checkout)',
+                    icon: Icons.timer_outlined,
+                    iconColor: Colors.orange.shade700,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         if (lateMinutes <= 15) ...[
-                          Row(
-                            children: [
-                              const Icon(Icons.check_circle_outline_rounded, color: AppTheme.success, size: 20),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  lateMinutes > 0
-                                      ? 'Trễ $lateMinutes phút (Dưới 15 phút - Miễn phí phụ thu)'
-                                      : 'Đúng giờ / Trả phòng sớm - Không phụ thu',
-                                  style: const TextStyle(fontSize: 13, color: AppTheme.success, fontWeight: FontWeight.w600),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ] else ...[
                           Container(
-                            padding: const EdgeInsets.all(10),
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                             decoration: BoxDecoration(
-                              color: Colors.amber.shade50,
-                              borderRadius: BorderRadius.circular(10),
-                              border: Border.all(color: Colors.amber.shade200),
+                              color: const Color(0xFFECFDF5),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: const Color(0xFFA7F3D0)),
                             ),
                             child: Row(
                               children: [
-                                Icon(Icons.access_time_filled_rounded, color: Colors.amber.shade800, size: 20),
+                                const Icon(Icons.check_circle_rounded, color: Color(0xFF059669), size: 20),
                                 const SizedBox(width: 8),
                                 Expanded(
                                   child: Text(
-                                    'Quá giờ $lateMinutes phút (> 15p bắt đầu tính $lateHours giờ x ${formatVND(pricePerHour)}/h)',
-                                    style: TextStyle(fontSize: 12, color: Colors.amber.shade900, fontWeight: FontWeight.bold),
+                                    lateMinutes > 0
+                                        ? 'Trễ $lateMinutes phút (Dưới 15 phút - Miễn phí phụ thu)'
+                                        : 'Đúng giờ / Trả phòng sớm - Không phụ thu',
+                                    style: const TextStyle(fontSize: 13, color: Color(0xFF047857), fontWeight: FontWeight.w600),
                                   ),
                                 ),
                               ],
                             ),
                           ),
-                          const SizedBox(height: 8),
-                          _infoRow('Số giờ phụ thu', '$lateHours giờ'),
-                          _infoRow('Đơn giá niêm yết', '${formatVND(pricePerHour)} / giờ'),
-                          _infoRow('Tiền phạt ra muộn', formatVND(lateFee), isHighlight: true, color: AppTheme.error),
+                        ] else ...[
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              gradient: const LinearGradient(
+                                colors: [Color(0xFFFFF7ED), Color(0xFFFFEDD5)],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: const Color(0xFFFDBA74)),
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: const BoxDecoration(
+                                    color: Color(0xFFEA580C),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(Icons.access_time_filled_rounded, color: Colors.white, size: 18),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Quá giờ $lateMinutes phút',
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                          color: Color(0xFFC2410C),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        'Quá 15p tính thành $lateHours giờ x ${formatVND(pricePerHour)}/h',
+                                        style: const TextStyle(fontSize: 11, color: Color(0xFF9A3412)),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF8FAFC),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: const Color(0xFFE2E8F0)),
+                            ),
+                            child: Column(
+                              children: [
+                                _infoRow('Số giờ phụ thu', '$lateHours giờ'),
+                                const Divider(height: 10, color: Color(0xFFE2E8F0)),
+                                _infoRow('Đơn giá niêm yết', '${formatVND(pricePerHour)} / giờ'),
+                                const Divider(height: 10, color: Color(0xFFE2E8F0)),
+                                _infoRow('Phụ thu trễ giờ', formatVND(lateFee), isHighlight: true, color: const Color(0xFFDC2626)),
+                              ],
+                            ),
+                          ),
                         ],
                       ],
                     ),
@@ -191,6 +242,8 @@ class _CheckoutModalDialogState extends ConsumerState<CheckoutModalDialog> {
                   // Phần 2: Order Đồ Ăn F&B Phát Sinh
                   _buildSectionCard(
                     title: '2. Order Đồ Ăn & Thức Uống F&B Phát Sinh',
+                    icon: Icons.restaurant_outlined,
+                    iconColor: AppTheme.primary,
                     child: Column(
                       children: [
                         if (foodState.isLoading)
@@ -422,23 +475,38 @@ class _CheckoutModalDialogState extends ConsumerState<CheckoutModalDialog> {
     );
   }
 
-  Widget _buildSectionCard({required String title, required Widget child}) {
+  Widget _buildSectionCard({required String title, required Widget child, IconData? icon, Color? iconColor}) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppTheme.cardBorder),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppTheme.textPrimary),
+          Row(
+            children: [
+              if (icon != null) ...[
+                Icon(icon, size: 18, color: iconColor ?? AppTheme.primary),
+                const SizedBox(width: 6),
+              ],
+              Text(
+                title,
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppTheme.textPrimary),
+              ),
+            ],
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           child,
         ],
       ),
