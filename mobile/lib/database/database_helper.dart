@@ -18,15 +18,31 @@ class DatabaseHelper {
     return _database!;
   }
 
+  /// Tăng số này mỗi khi sửa database.sql: máy đã cài app cũ sẽ xoá bảng cũ và tạo lại.
+  static const int _dbVersion = 2;
+
   static Future<Database> _open() async {
     final path = join(await getDatabasesPath(), 'genz_cinema_hotel.db');
     return openDatabase(
       path,
-      version: 1,
+      version: _dbVersion,
       onCreate: (db, version) async {
         await _runSqlFile(db, 'database.sql');
       },
+      onUpgrade: (db, oldVersion, newVersion) async {
+        await _dropAllTables(db);
+        await _runSqlFile(db, 'database.sql');
+      },
     );
+  }
+
+  /// Xoá hết các bảng (dữ liệu cũ mất hết, dùng khi đổi phiên bản database)
+  static Future<void> _dropAllTables(Database db) async {
+    final tables = await db.rawQuery(
+        "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'");
+    for (final t in tables) {
+      await db.execute('DROP TABLE IF EXISTS [${t['name']}]');
+    }
   }
 
   /// Đọc file .sql rồi chạy lần lượt từng câu lệnh (các câu cách nhau bằng dấu ;)

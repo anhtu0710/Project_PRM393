@@ -8,7 +8,7 @@ class RoomService {
   // Câu SELECT dùng chung: phòng + khách sạn + loại phòng
   static const String _selectRoom = '''
     SELECT r.*, h.name AS hotelName, h.address, h.phone, h.countRoom,
-           h.imageUrl AS hotelImageUrl, t.TypeRoom, t.pricePerHour
+           h.imageUrl AS hotelImageUrl, h.City, t.TypeRoom, t.pricePerHour
     FROM Room r
     LEFT JOIN Hotel h ON r.HotelId = h.HotelId
     LEFT JOIN TypeRoom t ON r.TypeRoomId = t.TypeRoomId''';
@@ -24,6 +24,8 @@ class RoomService {
       nameRoom: row['nameRoom'] as String? ?? '',
       status: row['Status'] as String?,
       imageUrl: row['imageUrl'] as String?,
+      description: row['description'] as String?,
+      amenities: row['amenities'] as String?,
       typeRoom: row['TypeRoomId'] == null
           ? null
           : TypeRoomModel(
@@ -40,6 +42,7 @@ class RoomService {
               phone: row['phone'] as String?,
               imageUrl: row['hotelImageUrl'] as String?,
               countRoom: row['countRoom'] as int?,
+              city: row['City'] as String?,
             ),
       averageRating: averageRating,
       reviewCount: reviewCount,
@@ -193,6 +196,8 @@ class RoomService {
       'Status': room.status ?? 'Trống',
       'HotelId': room.hotel?.hotelId,
       'imageUrl': room.imageUrl,
+      'description': room.description,
+      'amenities': room.amenities,
     });
     return getRoomById(room.roomId.trim());
   }
@@ -207,6 +212,9 @@ class RoomService {
         'Status': room.status,
         'HotelId': room.hotel?.hotelId,
         'imageUrl': room.imageUrl,
+        // Form sửa phòng chưa có ô mô tả / tiện nghi: để trống thì giữ giá trị cũ
+        if (room.description != null) 'description': room.description,
+        if (room.amenities != null) 'amenities': room.amenities,
       },
       where: 'RoomId = ?',
       whereArgs: [id],

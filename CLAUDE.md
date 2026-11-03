@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-GenzCinema Hotel — a cinema hotel booking app (Flutter). **Branch `sqlite`:** there is no server. All data lives in a local SQLite database on the phone, so the APK works offline on any Android device. (The Spring Boot + SQL Server version is on `main`.)
+GenzCinema Hotel — a cinema hotel booking app (Flutter). **Branches `sqlite` / `thanh`:** there is no server (`thanh` = UI + data of `linh2.0` on top of the `sqlite` design, incl. Movie and FoodMenu tables). All data lives in a local SQLite database on the phone, so the APK works offline on any Android device. (The Spring Boot + SQL Server version is on `main`.)
 
 ## Commands (run inside `mobile/`)
 
@@ -31,7 +31,7 @@ Screen → Provider → Service → SQLite.
 
 ## Development Notes
 
-- Changing `mobile/database.sql` only takes effect on a fresh install (uninstall the app first) because it runs in `onCreate`.
+- After changing `mobile/database.sql`, bump `_dbVersion` in `database_helper.dart`: `onUpgrade` drops every table and re-runs the file (all data on the phone is reset). Without the bump, only a fresh install picks it up. Root `database.sql` is a copy for reading — keep it identical.
 - Dates are stored as ISO text (`2026-11-05T19:00:00`); compare them in Dart with `DateTime.parse`. Sample bookings use `strftime(..., 'now', 'localtime', ...)` so they are always relative to the install date.
 - Forgot password works offline: `requestPasswordReset` returns the reset token and the screen opens `/reset-password?token=...` directly (no email).
 - Each phone has its own data; uninstalling the app deletes it.

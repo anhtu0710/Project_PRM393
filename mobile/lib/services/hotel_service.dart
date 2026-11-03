@@ -13,6 +13,7 @@ class HotelService {
       phone: row['phone'] as String?,
       imageUrl: row['imageUrl'] as String?,
       countRoom: row['countRoom'] as int?,
+      city: row['City'] as String?,
     );
   }
 
@@ -20,7 +21,7 @@ class HotelService {
     final db = await DatabaseHelper.database;
     // countRoom đếm số phòng thật đang có của chi nhánh
     final rows = await db.rawQuery('''
-      SELECT h.HotelId, h.name, h.address, h.phone, h.imageUrl,
+      SELECT h.HotelId, h.name, h.address, h.phone, h.imageUrl, h.City,
              (SELECT COUNT(*) FROM Room r WHERE r.HotelId = h.HotelId) AS countRoom
       FROM Hotel h
       ORDER BY h.HotelId''');
@@ -41,6 +42,7 @@ class HotelService {
       'phone': hotel.phone,
       'imageUrl': hotel.imageUrl,
       'countRoom': 0,
+      'City': hotel.city,
     });
     return hotel;
   }
@@ -54,6 +56,8 @@ class HotelService {
         'address': hotel.address,
         'phone': hotel.phone,
         'imageUrl': hotel.imageUrl,
+        // Form sửa chi nhánh chưa có ô thành phố: để trống thì giữ giá trị cũ
+        if (hotel.city != null) 'City': hotel.city,
       },
       where: 'HotelId = ?',
       whereArgs: [id],

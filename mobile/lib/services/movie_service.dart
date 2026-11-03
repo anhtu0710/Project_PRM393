@@ -1,29 +1,27 @@
 // lib/services/movie_service.dart
+// Phim hot đề cử — đọc bảng Movie trong SQLite
 
-import 'package:dio/dio.dart';
+import '../database/database_helper.dart';
 import '../models/movie_model.dart';
-import 'api_client.dart';
 
 class MovieService {
-  final Dio _dio = ApiClient.instance.dio;
-
   Future<List<MovieModel>> getMovies({String? category}) async {
-    try {
-      final response = await _dio.get(
-        '/movies',
-        queryParameters: {
-          if (category != null && category.isNotEmpty) 'category': category,
-        },
-      );
-      if (response.data != null && response.data['data'] != null) {
-        final data = response.data['data'] as List<dynamic>;
-        return data
-            .map((e) => MovieModel.fromJson(e as Map<String, dynamic>))
-            .toList();
-      }
-      return [];
-    } catch (e) {
-      return [];
-    }
+    final db = await DatabaseHelper.database;
+    final rows = (category != null && category.isNotEmpty)
+        ? await db.query('Movie', where: 'Category = ?', whereArgs: [category])
+        : await db.query('Movie');
+
+    return rows
+        .map((r) => MovieModel(
+              movieId: r['MovieId'] as int,
+              title: r['Title'] as String? ?? '',
+              category: r['Category'] as String? ?? '',
+              rating: (r['Rating'] as num?)?.toDouble() ?? 5.0,
+              quality: r['Quality'] as String? ?? '4K Netflix',
+              posterUrl: r['PosterUrl'] as String?,
+              description: r['Description'] as String?,
+              isHot: r['IsHot'] == 1,
+            ))
+        .toList();
   }
 }
