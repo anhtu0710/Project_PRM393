@@ -61,6 +61,8 @@ public class AuthService {
 
         String roleName = user.getRole() != null ? user.getRole().getRoleName() : "CUSTOMER";
         String roleId   = user.getRole() != null ? user.getRole().getRoleId()   : "";
+        String hotelId   = user.getHotel() != null ? user.getHotel().getHotelId() : null;
+        String hotelName = user.getHotel() != null ? user.getHotel().getName()    : null;
 
         // Embed role info in JWT claims so Flutter can read it
         Map<String, Object> extraClaims = Map.of(
@@ -79,6 +81,8 @@ public class AuthService {
                 .email(user.getEmail())
                 .role(roleName)
                 .roleId(roleId)
+                .hotelId(hotelId)
+                .hotelName(hotelName)
                 .build();
     }
 

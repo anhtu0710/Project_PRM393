@@ -13,4 +13,6 @@ public class LoginResponse {
     private String email;
     private String role;
     private String roleId;
+    private String hotelId;
+    private String hotelName;
 }

@@ -179,7 +179,7 @@ public class BookingController {
 
         Booking saved = bookingRepository.save(booking);
 
-        // 8. Tạo thông báo cho Khách hàng & Staff
+        // 8. Tạo thông báo cho Khách hàng & Staff phụ trách chi nhánh đó
         try {
             // Thông báo cho Khách
             notificationRepository.save(Notification.builder()
@@ -190,14 +190,20 @@ public class BookingController {
                     .read(false)
                     .build());
 
-            // Thông báo cho Staff vận hành
-            notificationRepository.save(Notification.builder()
-                    .userId("SEED_STAFF")
-                    .bookingId(saved.getBookingId())
-                    .title("Đơn đặt phòng MỚI cần duyệt ⚡")
-                    .message("Khách hàng " + user.getFullName() + " vừa đặt phòng " + room.getNameRoom() + " tại " + room.getHotel().getName() + ".")
-                    .read(false)
-                    .build());
+            // Thông báo cho tất cả Staff thuộc Chi nhánh này
+            List<User> branchStaffs = userRepository.findByHotel_HotelIdAndRole_RoleId(room.getHotel().getHotelId(), "STAFF");
+            if (branchStaffs.isEmpty()) {
+                branchStaffs = userRepository.findByRole_RoleId("STAFF");
+            }
+            for (User staffUser : branchStaffs) {
+                notificationRepository.save(Notification.builder()
+                        .userId(staffUser.getUserId())
+                        .bookingId(saved.getBookingId())
+                        .title("Đơn đặt phòng MỚI cần duyệt ⚡")
+                        .message("Khách hàng " + user.getFullName() + " vừa đặt phòng " + room.getNameRoom() + " tại " + room.getHotel().getName() + ".")
+                        .read(false)
+                        .build());
+            }
         } catch (Exception ignored) {}
 
         return ResponseEntity.ok(ApiResponse.success("Đặt phòng thành công", saved));
@@ -223,15 +229,21 @@ public class BookingController {
         booking.setStatus(BookingStatus.CANCELLED);
         Booking updated = bookingRepository.save(booking);
 
-        // Thông báo cho Staff
+        // Thông báo cho các Staff của Chi nhánh
         try {
-            notificationRepository.save(Notification.builder()
-                    .userId("SEED_STAFF")
-                    .bookingId(updated.getBookingId())
-                    .title("Khách hàng đã HỦY đặt phòng ⚠️")
-                    .message("Đơn #" + updated.getBookingId() + " tại phòng " + updated.getRoom().getNameRoom() + " đã bị hủy.")
-                    .read(false)
-                    .build());
+            List<User> branchStaffs = userRepository.findByHotel_HotelIdAndRole_RoleId(updated.getRoom().getHotel().getHotelId(), "STAFF");
+            if (branchStaffs.isEmpty()) {
+                branchStaffs = userRepository.findByRole_RoleId("STAFF");
+            }
+            for (User staffUser : branchStaffs) {
+                notificationRepository.save(Notification.builder()
+                        .userId(staffUser.getUserId())
+                        .bookingId(updated.getBookingId())
+                        .title("Khách hàng đã HỦY đặt phòng ⚠️")
+                        .message("Đơn #" + updated.getBookingId() + " tại phòng " + updated.getRoom().getNameRoom() + " đã bị hủy.")
+                        .read(false)
+                        .build());
+            }
         } catch (Exception ignored) {}
 
         return ResponseEntity.ok(ApiResponse.success("Đã huỷ booking", updated));
