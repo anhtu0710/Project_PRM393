@@ -152,6 +152,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final roomState = ref.watch(roomListProvider);
     final foodState = ref.watch(foodMenuListProvider);
     final movieState = ref.watch(movieListProvider);
+    final notifState = ref.watch(notificationListProvider);
 
     final selectedHotel = hotelState.hotels.firstWhere(
       (h) => h.hotelId == _selectedHotelId,
@@ -167,7 +168,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 12),
-              _buildHeader(context, selectedHotel.name, hotelState.hotels),
+              _buildHeader(context, selectedHotel.name, hotelState.hotels, notifState.unreadCount),
               const SizedBox(height: 16),
               _buildHeroBanner(),
               const SizedBox(height: 16),
@@ -200,7 +201,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   // ── Header với selector Chi nhánh động ────────────────────────────────────
-  Widget _buildHeader(BuildContext context, String currentBranchName, List<HotelModel> hotels) {
+  Widget _buildHeader(BuildContext context, String currentBranchName, List<HotelModel> hotels, int unreadCount) {
     return Row(
       children: [
         Image.asset(
@@ -227,7 +228,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 border: Border.all(color: AppTheme.cardBorder),
                 boxShadow: [
                   BoxShadow(
-                    color: AppTheme.primary.withOpacity(0.08),
+                    color: AppTheme.primary.withValues(alpha: 0.08),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
@@ -260,9 +261,42 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
         ),
         const SizedBox(width: 8),
-        IconButton(
-          onPressed: () => context.push('/notifications'),
-          icon: const Icon(Icons.notifications_none, size: 26, color: AppTheme.textPrimary),
+        Stack(
+          clipBehavior: Clip.none,
+          children: [
+            IconButton(
+              onPressed: () => context.push('/notifications'),
+              icon: const Icon(Icons.notifications_none_rounded, size: 26, color: AppTheme.textPrimary),
+            ),
+            if (unreadCount > 0)
+              Positioned(
+                right: 2,
+                top: 2,
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: const BoxDecoration(
+                    color: Colors.redAccent,
+                    shape: BoxShape.circle,
+                  ),
+                  constraints: const BoxConstraints(
+                    minWidth: 18,
+                    minHeight: 18,
+                  ),
+                  child: Center(
+                    child: Text(
+                      unreadCount > 99 ? '99+' : '$unreadCount',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        height: 1.0,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+              ),
+          ],
         ),
       ],
     );
