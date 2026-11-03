@@ -7,7 +7,7 @@ import lombok.*;
 import java.math.BigDecimal;
 
 @Entity
-@Table(name = "TypeRoom")
+@Table(name = "typeroom")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

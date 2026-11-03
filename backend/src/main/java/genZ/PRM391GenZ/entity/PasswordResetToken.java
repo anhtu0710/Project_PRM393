@@ -5,7 +5,7 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "PasswordResetToken")
+@Table(name = "passwordresettoken")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
