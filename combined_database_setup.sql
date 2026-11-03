@@ -299,7 +299,7 @@ INSERT INTO Room (RoomId, nameRoom, TypeRoomId, Status, HotelId, imageUrl, descr
 ('HCM001_AQ', N'Aquaman Box - Nguyễn Thái Bình',  'AQUAMAN',  N'Trống', 'HCM001', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10',  N'Không gian đại dương sâu thẳm Aquaman độc đáo.', N'Máy chiếu 4K, Sofa bed, Soundbar 5.1, Netflix 4K'),
 ('HCM001_AV', N'Avatar Box - Nguyễn Thái Bình',   'AVATAR',   N'Trống', 'HCM001', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10',    N'Vũ trụ Pandora huyền ảo.', N'Máy chiếu 4K, Sofa bed, Netflix 4K'),
 ('HCM001_AG', N'Avenger Box - Nguyễn Thái Bình',  'AVENGER',  N'Đang dùng', 'HCM001', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10',  N'Phòng Siêu anh hùng Marvel cá tính.', N'Máy chiếu 4K, Sofa bed, Netflix 4K'),
-('HCM001_FB', N'Football Box - Nguyễn Thái Bình', 'FOOTBALL', N'Trống', 'HCM001', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10', N'Không gian điện ảnh kết hợp thể thao sôi động.', N'Máy chiếu 4K, Sofa bed, Soundbar, Netflix 4K'),
+('HCM001_FB', N'Football Box - Nguyễn Thái Bình', 'FOOTBALL', N'Trống', 'HCM001', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10', N'Không gian điện ảnh kết hợp giải trí thể thao sôi động.', N'Máy chiếu 4K, Sofa bed, Soundbar, Netflix 4K'),
 ('HCM001_GM', N'Gaming Box - Nguyễn Thái Bình',   'GAMING',   N'Trống', 'HCM001', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10',   N'Phòng màn chiếu rộng kèm dàn PC đôi RTX chơi game đỉnh cao.', N'Máy chiếu 4K, PC Couple RTX, Sofa đôi, Netflix 4K'),
 ('HCM001_SK', N'Sakura Box - Nguyễn Thái Bình',   'SAKURA',   N'Trống', 'HCM001', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10',   N'Không gian hoa hoa anh đào Sakura lãng mạn.', N'Máy chiếu 4K, Sofa bed, Netflix 4K'),
 ('HCM001_HK', N'HongKong Box - Nguyễn Thái Bình', 'HONGKONG', N'Trống', 'HCM001', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10', N'Phòng Hongkong Neon đêm huyền bí.', N'Máy chiếu 4K, Sofa bed, Netflix 4K'),
@@ -315,16 +315,23 @@ INSERT INTO Room (RoomId, nameRoom, TypeRoomId, Status, HotelId, imageUrl, descr
 INSERT INTO [User] (UserId, full_name, phone, email, password, RoleId, IsLocked) VALUES
 ('SEED_ADMIN',    N'Trần Quản Lý (Admin)',  '0901111111', 'admin@genz.test',    '$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'ADMIN',    0),
 ('SEED_STAFF',    N'Lê Nhân Viên (Staff)',  '0902222222', 'staff@genz.test',    '$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'STAFF',    0),
+('STAFF_HN001',   N'Nguyễn Văn Vận Hành',   '0902222223', 'staff.hn001@genz.test','$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'STAFF',    0),
+('STAFF_HCM001',  N'Phạm Hoàng Nam (Staff)', '0902222224', 'staff.hcm001@genz.test','$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'STAFF',    0),
 ('SEED_CUSTOMER', N'Nguyễn Văn An (Khách)', '0903333333', 'customer@genz.test', '$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'CUSTOMER', 0),
 ('CUSTOMER_02',   N'Phạm Thị Mai',          '0904444444', 'mai.pham@genz.test', '$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'CUSTOMER', 0),
 ('CUSTOMER_03',   N'Hoàng Minh Huy',        '0905555555', 'huy.hoang@genz.test','$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'CUSTOMER', 0),
-('CUSTOMER_04',   N'Đặng Anh Tuấn',         '0906666666', 'tuan.dang@genz.test','$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'CUSTOMER', 0);
+('CUSTOMER_04',   N'Đặng Anh Tuấn',         '0906666666', 'tuan.dang@genz.test','$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'CUSTOMER', 0),
+('CUSTOMER_05',   N'Trịnh Khánh Linh',      '0907777777', 'linh.trinh@genz.test','$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'CUSTOMER', 0),
+('CUSTOMER_06',   N'Vũ Minh Hoàng',         '0908888888', 'hoang.vu@genz.test',  '$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'CUSTOMER', 0);
 
 -- Voucher ưu đãi thực tế GenZ Cinema
 INSERT INTO Voucher (Code, Description, DiscountPercent, DiscountAmount, MinOrderAmount, ExpiryDate) VALUES
-('GENZ30',  N'Ưu đãi Khai trương - Giảm 30% giá phòng',         30,   NULL,  0,      '2026-12-31'),
-('COUPLE',  N'Gói hò hẹn lãng mạn cặp đôi - Giảm 50.000đ',       NULL, 50000, 200000, '2027-12-31'),
-('GENZ10',  N'Giảm 10% cho thành viên GenZ Cinema',              10,   NULL,  0,      '2027-12-31');
+('GENZ30',    N'Ưu đãi Khai trương - Giảm 30% giá phòng',         30,   NULL,  0,      '2026-12-31'),
+('COUPLE',    N'Gói hò hẹn lãng mạn cặp đôi - Giảm 50.000đ',       NULL, 50000, 200000, '2027-12-31'),
+('GENZ10',    N'Giảm 10% cho thành viên GenZ Cinema',              10,   NULL,  0,      '2027-12-31'),
+('NIGHTOWL',  N'Gói cày đêm cực phiêu - Giảm 40.000đ',             NULL, 40000, 180000, '2027-12-31'),
+('STUDENT20', N'Ưu đãi Học sinh / Sinh viên GenZ - Giảm 20%',      20,   NULL,  0,      '2027-12-31'),
+('VIPGIFT',   N'Quà tặng Khách hàng VIP GenZ - Giảm 100.000đ',     NULL, 100000,350000, '2027-12-31');
 
 -- Thực đơn Đồ ăn & Thức uống (F&B) với URL Hình ảnh sắc nét
 INSERT INTO FoodMenu (Name, Category, Price, ImageUrl, Description, IsAvailable) VALUES
@@ -357,21 +364,37 @@ INSERT INTO Booking (RoomId, UserId, TypeBookingId, checkIn, checkOut, totalPric
 ('HN001_Q01', 'CUSTOMER_04',   'TB_DAY',   '2026-11-03 07:00', '2026-11-03 12:00', 196000, 'COMPLETED', 'COUPLE', 50000, N'Combo hẹn hò sáng'),
 ('HN003_K01', 'SEED_CUSTOMER', 'TB_2H',    '2026-11-03 14:00', '2026-11-03 16:00', 286000, 'COMPLETED', NULL,     0,     N'Khách đặt xem phim lẻ'),
 
--- Đang diễn ra & Chờ duyệt (CHECKED_IN, CONFIRMED, PENDING, CANCELLED)
+-- Đang diễn ra & Chờ duyệt (CHECKED_IN, CONFIRMED, PENDING, CANCELLED, REJECTED)
 ('HN001_K02', 'CUSTOMER_02',   'TB_2H',    '2026-11-03 14:00', '2026-11-03 16:00', 286000, 'CHECKED_IN', NULL,    0,     N'Khách đang ở phòng'),
 ('HN002_MV', 'CUSTOMER_03',   'TB_4H',    '2026-11-03 15:00', '2026-11-03 19:00', 296000, 'CHECKED_IN', NULL,    0,     N'Khách đang dùng phòng Marvel'),
 ('HCM001_AG','CUSTOMER_04',   'TB_NIGHT', '2026-11-03 23:00', '2026-11-04 07:00', 296000, 'CONFIRMED',  NULL,    0,     N'Staff đã xác nhận lịch hẹn'),
 ('HN002_HA', 'SEED_CUSTOMER', 'TB_2H',    '2026-11-04 19:00', '2026-11-04 21:00', 276000, 'PENDING',    NULL,    0,     N'Chờ Staff xác nhận'),
-('HN004_K01', 'CUSTOMER_02',   'TB_2H',    '2026-11-03 10:00', '2026-11-03 12:00', 286000, 'CANCELLED',  NULL,    0,     N'Khách hủy do bận việc');
+('HN004_K01', 'CUSTOMER_02',   'TB_2H',    '2026-11-03 10:00', '2026-11-03 12:00', 286000, 'CANCELLED',  NULL,    0,     N'Khách hủy do bận việc'),
+('HCM001_AN', 'CUSTOMER_05',   'TB_2H',    '2026-11-04 14:00', '2026-11-04 16:00', 276000, 'PENDING',    'GENZ30',82800, N'Khách mới đặt phòng Anime Box'),
+('HN001_Q02', 'CUSTOMER_06',   'TB_4H',    '2026-11-03 08:00', '2026-11-03 12:00', 296000, 'REJECTED',   NULL,    0,     N'Hết phòng trùng giờ');
 
 -- Đánh giá khách hàng sinh động
 INSERT INTO Review (BookingId, RoomId, UserId, Rating, Comment) VALUES
 (1, 'HN002_HK', 'SEED_CUSTOMER', 5, N'Phòng Hongkong Neon cực kỳ đỉnh! Màn chiếu nét, bắp nước ngon, chắc chắn sẽ quay lại cùng người yêu.'),
 (2, 'HN002_GM', 'CUSTOMER_02',   5, N'Giàn PC Couple cấu hình rất mạnh, chơi game mượt mà. Rạp phim riêng tư vô cùng thoải mái!'),
-(3, 'HCM001_HK','CUSTOMER_03',   5, N'Trải nghiệm homestay đêm tuyệt vời tại cơ sở Nguyễn Thái Bình. Phòng ấm cúng, phục vụ chu đáo!');
+(3, 'HCM001_HK','CUSTOMER_03',   5, N'Trải nghiệm homestay đêm tuyệt vời tại cơ sở Nguyễn Thái Bình. Phòng ấm cúng, phục vụ chu đáo!'),
+(4, 'HN001_Q01', 'CUSTOMER_04',   4, N'Phòng sạch sẽ, chiếu phim cực kỳ chất lượng. Nhân viên nhiệt tình phục vụ đồ ăn tận phòng.'),
+(5, 'HN003_K01', 'SEED_CUSTOMER', 5, N'Phòng King rộng rãi, điều hòa mát rượi, âm thanh loa xịn vút tai!');
 
--- Thông báo mẫu cho người dùng
-INSERT INTO Notification (UserId, BookingId, Title, Message) VALUES
-('SEED_CUSTOMER', 1, N'Đặt phòng thành công', N'Cảm ơn bạn đã đặt phòng tại GenZ Cinema Hoa Bằng!'),
-('CUSTOMER_03',   8, N'Xác nhận lịch hẹn', N'Staff đã xác nhận booking Avenger Box tại cơ sở Nguyễn Thái Bình của bạn.');
+-- Thông báo phong phú dành cho Khách hàng & Staff các chi nhánh
+INSERT INTO Notification (UserId, BookingId, Title, Message, IsRead) VALUES
+-- Thông báo Khách hàng
+('SEED_CUSTOMER', 1, N'Đặt phòng thành công! 🎟️', N'Mã đơn #1 tại GenZ Cinema Hoa Bằng - HongKong Box đã được ghi nhận.', 1),
+('SEED_CUSTOMER', 1, N'Check-in thành công! 🔑', N'Chào mừng bạn đến phòng HongKong Box tại Hoa Bằng. Chúc bạn xem phim vui vẻ!', 1),
+('SEED_CUSTOMER', 1, N'Cảm ơn bạn đã sử dụng dịch vụ! ⭐', N'Đơn #1 đã hoàn thành. Hãy chia sẻ trải nghiệm của bạn trên GenZ Cinema nhé!', 1),
+('CUSTOMER_03',   8, N'Đặt phòng đã được xác nhận! ✅', N'Staff đã xác nhận booking Avenger Box tại cơ sở Nguyễn Thái Bình của bạn.', 0),
+('CUSTOMER_05',   11,N'Đặt phòng thành công! 🎟️', N'Đơn #11 tại Nguyễn Thái Bình - Anime Box đang chờ Nhân viên xác nhận.', 0),
+
+-- Thông báo dành cho Staff (Vận hành từng Chi nhánh)
+('SEED_STAFF',    9, N'Đơn đặt phòng MỚI cần duyệt ⚡', N'Khách hàng Nguyễn Văn An vừa đặt phòng Hội An Box tại Hoa Bằng. Vui lòng kiểm tra và duyệt đơn.', 0),
+('SEED_STAFF',    2, N'Yêu cầu dọn dẹp phòng 🧹', N'Phòng Gaming Box - Hoa Bằng vừa check-out. Vui lòng tiến hành dọn dẹp để đón lượt khách tiếp theo.', 1),
+('STAFF_HN001',   6, N'Khách hàng đã Check-In 🔑', N'Khách hàng Phạm Thị Mai vừa check-in vào phòng King 02 tại Nguyễn Văn Lộc.', 0),
+('STAFF_HN001',   12,N'Đơn đặt phòng BỊ TỪ CHỐI ❌', N'Đơn đặt phòng #12 tại Nguyễn Văn Lộc đã bị từ chối do trùng lịch.', 1),
+('STAFF_HCM001',  11,N'Đơn đặt phòng MỚI cần duyệt ⚡', N'Khách hàng Trịnh Khánh Linh vừa đặt phòng Anime Box tại Nguyễn Thái Bình. Vui lòng kiểm tra.', 0),
+('STAFF_HCM001',  3, N'Khách hàng đã Check-Out 🏁', N'Đơn #3 tại Nguyễn Thái Bình - HongKong Box đã hoàn thành thanh toán.', 1);
 GO

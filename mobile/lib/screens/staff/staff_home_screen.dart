@@ -64,6 +64,11 @@ class StaffHomeScreen extends ConsumerWidget {
         ),
         actions: [
           IconButton(
+            icon: const Icon(Icons.notifications_none_rounded, color: AppTheme.primary),
+            tooltip: 'Thông báo vận hành',
+            onPressed: () => context.push('/notifications'),
+          ),
+          IconButton(
             icon: const Icon(Icons.person_outline_rounded, color: AppTheme.primary),
             tooltip: 'Hồ sơ cá nhân',
             onPressed: () => context.push('/staff/profile'),

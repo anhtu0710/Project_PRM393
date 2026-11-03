@@ -316,17 +316,24 @@ ON CONFLICT (RoomId) DO NOTHING;
 INSERT INTO "user" (UserId, full_name, phone, email, password, RoleId, IsLocked) VALUES
 ('SEED_ADMIN',    'Trần Quản Lý (Admin)',  '0901111111', 'admin@genz.test',    '$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'ADMIN',    FALSE),
 ('SEED_STAFF',    'Lê Nhân Viên (Staff)',  '0902222222', 'staff@genz.test',    '$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'STAFF',    FALSE),
+('STAFF_HN001',   'Nguyễn Văn Vận Hành',   '0902222223', 'staff.hn001@genz.test','$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'STAFF',    FALSE),
+('STAFF_HCM001',  'Phạm Hoàng Nam (Staff)', '0902222224', 'staff.hcm001@genz.test','$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'STAFF',    FALSE),
 ('SEED_CUSTOMER', 'Nguyễn Văn An (Khách)', '0903333333', 'customer@genz.test', '$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'CUSTOMER', FALSE),
 ('CUSTOMER_02',   'Phạm Thị Mai',          '0904444444', 'mai.pham@genz.test', '$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'CUSTOMER', FALSE),
 ('CUSTOMER_03',   'Hoàng Minh Huy',        '0905555555', 'huy.hoang@genz.test','$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'CUSTOMER', FALSE),
-('CUSTOMER_04',   'Đặng Anh Tuấn',         '0906666666', 'tuan.dang@genz.test','$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'CUSTOMER', FALSE)
+('CUSTOMER_04',   'Đặng Anh Tuấn',         '0906666666', 'tuan.dang@genz.test','$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'CUSTOMER', FALSE),
+('CUSTOMER_05',   'Trịnh Khánh Linh',      '0907777777', 'linh.trinh@genz.test','$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'CUSTOMER', FALSE),
+('CUSTOMER_06',   'Vũ Minh Hoàng',         '0908888888', 'hoang.vu@genz.test',  '$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'CUSTOMER', FALSE)
 ON CONFLICT (UserId) DO NOTHING;
 
 -- Voucher ưu đãi thực tế GenZ Cinema
 INSERT INTO Voucher (Code, Description, DiscountPercent, DiscountAmount, MinOrderAmount, ExpiryDate) VALUES
-('GENZ30',  'Ưu đãi Khai trương - Giảm 30% giá phòng',         30,   NULL,  0,      '2026-12-31 23:59:59'),
-('COUPLE',  'Gói hò hẹn lãng mạn cặp đôi - Giảm 50.000đ',       NULL, 50000, 200000, '2027-12-31 23:59:59'),
-('GENZ10',  'Giảm 10% cho thành viên GenZ Cinema',              10,   NULL,  0,      '2027-12-31 23:59:59')
+('GENZ30',    'Ưu đãi Khai trương - Giảm 30% giá phòng',         30,   NULL,  0,      '2026-12-31 23:59:59'),
+('COUPLE',    'Gói hò hẹn lãng mạn cặp đôi - Giảm 50.000đ',       NULL, 50000, 200000, '2027-12-31 23:59:59'),
+('GENZ10',    'Giảm 10% cho thành viên GenZ Cinema',              10,   NULL,  0,      '2027-12-31 23:59:59'),
+('NIGHTOWL',  'Gói cày đêm cực phiêu - Giảm 40.000đ',             NULL, 40000, 180000, '2027-12-31 23:59:59'),
+('STUDENT20', 'Ưu đãi Học sinh / Sinh viên GenZ - Giảm 20%',      20,   NULL,  0,      '2027-12-31 23:59:59'),
+('VIPGIFT',   'Quà tặng Khách hàng VIP GenZ - Giảm 100.000đ',     NULL, 100000,350000, '2027-12-31 23:59:59')
 ON CONFLICT (Code) DO NOTHING;
 
 -- Thực đơn Đồ ăn & Thức uống (F&B) với URL Hình ảnh sắc nét
@@ -362,15 +369,31 @@ INSERT INTO Booking (RoomId, UserId, TypeBookingId, checkIn, checkOut, totalPric
 ('HN002_MV', 'CUSTOMER_03',   'TB_4H',    '2026-11-03 15:00:00', '2026-11-03 19:00:00', 296000, 'CHECKED_IN', NULL,    0,     'Khách đang dùng phòng Marvel'),
 ('HCM001_AG','CUSTOMER_04',   'TB_NIGHT', '2026-11-03 23:00:00', '2026-11-04 07:00:00', 296000, 'CONFIRMED',  NULL,    0,     'Staff đã xác nhận lịch hẹn'),
 ('HN002_HA', 'SEED_CUSTOMER', 'TB_2H',    '2026-11-04 19:00:00', '2026-11-04 21:00:00', 276000, 'PENDING',    NULL,    0,     'Chờ Staff xác nhận'),
-('HN004_K01', 'CUSTOMER_02',   'TB_2H',    '2026-11-03 10:00:00', '2026-11-03 10:00:00', 286000, 'CANCELLED',  NULL,    0,     'Khách hủy do bận việc');
+('HN004_K01', 'CUSTOMER_02',   'TB_2H',    '2026-11-03 10:00:00', '2026-11-03 10:00:00', 286000, 'CANCELLED',  NULL,    0,     'Khách hủy do bận việc'),
+('HCM001_AN', 'CUSTOMER_05',   'TB_2H',    '2026-11-04 14:00:00', '2026-11-04 16:00:00', 276000, 'PENDING',    'GENZ30',82800, 'Khách mới đặt phòng Anime Box'),
+('HN001_Q02', 'CUSTOMER_06',   'TB_4H',    '2026-11-03 08:00:00', '2026-11-03 12:00:00', 296000, 'REJECTED',   NULL,    0,     'Hết phòng trùng giờ');
 
 -- Đánh giá khách hàng sinh động
 INSERT INTO Review (BookingId, RoomId, UserId, Rating, Comment) VALUES
 (1, 'HN002_HK', 'SEED_CUSTOMER', 5, 'Phòng Hongkong Neon cực kỳ đỉnh! Màn chiếu nét, bắp nước ngon, chắc chắn sẽ quay lại cùng người yêu.'),
 (2, 'HN002_GM', 'CUSTOMER_02',   5, 'Giàn PC Couple cấu hình rất mạnh, chơi game mượt mà. Rạp phim riêng tư vô cùng thoải mái!'),
-(3, 'HCM001_HK','CUSTOMER_03',   5, 'Trải nghiệm homestay đêm tuyệt vời tại cơ sở Nguyễn Thái Bình. Phòng ấm cúng, phục vụ chu đáo!');
+(3, 'HCM001_HK','CUSTOMER_03',   5, 'Trải nghiệm homestay đêm tuyệt vời tại cơ sở Nguyễn Thái Bình. Phòng ấm cúng, phục vụ chu đáo!'),
+(4, 'HN001_Q01', 'CUSTOMER_04',   4, 'Phòng sạch sẽ, chiếu phim cực kỳ chất lượng. Nhân viên nhiệt tình phục vụ đồ ăn tận phòng.'),
+(5, 'HN003_K01', 'SEED_CUSTOMER', 5, 'Phòng King rộng rãi, điều hòa mát rượi, âm thanh loa xịn vút tai!');
 
--- Thông báo mẫu cho người dùng
-INSERT INTO Notification (UserId, BookingId, Title, Message) VALUES
-('SEED_CUSTOMER', 1, 'Đặt phòng thành công', 'Cảm ơn bạn đã đặt phòng tại GenZ Cinema Hoa Bằng!'),
-('CUSTOMER_03',   8, 'Xác nhận lịch hẹn', 'Staff đã xác nhận booking Avenger Box tại cơ sở Nguyễn Thái Bình của bạn.');
+-- Thông báo phong phú dành cho Khách hàng & Staff các chi nhánh
+INSERT INTO Notification (UserId, BookingId, Title, Message, IsRead) VALUES
+-- Thông báo Khách hàng
+('SEED_CUSTOMER', 1, 'Đặt phòng thành công! 🎟️', 'Mã đơn #1 tại GenZ Cinema Hoa Bằng - HongKong Box đã được ghi nhận.', TRUE),
+('SEED_CUSTOMER', 1, 'Check-in thành công! 🔑', 'Chào mừng bạn đến phòng HongKong Box tại Hoa Bằng. Chúc bạn xem phim vui vẻ!', TRUE),
+('SEED_CUSTOMER', 1, 'Cảm ơn bạn đã sử dụng dịch vụ! ⭐', 'Đơn #1 đã hoàn thành. Hãy chia sẻ trải nghiệm của bạn trên GenZ Cinema nhé!', TRUE),
+('CUSTOMER_03',   8, 'Đặt phòng đã được xác nhận! ✅', 'Staff đã xác nhận booking Avenger Box tại cơ sở Nguyễn Thái Bình của bạn.', FALSE),
+('CUSTOMER_05',   11,'Đặt phòng thành công! 🎟️', 'Đơn #11 tại Nguyễn Thái Bình - Anime Box đang chờ Nhân viên xác nhận.', FALSE),
+
+-- Thông báo dành cho Staff (Vận hành từng Chi nhánh)
+('SEED_STAFF',    9, 'Đơn đặt phòng MỚI cần duyệt ⚡', 'Khách hàng Nguyễn Văn An vừa đặt phòng Hội An Box tại Hoa Bằng. Vui lòng kiểm tra và duyệt đơn.', FALSE),
+('SEED_STAFF',    2, 'Yêu cầu dọn dẹp phòng 🧹', 'Phòng Gaming Box - Hoa Bằng vừa check-out. Vui lòng tiến hành dọn dẹp để đón lượt khách tiếp theo.', TRUE),
+('STAFF_HN001',   6, 'Khách hàng đã Check-In 🔑', 'Khách hàng Phạm Thị Mai vừa check-in vào phòng King 02 tại Nguyễn Văn Lộc.', FALSE),
+('STAFF_HN001',   12,'Đơn đặt phòng BỊ TỪ CHỐI ❌', 'Đơn đặt phòng #12 tại Nguyễn Văn Lộc đã bị từ do do trùng lịch.', TRUE),
+('STAFF_HCM001',  11,'Đơn đặt phòng MỚI cần duyệt ⚡', 'Khách hàng Trịnh Khánh Linh vừa đặt phòng Anime Box tại Nguyễn Thái Bình. Vui lòng kiểm tra.', FALSE),
+('STAFF_HCM001',  3, 'Khách hàng đã Check-Out 🏁', 'Đơn #3 tại Nguyễn Thái Bình - HongKong Box đã hoàn thành thanh toán.', TRUE);
