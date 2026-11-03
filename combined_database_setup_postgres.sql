@@ -51,7 +51,7 @@ CREATE TABLE IF NOT EXISTS TypeBooking (
     DurationHours INT NULL
 );
 
--- 5. Bảng User
+-- 5. Bảng User (Có cột HotelId gán Chi nhánh cho Staff)
 CREATE TABLE IF NOT EXISTS "user" (
     UserId VARCHAR(50) PRIMARY KEY,
     full_name VARCHAR(255) NOT NULL,
@@ -60,8 +60,10 @@ CREATE TABLE IF NOT EXISTS "user" (
     password VARCHAR(255) NOT NULL,
     Image_cccd TEXT,
     RoleId VARCHAR(50),
+    HotelId VARCHAR(50) NULL,
     IsLocked BOOLEAN NOT NULL DEFAULT FALSE,
-    FOREIGN KEY (RoleId) REFERENCES Role(RoleId)
+    FOREIGN KEY (RoleId) REFERENCES Role(RoleId),
+    FOREIGN KEY (HotelId) REFERENCES Hotel(HotelId)
 );
 
 -- 6. Bảng Room
@@ -299,7 +301,7 @@ INSERT INTO Room (RoomId, nameRoom, TypeRoomId, Status, HotelId, imageUrl, descr
 ('HCM001_AQ', 'Aquaman Box - Nguyễn Thái Bình',  'AQUAMAN',  'Trống', 'HCM001', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10',  'Không gian đại dương sâu thẳm Aquaman độc đáo.', 'Máy chiếu 4K, Sofa bed, Soundbar 5.1, Netflix 4K'),
 ('HCM001_AV', 'Avatar Box - Nguyễn Thái Bình',   'AVATAR',   'Trống', 'HCM001', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10',    'Vũ trụ Pandora huyền ảo.', 'Máy chiếu 4K, Sofa bed, Netflix 4K'),
 ('HCM001_AG', 'Avenger Box - Nguyễn Thái Bình',  'AVENGER',  'Đang dùng', 'HCM001', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10',  'Phòng Siêu anh hùng Marvel cá tính.', 'Máy chiếu 4K, Sofa bed, Netflix 4K'),
-('HCM001_FB', 'Football Box - Nguyễn Thái Bình', 'FOOTBALL', 'Trống', 'HCM001', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10', 'Không gian điện ảnh kết hợp thể thao sôi động.', 'Máy chiếu 4K, Sofa bed, Soundbar, Netflix 4K'),
+('HCM001_FB', 'Football Box - Nguyễn Thái Bình', 'FOOTBALL', 'Trống', 'HCM001', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10', 'Không gian điện ảnh kết hợp giải trí thể thao sôi động.', 'Máy chiếu 4K, Sofa bed, Soundbar, Netflix 4K'),
 ('HCM001_GM', 'Gaming Box - Nguyễn Thái Bình',   'GAMING',   'Trống', 'HCM001', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10',   'Phòng màn chiếu rộng kèm dàn PC đôi RTX chơi game đỉnh cao.', 'Máy chiếu 4K, PC Couple RTX, Sofa đôi, Netflix 4K'),
 ('HCM001_SK', 'Sakura Box - Nguyễn Thái Bình',   'SAKURA',   'Trống', 'HCM001', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10',   'Không gian hoa hoa anh đào Sakura lãng mạn.', 'Máy chiếu 4K, Sofa bed, Netflix 4K'),
 ('HCM001_HK', 'HongKong Box - Nguyễn Thái Bình', 'HONGKONG', 'Trống', 'HCM001', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQP6Qu07F17Eg7f3s3S374SAuaOSBL7_azsrB4lcocbzg&s=10', 'Phòng Hongkong Neon đêm huyền bí.', 'Máy chiếu 4K, Sofa bed, Netflix 4K'),
@@ -313,17 +315,17 @@ INSERT INTO Room (RoomId, nameRoom, TypeRoomId, Status, HotelId, imageUrl, descr
 ON CONFLICT (RoomId) DO NOTHING;
 
 -- User test cho Admin, Staff và Customer - Mật khẩu chung: Genz@123
-INSERT INTO "user" (UserId, full_name, phone, email, password, RoleId, IsLocked) VALUES
-('SEED_ADMIN',    'Trần Quản Lý (Admin)',  '0901111111', 'admin@genz.test',    '$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'ADMIN',    FALSE),
-('SEED_STAFF',    'Lê Nhân Viên (Staff)',  '0902222222', 'staff@genz.test',    '$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'STAFF',    FALSE),
-('STAFF_HN001',   'Nguyễn Văn Vận Hành',   '0902222223', 'staff.hn001@genz.test','$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'STAFF',    FALSE),
-('STAFF_HCM001',  'Phạm Hoàng Nam (Staff)', '0902222224', 'staff.hcm001@genz.test','$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'STAFF',    FALSE),
-('SEED_CUSTOMER', 'Nguyễn Văn An (Khách)', '0903333333', 'customer@genz.test', '$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'CUSTOMER', FALSE),
-('CUSTOMER_02',   'Phạm Thị Mai',          '0904444444', 'mai.pham@genz.test', '$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'CUSTOMER', FALSE),
-('CUSTOMER_03',   'Hoàng Minh Huy',        '0905555555', 'huy.hoang@genz.test','$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'CUSTOMER', FALSE),
-('CUSTOMER_04',   'Đặng Anh Tuấn',         '0906666666', 'tuan.dang@genz.test','$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'CUSTOMER', FALSE),
-('CUSTOMER_05',   'Trịnh Khánh Linh',      '0907777777', 'linh.trinh@genz.test','$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'CUSTOMER', FALSE),
-('CUSTOMER_06',   'Vũ Minh Hoàng',         '0908888888', 'hoang.vu@genz.test',  '$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'CUSTOMER', FALSE)
+INSERT INTO "user" (UserId, full_name, phone, email, password, RoleId, HotelId, IsLocked) VALUES
+('SEED_ADMIN',    'Trần Quản Lý (Admin)',  '0901111111', 'admin@genz.test',    '$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'ADMIN',    NULL,    FALSE),
+('SEED_STAFF',    'Lê Nhân Viên (Staff)',  '0902222222', 'staff@genz.test',    '$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'STAFF',    'HN002', FALSE),
+('STAFF_HN001',   'Nguyễn Văn Vận Hành',   '0902222223', 'staff.hn001@genz.test','$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'STAFF',    'HN001', FALSE),
+('STAFF_HCM001',  'Phạm Hoàng Nam (Staff)', '0902222224', 'staff.hcm001@genz.test','$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'STAFF',    'HCM001',FALSE),
+('SEED_CUSTOMER', 'Nguyễn Văn An (Khách)', '0903333333', 'customer@genz.test', '$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'CUSTOMER', NULL,    FALSE),
+('CUSTOMER_02',   'Phạm Thị Mai',          '0904444444', 'mai.pham@genz.test', '$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'CUSTOMER', NULL,    FALSE),
+('CUSTOMER_03',   'Hoàng Minh Huy',        '0905555555', 'huy.hoang@genz.test','$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'CUSTOMER', NULL,    FALSE),
+('CUSTOMER_04',   'Đặng Anh Tuấn',         '0906666666', 'tuan.dang@genz.test','$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'CUSTOMER', NULL,    FALSE),
+('CUSTOMER_05',   'Trịnh Khánh Linh',      '0907777777', 'linh.trinh@genz.test','$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'CUSTOMER', NULL,    FALSE),
+('CUSTOMER_06',   'Vũ Minh Hoàng',         '0908888888', 'hoang.vu@genz.test',  '$2a$10$OMZHCh3Pq0dx9lbPxrpfuONX78NID88mpdCDC7kVLQBTNCh8xVuyy', 'CUSTOMER', NULL,    FALSE)
 ON CONFLICT (UserId) DO NOTHING;
 
 -- Voucher ưu đãi thực tế GenZ Cinema
