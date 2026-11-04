@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import '../../../config/app_theme.dart';
 import '../../../models/room_model.dart';
 import '../../../providers/room_provider.dart';
+import '../../../providers/hotel_provider.dart';
 import '../../../widgets/app_bottom_nav_bar.dart';
 
 class RoomListScreen extends ConsumerStatefulWidget {
@@ -143,10 +144,16 @@ class _RoomListScreenState extends ConsumerState<RoomListScreen> {
     _reloadRooms();
   }
 
-  void _showBranchFilter(List<RoomModel> rooms) {
-    final hotels = <String, String>{};
-    for (final r in rooms) {
-      if (r.hotel != null) hotels[r.hotel!.hotelId] = r.hotel!.name;
+  void _showBranchFilter() {
+    final hotelState = ref.read(hotelListProvider);
+    final options = <_FilterOption>[
+      const _FilterOption(value: null, label: 'Tất cả chi nhánh'),
+    ];
+    
+    if (hotelState.hotels.isNotEmpty) {
+      options.addAll(hotelState.hotels.map(
+        (h) => _FilterOption(value: h.hotelId, label: h.name)
+      ));
     }
 
     showModalBottomSheet(
@@ -156,11 +163,7 @@ class _RoomListScreenState extends ConsumerState<RoomListScreen> {
           borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (_) => _FilterSheet(
         title: 'Chi Nhánh GenZ Cinema',
-        options: [
-          const _FilterOption(value: null, label: 'Tất cả chi nhánh'),
-          ...hotels.entries
-              .map((e) => _FilterOption(value: e.key, label: e.value)),
-        ],
+        options: options,
         selected: _selectedHotelId,
         onSelect: (v) {
           setState(() => _selectedHotelId = v);
@@ -229,6 +232,7 @@ class _RoomListScreenState extends ConsumerState<RoomListScreen> {
   @override
   Widget build(BuildContext context) {
     final roomState = ref.watch(roomListProvider);
+    ref.watch(hotelListProvider);
     final filtered = _filterRooms(roomState.rooms);
 
     return Scaffold(
@@ -238,7 +242,7 @@ class _RoomListScreenState extends ConsumerState<RoomListScreen> {
         child: Column(
           children: [
             _buildSearchBar(),
-            _buildFilterRow(roomState.rooms),
+            _buildFilterRow(),
             if (_hasActiveFilter) _buildActiveFilterBar(),
             Expanded(
               child: roomState.isLoading
@@ -296,7 +300,7 @@ class _RoomListScreenState extends ConsumerState<RoomListScreen> {
     );
   }
 
-  Widget _buildFilterRow(List<RoomModel> allRooms) {
+  Widget _buildFilterRow() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
       child: Row(
@@ -309,7 +313,7 @@ class _RoomListScreenState extends ConsumerState<RoomListScreen> {
                   _filterChip(
                     label: 'Chi nhánh',
                     active: _selectedHotelId != null,
-                    onTap: () => _showBranchFilter(allRooms),
+                    onTap: _showBranchFilter,
                   ),
                   const SizedBox(width: 8),
                   _filterChip(
