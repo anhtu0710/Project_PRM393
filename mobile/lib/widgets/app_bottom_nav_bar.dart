@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../config/app_theme.dart';
 import '../providers/auth_provider.dart';
+import '../providers/notification_provider.dart';
 
 class AppBottomNavBar extends ConsumerWidget {
   final int currentIndex;
@@ -156,6 +157,7 @@ class AppBottomNavBar extends ConsumerWidget {
                   title: const Text('Đăng xuất', style: TextStyle(fontWeight: FontWeight.w600, color: AppTheme.primaryDark)),
                   onTap: () async {
                     Navigator.pop(ctx);
+                    ref.read(notificationListProvider.notifier).clear();
                     await ref.read(authProvider.notifier).logout();
                     if (context.mounted) context.go('/login');
                   },
@@ -171,6 +173,9 @@ class AppBottomNavBar extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final notifState = ref.watch(notificationListProvider);
+    final hasUnread = notifState.unreadCount > 0;
+
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -202,16 +207,37 @@ class AppBottomNavBar extends ConsumerWidget {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        if (isSelected)
-                          ShaderMask(
-                            shaderCallback: (bounds) =>
-                                AppTheme.primaryGradient.createShader(bounds),
-                            child: Icon(item['activeIcon'] as IconData,
-                                color: Colors.white, size: 24),
-                          )
-                        else
-                          Icon(item['icon'] as IconData,
-                              color: AppTheme.textGray, size: 24),
+                        Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            if (isSelected)
+                              ShaderMask(
+                                shaderCallback: (bounds) =>
+                                    AppTheme.primaryGradient.createShader(bounds),
+                                child: Icon(item['activeIcon'] as IconData,
+                                    color: Colors.white, size: 24),
+                              )
+                            else
+                              Icon(item['icon'] as IconData,
+                                  color: AppTheme.textGray, size: 24),
+                            if (index == 3 && hasUnread) // Badge for Account tab
+                              Positioned(
+                                right: -2,
+                                top: -2,
+                                child: Container(
+                                  padding: const EdgeInsets.all(4),
+                                  decoration: const BoxDecoration(
+                                    color: Colors.red,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  constraints: const BoxConstraints(
+                                    minWidth: 10,
+                                    minHeight: 10,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
                         const SizedBox(height: 4),
                         Text(
                           item['label'] as String,

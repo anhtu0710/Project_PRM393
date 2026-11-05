@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import '../../config/app_theme.dart';
 import '../../models/user_model.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/notification_provider.dart';
 
 class StaffProfileScreen extends ConsumerStatefulWidget {
   const StaffProfileScreen({super.key});
@@ -631,6 +632,7 @@ class _StaffProfileScreenState extends ConsumerState<StaffProfileScreen> {
                       ),
                       onPressed: () async {
                         Navigator.pop(dialogCtx);
+                        ref.read(notificationListProvider.notifier).clear();
                         await ref.read(authProvider.notifier).logout();
                         if (context.mounted) context.go('/login');
                       },
