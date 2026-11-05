@@ -31,7 +31,7 @@ public class RoomController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime checkIn,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime checkOut) {
 
-        // Shortcut cho filter theo hotelId đơn thuần
+        // 1. Chỉ lọc theo hotelId đơn thuần (Dùng Spring Data JPA chuẩn, không qua JPQL search)
         if (isNotBlank(hotelId) && isBlank(keyword) && isBlank(typeRoomId)
                 && minPrice == null && maxPrice == null && checkIn == null && checkOut == null) {
             return ResponseEntity.ok(
@@ -39,6 +39,24 @@ public class RoomController {
             );
         }
 
+        // 2. Chỉ lọc theo typeRoomId đơn thuần
+        if (isBlank(keyword) && isBlank(hotelId) && isNotBlank(typeRoomId)
+                && minPrice == null && maxPrice == null && checkIn == null && checkOut == null) {
+            return ResponseEntity.ok(
+                    ApiResponse.success("Danh sách phòng theo loại", roomRepository.findByTypeRoom_TypeRoomId(typeRoomId.trim()))
+            );
+        }
+
+        // 3. Lọc cả hotelId và typeRoomId
+        if (isNotBlank(hotelId) && isNotBlank(typeRoomId) && isBlank(keyword)
+                && minPrice == null && maxPrice == null && checkIn == null && checkOut == null) {
+            List<Room> rooms = roomRepository.findByHotel_HotelId(hotelId.trim()).stream()
+                    .filter(r -> r.getTypeRoom() != null && r.getTypeRoom().getTypeRoomId().equals(typeRoomId.trim()))
+                    .toList();
+            return ResponseEntity.ok(ApiResponse.success("Danh sách phòng theo chi nhánh và loại", rooms));
+        }
+
+        // 4. Lấy tất cả khi không có bất kỳ bộ lọc nào
         if (isBlank(keyword) && isBlank(hotelId) && isBlank(typeRoomId)
                 && minPrice == null && maxPrice == null && checkIn == null && checkOut == null) {
             return ResponseEntity.ok(
@@ -46,11 +64,12 @@ public class RoomController {
             );
         }
 
+        // 5. Trường hợp có tìm kiếm nâng cao (keyword, giá, ngày tháng)
         String kw = isNotBlank(keyword) ? keyword.trim() : "";
         String hId = isNotBlank(hotelId) ? hotelId.trim() : "";
         String trId = isNotBlank(typeRoomId) ? typeRoomId.trim() : "";
         BigDecimal minP = minPrice != null ? minPrice : BigDecimal.ZERO;
-        BigDecimal maxP = maxPrice != null ? maxPrice : BigDecimal.ZERO;
+        BigDecimal maxP = maxPrice != null ? maxPrice : BigDecimal.valueOf(999999999);
         LocalDateTime effectiveCheckIn = checkIn != null ? checkIn : LocalDateTime.of(2000, 1, 1, 0, 0);
         LocalDateTime effectiveCheckOut = checkOut != null ? checkOut : LocalDateTime.of(2099, 12, 31, 23, 59);
 
@@ -118,5 +137,9 @@ public class RoomController {
 
     private boolean isNotBlank(String str) {
         return str != null && !str.isBlank();
+    }
+
+    private String blankToNull(String str) {
+        return isBlank(str) ? null : str.trim();
     }
 }
