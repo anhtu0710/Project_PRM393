@@ -49,7 +49,6 @@ public class ImageProxyController {
             HttpHeaders headers = new HttpHeaders();
             headers.set("Content-Type", contentType);
             headers.set("Cache-Control", "public, max-age=86400");
-            headers.set("Access-Control-Allow-Origin", "*");
 
             return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
         } catch (Exception e) {
