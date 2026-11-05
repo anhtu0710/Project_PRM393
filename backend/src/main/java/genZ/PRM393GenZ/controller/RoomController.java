@@ -46,14 +46,16 @@ public class RoomController {
             );
         }
 
+        String kw = isNotBlank(keyword) ? keyword.trim() : "";
+        String hId = isNotBlank(hotelId) ? hotelId.trim() : "";
+        String trId = isNotBlank(typeRoomId) ? typeRoomId.trim() : "";
+        BigDecimal minP = minPrice != null ? minPrice : BigDecimal.ZERO;
+        BigDecimal maxP = maxPrice != null ? maxPrice : BigDecimal.ZERO;
         LocalDateTime effectiveCheckIn = checkIn != null ? checkIn : LocalDateTime.of(2000, 1, 1, 0, 0);
         LocalDateTime effectiveCheckOut = checkOut != null ? checkOut : LocalDateTime.of(2099, 12, 31, 23, 59);
 
         List<Room> rooms = roomRepository.search(
-                blankToNull(keyword),
-                blankToNull(hotelId),
-                blankToNull(typeRoomId),
-                minPrice, maxPrice, effectiveCheckIn, effectiveCheckOut,
+                kw, hId, trId, minP, maxP, effectiveCheckIn, effectiveCheckOut,
                 List.of("PENDING", "CONFIRMED", "CHECKED_IN", "Chưa thanh toán", "Đã xác nhận")
         );
 
@@ -116,9 +118,5 @@ public class RoomController {
 
     private boolean isNotBlank(String str) {
         return str != null && !str.isBlank();
-    }
-
-    private String blankToNull(String str) {
-        return isBlank(str) ? null : str.trim();
     }
 }

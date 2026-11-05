@@ -20,20 +20,20 @@ public interface RoomRepository extends JpaRepository<Room, String> {
             SELECT DISTINCT r FROM Room r
             LEFT JOIN FETCH r.typeRoom tr
             LEFT JOIN FETCH r.hotel h
-            WHERE (:keyword IS NULL OR LOWER(r.nameRoom) LIKE LOWER(CONCAT('%', CAST(:keyword AS string), '%'))
-                   OR LOWER(tr.typeRoom) LIKE LOWER(CONCAT('%', CAST(:keyword AS string), '%'))
-                   OR LOWER(h.name)      LIKE LOWER(CONCAT('%', CAST(:keyword AS string), '%'))
-                   OR LOWER(h.address)   LIKE LOWER(CONCAT('%', CAST(:keyword AS string), '%')))
-              AND (:hotelId IS NULL OR LOWER(TRIM(h.hotelId)) = LOWER(TRIM(CAST(:hotelId AS string))))
-              AND (:typeRoomId IS NULL OR tr.typeRoomId = CAST(:typeRoomId AS string))
-              AND (:minPrice IS NULL OR tr.pricePerHour >= :minPrice)
-              AND (:maxPrice IS NULL OR tr.pricePerHour <= :maxPrice)
-              AND (:checkIn IS NULL OR :checkOut IS NULL OR NOT EXISTS (
+            WHERE (:keyword = '' OR LOWER(r.nameRoom) LIKE LOWER(CONCAT('%', :keyword, '%'))
+                   OR LOWER(tr.typeRoom) LIKE LOWER(CONCAT('%', :keyword, '%'))
+                   OR LOWER(h.name)      LIKE LOWER(CONCAT('%', :keyword, '%'))
+                   OR LOWER(h.address)   LIKE LOWER(CONCAT('%', :keyword, '%')))
+              AND (:hotelId = '' OR LOWER(TRIM(h.hotelId)) = LOWER(TRIM(:hotelId)))
+              AND (:typeRoomId = '' OR tr.typeRoomId = :typeRoomId)
+              AND (:minPrice = 0 OR tr.pricePerHour >= :minPrice)
+              AND (:maxPrice = 0 OR tr.pricePerHour <= :maxPrice)
+              AND (NOT EXISTS (
                   SELECT b.bookingId FROM Booking b
                   WHERE b.room = r
                     AND b.status IN :blockingStatuses
-                    AND b.checkIn < CAST(:checkOut AS timestamp)
-                    AND (b.checkOut IS NULL OR b.checkOut > CAST(:checkIn AS timestamp))
+                    AND b.checkIn < :checkOut
+                    AND (b.checkOut IS NULL OR b.checkOut > :checkIn)
               ))
             """)
     List<Room> search(@Param("keyword") String keyword,
