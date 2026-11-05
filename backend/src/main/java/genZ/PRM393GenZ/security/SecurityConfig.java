@@ -41,7 +41,8 @@ public class SecurityConfig {
                         // Khách chưa đăng nhập vẫn XEM được phòng, khách sạn, loại phòng, bảng giá (chỉ GET).
                         // Thêm / sửa / xoá vẫn cần đăng nhập và đúng role (@PreAuthorize trong controller).
                         .requestMatchers(HttpMethod.GET,
-                                "/rooms/**", "/hotels/**", "/type-rooms", "/type-bookings", "/price-configs/**", "/food-menu/**", "/movies/**", "/vouchers/**"
+                                "/rooms/**", "/hotels/**", "/type-rooms", "/type-bookings", "/price-configs/**", "/food-menu/**", "/movies/**", "/vouchers/**", "/proxy-image",
+                                "/bookings/prices", "/bookings/vouchers", "/bookings/vouchers/check"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

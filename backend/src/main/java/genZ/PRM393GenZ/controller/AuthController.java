@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.security.Principal;
 
 @RestController
 @RequestMapping("/auth")
@@ -108,5 +109,37 @@ public class AuthController {
         // With stateless JWT, client just deletes the token.
         // Add token blacklist here if needed.
         return ResponseEntity.ok(ApiResponse.success("Đăng xuất thành công"));
+    }
+
+    /**
+     * PUT /api/auth/profile/{userId}
+     */
+    @PutMapping("/profile/{userId}")
+    public ResponseEntity<ApiResponse<LoginResponse>> updateProfile(
+            @PathVariable String userId,
+            @RequestBody UpdateProfileRequest request) {
+        try {
+            LoginResponse updated = authService.updateProfile(userId, request);
+            return ResponseEntity.ok(ApiResponse.success("Cập nhật thông tin cá nhân thành công", updated));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error(e.getMessage()));
+        }
+    }
+
+    /**
+     * GET /api/auth/me
+     */
+    @GetMapping("/me")
+    public ResponseEntity<ApiResponse<LoginResponse>> getMe(Principal principal) {
+        if (principal == null || principal.getName() == null) {
+            return ResponseEntity.status(401).body(ApiResponse.error("Chưa đăng nhập"));
+        }
+        try {
+            LoginResponse response = authService.getMe(principal.getName());
+            return ResponseEntity.ok(ApiResponse.success("Thông tin tài khoản", response));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
+        }
     }
 }

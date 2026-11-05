@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -79,6 +80,7 @@ public class AuthService {
                 .userId(user.getUserId())
                 .fullName(user.getFullName())
                 .email(user.getEmail())
+                .phone(user.getPhone())
                 .role(roleName)
                 .roleId(roleId)
                 .hotelId(hotelId)
@@ -182,5 +184,80 @@ public class AuthService {
         tokenRepository.save(resetToken);
 
         log.info("Password reset successfully for user: {}", user.getEmail());
+    }
+
+    // ─── Update Profile ──────────────────────────────────────────────────────────
+
+    @Transactional
+    public LoginResponse updateProfile(String userId, UpdateProfileRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Tài khoản không tồn tại"));
+
+        if (request.getEmail() != null && !request.getEmail().isBlank()) {
+            String newEmail = request.getEmail().trim();
+            if (user.getEmail() == null || !newEmail.equalsIgnoreCase(user.getEmail())) {
+                Optional<User> existingUser = userRepository.findByEmail(newEmail);
+                if (existingUser.isPresent() && !existingUser.get().getUserId().equals(user.getUserId())) {
+                    throw new RuntimeException("Email đã được sử dụng bởi tài khoản khác");
+                }
+                user.setEmail(newEmail);
+            }
+        }
+
+        if (request.getPhone() != null && !request.getPhone().isBlank()) {
+            String newPhone = request.getPhone().trim();
+            if (user.getPhone() == null || !newPhone.equalsIgnoreCase(user.getPhone())) {
+                Optional<User> existingUser = userRepository.findByPhone(newPhone);
+                if (existingUser.isPresent() && !existingUser.get().getUserId().equals(user.getUserId())) {
+                    throw new RuntimeException("Số điện thoại đã được sử dụng bởi tài khoản khác");
+                }
+                user.setPhone(newPhone);
+            }
+        }
+
+        if (request.getFullName() != null && !request.getFullName().isBlank()) {
+            user.setFullName(request.getFullName().trim());
+        }
+
+        User saved = userRepository.save(user);
+
+        String roleName = saved.getRole() != null ? saved.getRole().getRoleName() : "CUSTOMER";
+        String roleId   = saved.getRole() != null ? saved.getRole().getRoleId()   : "";
+        String hotelId   = saved.getHotel() != null ? saved.getHotel().getHotelId() : null;
+        String hotelName = saved.getHotel() != null ? saved.getHotel().getName()    : null;
+
+        return LoginResponse.builder()
+                .userId(saved.getUserId())
+                .fullName(saved.getFullName())
+                .email(saved.getEmail())
+                .phone(saved.getPhone())
+                .role(roleName)
+                .roleId(roleId)
+                .hotelId(hotelId)
+                .hotelName(hotelName)
+                .build();
+    }
+
+    // ─── Get Me ──────────────────────────────────────────────────────────────────
+
+    public LoginResponse getMe(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Tài khoản không tồn tại"));
+
+        String roleName = user.getRole() != null ? user.getRole().getRoleName() : "CUSTOMER";
+        String roleId   = user.getRole() != null ? user.getRole().getRoleId()   : "";
+        String hotelId   = user.getHotel() != null ? user.getHotel().getHotelId() : null;
+        String hotelName = user.getHotel() != null ? user.getHotel().getName()    : null;
+
+        return LoginResponse.builder()
+                .userId(user.getUserId())
+                .fullName(user.getFullName())
+                .email(user.getEmail())
+                .phone(user.getPhone())
+                .role(roleName)
+                .roleId(roleId)
+                .hotelId(hotelId)
+                .hotelName(hotelName)
+                .build();
     }
 }

@@ -26,6 +26,7 @@ import java.math.RoundingMode;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/bookings")
@@ -42,9 +43,22 @@ public class BookingController {
 
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
-    public ResponseEntity<ApiResponse<List<Booking>>> getAllBookings() {
+    public ResponseEntity<ApiResponse<List<Booking>>> getAllBookings(Principal principal) {
+        List<Booking> bookings = bookingRepository.findAll();
+        if (principal != null) {
+            User user = userRepository.findByEmail(principal.getName()).orElse(null);
+            if (user != null && user.getRole() != null && 
+                ("STAFF".equalsIgnoreCase(user.getRole().getRoleId()) || "STAFF".equalsIgnoreCase(user.getRole().getRoleName())) && 
+                user.getHotel() != null) {
+                String staffHotelId = user.getHotel().getHotelId();
+                bookings = bookings.stream()
+                        .filter(b -> b.getRoom() != null && b.getRoom().getHotel() != null &&
+                                     staffHotelId.equalsIgnoreCase(b.getRoom().getHotel().getHotelId()))
+                        .toList();
+            }
+        }
         return ResponseEntity.ok(
-                ApiResponse.success("Danh sách booking", bookingRepository.findAll())
+                ApiResponse.success("Danh sách booking", bookings)
         );
     }
 
@@ -145,11 +159,25 @@ public class BookingController {
         if (room.getTypeRoom() == null) {
             throw new RuntimeException("Phòng chưa có loại phòng, không tính được giá");
         }
-        PriceConfig priceConfig = priceConfigRepository
+        BigDecimal price;
+        Optional<PriceConfig> priceConfigOpt = priceConfigRepository
                 .findByTypeRoom_TypeRoomIdAndTypeBooking_TypeBookingId(
-                        room.getTypeRoom().getTypeRoomId(), typeBooking.getTypeBookingId())
-                .orElseThrow(() -> new RuntimeException("Chưa có giá cho loại phòng và combo này"));
-        BigDecimal price = priceConfig.getPrice();
+                        room.getTypeRoom().getTypeRoomId(), typeBooking.getTypeBookingId());
+        if (priceConfigOpt.isPresent()) {
+            price = priceConfigOpt.get().getPrice();
+        } else {
+            BigDecimal hourly = room.getTypeRoom().getPricePerHour() != null
+                    ? room.getTypeRoom().getPricePerHour()
+                    : new BigDecimal("96000");
+            int hours = typeBooking.getDurationHours() != null ? typeBooking.getDurationHours() : 2;
+            price = hourly.multiply(BigDecimal.valueOf(hours));
+
+            priceConfigRepository.save(PriceConfig.builder()
+                    .typeRoom(room.getTypeRoom())
+                    .typeBooking(typeBooking)
+                    .price(price)
+                    .build());
+        }
 
         BigDecimal discount = BigDecimal.ZERO;
         String voucherCode = booking.getVoucherCode();
