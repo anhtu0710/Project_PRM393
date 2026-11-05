@@ -31,24 +31,19 @@ public class RoomController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime checkIn,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime checkOut) {
 
-        if (isBlank(keyword) && isBlank(typeRoomId)
+        // Shortcut cho filter theo hotelId đơn thuần
+        if (isNotBlank(hotelId) && isBlank(keyword) && isBlank(typeRoomId)
                 && minPrice == null && maxPrice == null && checkIn == null && checkOut == null) {
-            if (isNotBlank(hotelId)) {
-                return ResponseEntity.ok(
-                        ApiResponse.success("Danh sách phòng theo chi nhánh", roomRepository.findByHotel_HotelId(hotelId.trim()))
-                );
-            }
             return ResponseEntity.ok(
-                    ApiResponse.success("Danh sách phòng", roomRepository.findAll())
+                    ApiResponse.success("Danh sách phòng theo chi nhánh", roomRepository.findByHotel_HotelId(hotelId.trim()))
             );
         }
 
-        if (isBlank(keyword) && isBlank(hotelId) && checkIn == null && checkOut == null && minPrice == null && maxPrice == null) {
-            if (isNotBlank(typeRoomId)) {
-                return ResponseEntity.ok(
-                        ApiResponse.success("Danh sách phòng theo loại", roomRepository.findByTypeRoom_TypeRoomId(typeRoomId.trim()))
-                );
-            }
+        if (isBlank(keyword) && isBlank(hotelId) && isBlank(typeRoomId)
+                && minPrice == null && maxPrice == null && checkIn == null && checkOut == null) {
+            return ResponseEntity.ok(
+                    ApiResponse.success("Danh sách phòng", roomRepository.findAll())
+            );
         }
 
         LocalDateTime effectiveCheckIn = checkIn != null ? checkIn : LocalDateTime.of(2000, 1, 1, 0, 0);
