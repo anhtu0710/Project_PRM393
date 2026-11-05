@@ -38,11 +38,14 @@ public class RoomController {
             );
         }
 
+        LocalDateTime effectiveCheckIn = checkIn != null ? checkIn : LocalDateTime.of(2000, 1, 1, 0, 0);
+        LocalDateTime effectiveCheckOut = checkOut != null ? checkOut : LocalDateTime.of(2099, 12, 31, 23, 59);
+
         List<Room> rooms = roomRepository.search(
                 blankToNull(keyword),
                 blankToNull(hotelId),
                 blankToNull(typeRoomId),
-                minPrice, maxPrice, checkIn, checkOut,
+                minPrice, maxPrice, effectiveCheckIn, effectiveCheckOut,
                 List.of("PENDING", "CONFIRMED", "CHECKED_IN", "Chưa thanh toán", "Đã xác nhận")
         );
 
