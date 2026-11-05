@@ -1,5 +1,6 @@
 // lib/providers/notification_provider.dart
 
+import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/notification_model.dart';
@@ -37,6 +38,7 @@ class NotificationListState {
 class NotificationListNotifier extends StateNotifier<NotificationListState> with WidgetsBindingObserver {
   final NotificationService _service;
   String? _currentUserId;
+  Timer? _pollTimer;
 
   NotificationListNotifier(this._service) : super(const NotificationListState()) {
     // Đăng ký theo dõi trạng thái App (Foreground / Background)
@@ -45,16 +47,30 @@ class NotificationListNotifier extends StateNotifier<NotificationListState> with
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState appState) {
-    // Khi người dùng mở app lên lại từ màn hình chính hoặc sau khi khóa màn hình
     if (appState == AppLifecycleState.resumed) {
       if (_currentUserId != null) {
         _silentReload(_currentUserId!);
+        _startPolling(_currentUserId!);
       }
+    } else if (appState == AppLifecycleState.paused) {
+      _pollTimer?.cancel();
     }
+  }
+
+  void _startPolling(String userId) {
+    _pollTimer?.cancel();
+    // Polling tự động kiểm tra thông báo mới mỗi 6 giây
+    _pollTimer = Timer.periodic(const Duration(seconds: 6), (_) {
+      if (_currentUserId != null && _currentUserId == userId) {
+        _silentReload(userId);
+      }
+    });
   }
 
   Future<void> loadNotifications(String userId) async {
     _currentUserId = userId;
+    _startPolling(userId);
+    
     state = state.copyWith(isLoading: true, error: null);
     try {
       final list = await _service.getNotifications(userId);
@@ -117,12 +133,15 @@ class NotificationListNotifier extends StateNotifier<NotificationListState> with
 
   void clear() {
     _currentUserId = null;
+    _pollTimer?.cancel();
+    _pollTimer = null;
     state = const NotificationListState();
   }
   
   @override
   void dispose() {
-    // Hủy đăng ký khi provider bị hủy
+    _pollTimer?.cancel();
+    _pollTimer = null;
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }

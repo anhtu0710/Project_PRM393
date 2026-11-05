@@ -8,6 +8,7 @@ import '../../../models/room_model.dart';
 import '../../../providers/room_provider.dart';
 import '../../../providers/saved_rooms_provider.dart';
 import '../../../widgets/app_bottom_nav_bar.dart';
+import '../../../widgets/app_image.dart';
 
 class SavedScreen extends ConsumerWidget {
   const SavedScreen({super.key});
@@ -157,12 +158,10 @@ class SavedScreen extends ConsumerWidget {
                     end: Alignment.bottomRight,
                   ),
                 ),
-                child: room.imageUrl != null && room.imageUrl!.isNotEmpty
-                    ? Image.network(room.imageUrl!, fit: BoxFit.cover)
-                    : const Center(
-                        child: Icon(Icons.bedroom_parent_outlined,
-                            size: 36, color: Color(0xFFCFB3F0)),
-                      ),
+                child: AppImage(
+                  imageUrl: room.imageUrl,
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
             // Info

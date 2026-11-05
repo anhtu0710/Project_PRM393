@@ -83,7 +83,8 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
 
   // ── Chọn giờ check-in ───────────────────────────────────────────────────────
   Future<void> _pickCheckIn(BuildContext context, BookingState state) async {
-    if (state.selectedCombo != BookingComboType.hourly) return;
+    final comboId = state.selectedTypeBooking?.typeBookingId.toUpperCase() ?? '';
+    if (comboId == 'TB_DAY' || comboId == 'TB_NIGHT') return;
     final current = state.checkIn ?? DateTime.now();
     final picked = await showTimePicker(
       context: context,
@@ -105,7 +106,8 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
 
   // ── Chọn giờ check-out ──────────────────────────────────────────────────────
   Future<void> _pickCheckOut(BuildContext context, BookingState state) async {
-    if (state.selectedCombo != BookingComboType.hourly) return;
+    final comboId = state.selectedTypeBooking?.typeBookingId.toUpperCase() ?? '';
+    if (comboId == 'TB_DAY' || comboId == 'TB_NIGHT') return;
     final current = state.checkOut ?? DateTime.now();
     final picked = await showTimePicker(
       context: context,
@@ -447,6 +449,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
 
   // ── Combo section ───────────────────────────────────────────────────────────
   Widget _buildComboSection(BookingState state) {
+    final combos = state.typeBookings;
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -463,45 +466,52 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                   fontWeight: FontWeight.w600,
                   color: AppTheme.textGray)),
           const SizedBox(height: 10),
-          Row(
-            children: BookingComboType.values.map((combo) {
-              final isSelected = state.selectedCombo == combo;
-              return Expanded(
-                child: GestureDetector(
-                  onTap: () =>
-                      ref.read(bookingProvider.notifier).setCombo(combo),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 220),
-                    margin: EdgeInsets.only(
-                        right: combo == BookingComboType.night ? 0 : 8),
-                    height: 40,
-                    decoration: BoxDecoration(
-                      gradient: isSelected
-                          ? AppTheme.primaryGradient
-                          : null,
-                      color: isSelected ? null : const Color(0xFFF5F3FF),
-                      borderRadius: BorderRadius.circular(10),
-                      border: isSelected
-                          ? null
-                          : Border.all(color: const Color(0xFFE8E0FF)),
-                    ),
-                    child: Center(
-                      child: Text(
-                        comboLabels[combo]!,
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color:
-                              isSelected ? Colors.white : AppTheme.primary,
+          if (combos.isEmpty)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 8),
+              child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+            )
+          else
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: combos.map((combo) {
+                  final isSelected =
+                      state.selectedTypeBooking?.typeBookingId == combo.typeBookingId;
+                  return GestureDetector(
+                    onTap: () =>
+                        ref.read(bookingProvider.notifier).selectTypeBooking(combo),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 220),
+                      margin: const EdgeInsets.only(right: 8),
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                      decoration: BoxDecoration(
+                        gradient: isSelected
+                            ? AppTheme.primaryGradient
+                            : null,
+                        color: isSelected ? null : const Color(0xFFF5F3FF),
+                        borderRadius: BorderRadius.circular(10),
+                        border: isSelected
+                            ? null
+                            : Border.all(color: const Color(0xFFE8E0FF)),
+                      ),
+                      child: Center(
+                        child: Text(
+                          combo.typeName,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color:
+                                isSelected ? Colors.white : AppTheme.primary,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ),
-              );
-            }).toList(),
-          ),
-          if (state.selectedCombo != BookingComboType.hourly) ...[
+                  );
+                }).toList(),
+              ),
+            ),
+          if (state.comboTimeDesc.isNotEmpty) ...[
             const SizedBox(height: 10),
             Container(
               padding:
@@ -615,7 +625,8 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
 
   // ── Time section ─────────────────────────────────────────────────────────────
   Widget _buildTimeSection(BuildContext context, BookingState state) {
-    final isLocked = state.selectedCombo != BookingComboType.hourly;
+    final comboId = state.selectedTypeBooking?.typeBookingId.toUpperCase() ?? '';
+    final isLocked = comboId == 'TB_DAY' || comboId == 'TB_NIGHT';
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -827,8 +838,8 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
           const SizedBox(height: 8),
           _billRow(
             'Giảm giá combo',
-            state.selectedCombo != BookingComboType.hourly
-                ? '– Gói cố định'
+            state.selectedTypeBooking?.typeBookingId.toUpperCase() != 'TB_HOURLY'
+                ? '– Đã bao gồm trong gói'
                 : '0 đ',
             isGray: true,
           ),

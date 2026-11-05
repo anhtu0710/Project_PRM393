@@ -9,6 +9,7 @@ import '../../../models/room_model.dart';
 import '../../../providers/room_provider.dart';
 import '../../../providers/hotel_provider.dart';
 import '../../../widgets/app_bottom_nav_bar.dart';
+import '../../../widgets/app_image.dart';
 
 class RoomListScreen extends ConsumerStatefulWidget {
   final String? typeFilter;
@@ -77,9 +78,12 @@ class _RoomListScreenState extends ConsumerState<RoomListScreen> {
           .toList();
     }
 
-    if (_selectedHotelId != null) {
-      result =
-          result.where((r) => r.hotel?.hotelId == _selectedHotelId).toList();
+    if (_selectedHotelId != null && _selectedHotelId!.isNotEmpty) {
+      result = result
+          .where((r) =>
+              r.hotel?.hotelId.trim().toLowerCase() ==
+              _selectedHotelId!.trim().toLowerCase())
+          .toList();
     }
 
     if (_selectedPriceRange != null) {
@@ -474,13 +478,10 @@ class _RoomListScreenState extends ConsumerState<RoomListScreen> {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  room.imageUrl != null && room.imageUrl!.isNotEmpty
-                      ? Image.network(
-                          room.imageUrl!,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => _buildPlaceholder(),
-                        )
-                      : _buildPlaceholder(),
+                  AppImage(
+                    imageUrl: room.imageUrl,
+                    fit: BoxFit.cover,
+                  ),
                   // Status Badge
                   Positioned(
                     top: 8,

@@ -4,6 +4,7 @@
 import 'package:flutter/material.dart';
 import '../../../config/app_config.dart';
 import '../../../config/app_theme.dart';
+import '../../../widgets/app_image.dart';
 
 /// 276000 -> "276.000 đ"
 String formatVND(double amount) {
@@ -86,19 +87,12 @@ class RoomThumbnail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const placeholder = Icon(Icons.bedroom_parent_outlined,
-        size: 30, color: AppTheme.primary);
-    return ClipRRect(
+    return AppImage(
+      imageUrl: imageUrl,
+      width: size,
+      height: size,
+      fit: BoxFit.cover,
       borderRadius: BorderRadius.circular(12),
-      child: Container(
-        width: size,
-        height: size,
-        color: AppTheme.primary.withOpacity(0.1),
-        child: imageUrl != null && imageUrl!.isNotEmpty
-            ? Image.network(imageUrl!,
-                fit: BoxFit.cover, errorBuilder: (_, __, ___) => placeholder)
-            : placeholder,
-      ),
     );
   }
 }

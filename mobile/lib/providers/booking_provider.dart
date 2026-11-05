@@ -11,31 +11,10 @@ import 'auth_provider.dart';
 final bookingServiceProvider =
     Provider<BookingService>((_) => BookingService());
 
-// ── Combo types ────────────────────────────────────────────────────────────────
-enum BookingComboType {
-  hourly,  // Theo giờ (2h / 4h / 5h / 6h)
-  day,     // Combo ngày (7h-12h)
-  night,   // Combo đêm (23h-7h sáng hôm sau)
-}
-
-const Map<BookingComboType, String> comboLabels = {
-  BookingComboType.hourly: 'Theo giờ',
-  BookingComboType.day: 'Combo ngày',
-  BookingComboType.night: 'Combo đêm',
-};
-
-// Các gói theo giờ trong bảng TypeBooking (số giờ -> TypeBookingId)
-const Map<int, String> hourlyTypeBookingIds = {
-  2: 'TB_2H',
-  4: 'TB_4H',
-  5: 'TB_5H',
-  6: 'TB_6H',
-};
-
 // ── Booking screen state ───────────────────────────────────────────────────────
 class BookingState {
   final RoomModel? room;
-  final BookingComboType selectedCombo;
+  final TypeBookingModel? selectedTypeBooking;
   final DateTime selectedDate;
   final DateTime? checkIn;
   final DateTime? checkOut;
@@ -46,12 +25,13 @@ class BookingState {
   final bool isSuccess;
 
   // Dữ liệu thật từ backend
+  final List<TypeBookingModel> typeBookings; // danh sách gói từ server
   final List<VoucherModel> vouchers;     // voucher còn hạn
   final Map<String, double> prices;      // "TYPEROOM|TYPEBOOKING" -> giá
 
   const BookingState({
     this.room,
-    this.selectedCombo = BookingComboType.hourly,
+    this.selectedTypeBooking,
     required this.selectedDate,
     this.checkIn,
     this.checkOut,
@@ -60,6 +40,7 @@ class BookingState {
     this.isLoading = false,
     this.error,
     this.isSuccess = false,
+    this.typeBookings = const [],
     this.vouchers = const [],
     this.prices = const {},
   });
@@ -72,20 +53,22 @@ class BookingState {
 
   /// TypeBookingId gửi lên server (server dựa vào đây để tính giá + giờ ra)
   String get typeBookingId {
-    switch (selectedCombo) {
-      case BookingComboType.day:
-        return 'TB_DAY';
-      case BookingComboType.night:
-        return 'TB_NIGHT';
-      case BookingComboType.hourly:
-        return hourlyTypeBookingIds[selectedHours] ?? 'TB_2H';
+    if (selectedTypeBooking != null) {
+      return selectedTypeBooking!.typeBookingId;
     }
+    return 'TB_2H';
   }
 
   /// Tổng tiền phòng (trước giảm giá voucher), lấy từ bảng PriceConfig
   double get roomTotal {
     final typeRoomId = room?.typeRoom?.typeRoomId.toUpperCase() ?? '';
-    return prices['$typeRoomId|$typeBookingId'] ?? 0;
+    final foundPrice = prices['$typeRoomId|$typeBookingId'];
+    if (foundPrice != null && foundPrice > 0) return foundPrice;
+    
+    // Fallback: nếu chưa có cấu hình giá trong PriceConfig, lấy hourly * duration
+    final hourlyPrice = room?.typeRoom?.pricePerHour ?? 96000;
+    final hours = selectedTypeBooking?.durationHours ?? 2;
+    return hourlyPrice * hours;
   }
 
   /// Số tiền giảm từ voucher
@@ -98,19 +81,19 @@ class BookingState {
 
   /// Mô tả giờ cho combo
   String get comboTimeDesc {
-    switch (selectedCombo) {
-      case BookingComboType.day:
-        return '07:00 – 12:00';
-      case BookingComboType.night:
-        return '23:00 – 07:00 (hôm sau)';
-      default:
-        return '';
+    if (selectedTypeBooking == null) return '';
+    final id = selectedTypeBooking!.typeBookingId.toUpperCase();
+    if (id == 'TB_DAY') return '07:00 – 12:00';
+    if (id == 'TB_NIGHT') return '23:00 – 07:00 (hôm sau)';
+    if (selectedTypeBooking!.durationHours != null) {
+      return 'Thời lượng: ${selectedTypeBooking!.durationHours} giờ';
     }
+    return '';
   }
 
   BookingState copyWith({
     RoomModel? room,
-    BookingComboType? selectedCombo,
+    TypeBookingModel? selectedTypeBooking,
     DateTime? selectedDate,
     DateTime? checkIn,
     DateTime? checkOut,
@@ -119,6 +102,7 @@ class BookingState {
     bool? isLoading,
     String? error,
     bool? isSuccess,
+    List<TypeBookingModel>? typeBookings,
     List<VoucherModel>? vouchers,
     Map<String, double>? prices,
     bool clearVoucher = false,
@@ -127,7 +111,7 @@ class BookingState {
   }) =>
       BookingState(
         room: room ?? this.room,
-        selectedCombo: selectedCombo ?? this.selectedCombo,
+        selectedTypeBooking: selectedTypeBooking ?? this.selectedTypeBooking,
         selectedDate: selectedDate ?? this.selectedDate,
         checkIn: checkIn ?? this.checkIn,
         checkOut: clearCheckOut ? null : (checkOut ?? this.checkOut),
@@ -137,6 +121,7 @@ class BookingState {
         isLoading: isLoading ?? this.isLoading,
         error: clearError ? null : (error ?? this.error),
         isSuccess: isSuccess ?? this.isSuccess,
+        typeBookings: typeBookings ?? this.typeBookings,
         vouchers: vouchers ?? this.vouchers,
         prices: prices ?? this.prices,
       );
@@ -158,7 +143,7 @@ class BookingNotifier extends StateNotifier<BookingState> {
     );
   }
 
-  /// Mở màn đặt phòng: reset form cũ, rồi tải bảng giá + voucher từ server
+  /// Mở màn đặt phòng: reset form cũ, rồi tải bảng giá + gói thuê + voucher từ server
   void setRoom(RoomModel room) {
     state = _initialState().copyWith(room: room);
     _loadPricesAndVouchers();
@@ -168,8 +153,28 @@ class BookingNotifier extends StateNotifier<BookingState> {
     try {
       final prices = await _service.getPrices();
       final vouchers = await _service.getVouchers();
+      final typeBookings = await _service.getTypeBookings();
       if (!mounted) return;
-      state = state.copyWith(prices: prices, vouchers: vouchers);
+
+      TypeBookingModel? initialCombo;
+      if (typeBookings.isNotEmpty) {
+        // Ưu tiên chọn combo 2h hoặc phần tử đầu tiên
+        initialCombo = typeBookings.firstWhere(
+          (tb) => tb.typeBookingId == 'TB_2H',
+          orElse: () => typeBookings.first,
+        );
+      }
+
+      state = state.copyWith(
+        prices: prices,
+        vouchers: vouchers,
+        typeBookings: typeBookings,
+        selectedTypeBooking: initialCombo,
+      );
+
+      if (initialCombo != null) {
+        selectTypeBooking(initialCombo);
+      }
     } catch (e) {
       if (!mounted) return;
       state = state.copyWith(
@@ -177,52 +182,51 @@ class BookingNotifier extends StateNotifier<BookingState> {
     }
   }
 
-  void setCombo(BookingComboType combo) {
+  void selectTypeBooking(TypeBookingModel combo) {
     final date = state.selectedDate;
     DateTime cin, cout;
 
-    switch (combo) {
-      case BookingComboType.day:
-        cin = DateTime(date.year, date.month, date.day, 7, 0);
-        cout = DateTime(date.year, date.month, date.day, 12, 0);
-        break;
-      case BookingComboType.night:
-        cin = DateTime(date.year, date.month, date.day, 23, 0);
-        cout = DateTime(date.year, date.month, date.day + 1, 7, 0);
-        break;
-      case BookingComboType.hourly:
-        // Giữ giờ đang chọn nhưng chuyển sang ngày đang chọn
-        final oldIn = state.checkIn ?? DateTime.now();
-        cin = DateTime(date.year, date.month, date.day, oldIn.hour, oldIn.minute);
-        final hours = state.selectedCombo == BookingComboType.hourly
-            ? _snapHours(state.selectedHours)
-            : 2;
-        cout = cin.add(Duration(hours: hours));
-        break;
+    final id = combo.typeBookingId.toUpperCase();
+    if (id == 'TB_DAY') {
+      cin = DateTime(date.year, date.month, date.day, 7, 0);
+      cout = DateTime(date.year, date.month, date.day, 12, 0);
+    } else if (id == 'TB_NIGHT') {
+      cin = DateTime(date.year, date.month, date.day, 23, 0);
+      cout = DateTime(date.year, date.month, date.day + 1, 7, 0);
+    } else {
+      final oldIn = state.checkIn ?? DateTime.now();
+      cin = DateTime(date.year, date.month, date.day, oldIn.hour, oldIn.minute);
+      final hours = combo.durationHours ?? 2;
+      cout = cin.add(Duration(hours: hours));
     }
 
     state = state.copyWith(
-      selectedCombo: combo,
+      selectedTypeBooking: combo,
       checkIn: cin,
       checkOut: cout,
     );
   }
 
   void setDate(DateTime date) {
-    final combo = state.selectedCombo;
+    final combo = state.selectedTypeBooking;
     state = state.copyWith(selectedDate: date);
-    // Re-apply combo logic với ngày mới
-    setCombo(combo);
+    if (combo != null) {
+      selectTypeBooking(combo);
+    }
   }
 
   void setCheckIn(DateTime time) {
-    // Chỉ cho phép thay đổi khi ở chế độ Theo giờ
-    if (state.selectedCombo != BookingComboType.hourly) return;
+    final combo = state.selectedTypeBooking;
+    if (combo == null) return;
+    
+    // Với gói cố định TB_DAY / TB_NIGHT, giờ nhận không đổi thủ công
+    final id = combo.typeBookingId.toUpperCase();
+    if (id == 'TB_DAY' || id == 'TB_NIGHT') return;
+
     final date = state.selectedDate;
     final newCheckIn =
         DateTime(date.year, date.month, date.day, time.hour, time.minute);
-    // Giữ nguyên số giờ đã chọn
-    final hours = _snapHours(state.selectedHours);
+    final hours = combo.durationHours ?? 2;
     state = state.copyWith(
       checkIn: newCheckIn,
       checkOut: newCheckIn.add(Duration(hours: hours)),
@@ -230,33 +234,27 @@ class BookingNotifier extends StateNotifier<BookingState> {
   }
 
   void setCheckOut(DateTime time) {
-    if (state.selectedCombo != BookingComboType.hourly) return;
+    final combo = state.selectedTypeBooking;
+    if (combo == null) return;
+    
+    final id = combo.typeBookingId.toUpperCase();
+    if (id == 'TB_DAY' || id == 'TB_NIGHT') return;
+
     final checkIn = state.checkIn;
     if (checkIn == null) return;
     DateTime picked = DateTime(
         checkIn.year, checkIn.month, checkIn.day, time.hour, time.minute);
-    // Nếu checkout <= checkin, thêm 1 ngày (qua đêm)
     if (!picked.isAfter(checkIn)) {
       picked = picked.add(const Duration(days: 1));
     }
-    // Làm tròn lên gói gần nhất (2h/4h/5h/6h) vì server tính giờ ra theo gói
-    final hours = _snapHours((picked.difference(checkIn).inMinutes / 60).ceil());
+    final hours = combo.durationHours ?? 2;
     state = state.copyWith(checkOut: checkIn.add(Duration(hours: hours)));
-  }
-
-  /// Chọn gói theo giờ nhỏ nhất mà vẫn đủ số giờ (tối đa 6h)
-  static int _snapHours(int hours) {
-    for (final h in hourlyTypeBookingIds.keys) {
-      if (h >= hours) return h;
-    }
-    return hourlyTypeBookingIds.keys.last;
   }
 
   void applyVoucher(VoucherModel voucher) {
     state = state.copyWith(appliedVoucher: voucher);
   }
 
-  /// Nhập mã tay: hỏi server. Trả về câu lỗi, hoặc null nếu áp dụng được.
   Future<String?> applyVoucherCode(String code) async {
     if (code.isEmpty) return 'Vui lòng nhập mã voucher';
     try {
@@ -280,7 +278,6 @@ class BookingNotifier extends StateNotifier<BookingState> {
     if (state.room == null || state.checkIn == null) return false;
     state = state.copyWith(isLoading: true, clearError: true);
     try {
-      // Giá, giờ ra, giảm giá: server tự tính lại, ở đây chỉ gửi để tham khảo
       final booking = BookingModel(
         roomId: state.room!.roomId,
         userId: userId,
@@ -313,15 +310,13 @@ final bookingProvider =
   return BookingNotifier(ref.read(bookingServiceProvider));
 });
 
-// ── Lịch sử đặt phòng của khách đang đăng nhập ─────────────────────────────────
-// Gọi ref.invalidate(myBookingsProvider) để tải lại (VD: sau khi huỷ).
+// ── Lịch sử đặt phòng ─────────────────────────────────────────────────────────
 final myBookingsProvider =
     FutureProvider.autoDispose<List<BookingModel>>((ref) async {
   final user = ref.watch(authProvider).user;
   if (user == null) return [];
   final list =
       await ref.read(bookingServiceProvider).getBookingsByUser(user.userId);
-  // Sắp xếp ngày nhận phòng tăng dần (ngày gần hơn đứng trước: 05/11 -> 10/11)
   list.sort((a, b) {
     final comp = a.checkIn.compareTo(b.checkIn);
     if (comp != 0) return comp;
@@ -340,7 +335,6 @@ final bookingDetailProvider =
 final staffBookingsProvider =
     FutureProvider.autoDispose<List<BookingModel>>((ref) async {
   final list = await ref.read(bookingServiceProvider).getAllBookings();
-  // Sắp xếp ngày nhận phòng tăng dần (ngày gần hơn đứng trước: 05/11 14:00 -> 05/11 19:00 -> 10/11)
   list.sort((a, b) {
     final comp = a.checkIn.compareTo(b.checkIn);
     if (comp != 0) return comp;

@@ -31,6 +31,8 @@ import '../screens/staff/staff_price_screen.dart';
 import '../screens/staff/staff_voucher_screen.dart';
 import '../screens/staff/staff_hotel_screen.dart';
 import '../screens/staff/staff_profile_screen.dart';
+import '../screens/staff/staff_movie_screen.dart';
+import '../screens/staff/staff_food_screen.dart';
 import '../providers/room_provider.dart';
 import '../models/room_model.dart';
 import '../models/review_eligible_booking_model.dart';
@@ -159,6 +161,14 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/staff/profile',
         builder: (_, __) => const StaffProfileScreen(),
+      ),
+      GoRoute(
+        path: '/staff/movies',
+        builder: (_, __) => const StaffMovieScreen(),
+      ),
+      GoRoute(
+        path: '/staff/food',
+        builder: (_, __) => const StaffFoodScreen(),
       ),
 
       // ── System Vouchers, Food Menu, Movies ────────────────────────────

@@ -7,6 +7,7 @@ import '../../../config/app_theme.dart';
 import '../../../models/food_menu_model.dart';
 import '../../../providers/food_provider.dart';
 import '../../../widgets/app_bottom_nav_bar.dart';
+import '../../../widgets/app_image.dart';
 
 class FoodMenuScreen extends ConsumerStatefulWidget {
   const FoodMenuScreen({super.key});
@@ -181,17 +182,12 @@ class _FoodMenuScreenState extends ConsumerState<FoodMenuScreen> {
       child: Row(
         children: [
           // Food Image
-          ClipRRect(
+          AppImage(
+            imageUrl: food.imageUrl,
+            width: 85,
+            height: 85,
+            fit: BoxFit.cover,
             borderRadius: BorderRadius.circular(12),
-            child: food.imageUrl != null && food.imageUrl!.isNotEmpty
-                ? Image.network(
-                    food.imageUrl!,
-                    width: 85,
-                    height: 85,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => _placeholder(),
-                  )
-                : _placeholder(),
           ),
           const SizedBox(width: 14),
           // Info

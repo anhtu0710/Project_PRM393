@@ -8,6 +8,7 @@ import '../../../models/room_model.dart';
 import '../../../providers/room_provider.dart';
 import '../../../providers/saved_rooms_provider.dart';
 import '../../../widgets/app_bottom_nav_bar.dart';
+import '../../../widgets/app_image.dart';
 
 class RoomDetailScreen extends ConsumerStatefulWidget {
   final String roomId;
@@ -148,17 +149,10 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen> {
                   ),
                 );
               }
-              return Image.network(
-                images[index],
+              return AppImage(
+                imageUrl: images[index],
                 fit: BoxFit.cover,
                 width: double.infinity,
-                errorBuilder: (_, __, ___) => Container(
-                  color: const Color(0xFFF0E8FF),
-                  child: const Center(
-                    child: Icon(Icons.broken_image_outlined,
-                        size: 48, color: Colors.grey),
-                  ),
-                ),
               );
             },
           ),

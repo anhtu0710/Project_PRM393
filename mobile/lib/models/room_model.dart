@@ -44,7 +44,7 @@ class HotelModel {
   });
 
   factory HotelModel.fromJson(Map<String, dynamic> json) => HotelModel(
-        hotelId: json['hotelId'] as String? ?? '',
+        hotelId: (json['hotelId'] as String? ?? '').trim(),
         name: json['name'] as String? ?? '',
         address: json['address'] as String? ?? '',
         phone: json['phone'] as String?,

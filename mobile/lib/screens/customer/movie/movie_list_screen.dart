@@ -7,6 +7,7 @@ import '../../../config/app_theme.dart';
 import '../../../models/movie_model.dart';
 import '../../../providers/movie_provider.dart';
 import '../../../widgets/app_bottom_nav_bar.dart';
+import '../../../widgets/app_image.dart';
 
 class MovieListScreen extends ConsumerStatefulWidget {
   const MovieListScreen({super.key});
@@ -156,13 +157,12 @@ class _MovieListScreenState extends ConsumerState<MovieListScreen> {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  movie.posterUrl != null && movie.posterUrl!.isNotEmpty
-                      ? Image.network(
-                          movie.posterUrl!,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => _posterPlaceholder(),
-                        )
-                      : _posterPlaceholder(),
+                  AppImage(
+                    imageUrl: movie.posterUrl,
+                    width: 100,
+                    height: 130,
+                    fit: BoxFit.cover,
+                  ),
                   Positioned(
                     top: 6,
                     left: 6,

@@ -28,4 +28,14 @@ class FoodMenuModel {
         description: json['description'] as String?,
         isAvailable: json['isAvailable'] as bool? ?? true,
       );
+
+  Map<String, dynamic> toJson() => {
+        if (foodId > 0) 'foodId': foodId,
+        'name': name,
+        'category': category,
+        'price': price,
+        if (imageUrl != null) 'imageUrl': imageUrl,
+        if (description != null) 'description': description,
+        'isAvailable': isAvailable,
+      };
 }

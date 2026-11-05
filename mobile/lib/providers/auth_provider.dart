@@ -50,8 +50,15 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   Future<void> _init() async {
-    final user = await _service.getCurrentUser();
+    final user = await _service.getMe();
     state = AuthState(user: user, isInitialized: true);
+  }
+
+  Future<void> refreshProfile() async {
+    final user = await _service.getMe();
+    if (user != null) {
+      state = state.copyWith(user: user);
+    }
   }
 
   Future<bool> login(String email, String password) async {
@@ -96,13 +103,25 @@ class AuthNotifier extends StateNotifier<AuthState> {
     state = const AuthState(isInitialized: true);
   }
 
-  void updateProfile({String? fullName, String? email}) {
-    if (state.user != null) {
-      final updatedUser = state.user!.copyWith(
-        fullName: fullName ?? state.user!.fullName,
-        email: email ?? state.user!.email,
+  Future<bool> updateProfile({
+    required String userId,
+    String? fullName,
+    String? email,
+    String? phone,
+  }) async {
+    state = state.copyWith(isLoading: true, clearError: true);
+    try {
+      final updatedUser = await _service.updateProfile(
+        userId: userId,
+        fullName: fullName,
+        email: email,
+        phone: phone,
       );
-      state = state.copyWith(user: updatedUser);
+      state = state.copyWith(user: updatedUser, isLoading: false);
+      return true;
+    } catch (e) {
+      state = state.copyWith(isLoading: false, error: e.toString());
+      return false;
     }
   }
 

@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'config/app_theme.dart';
 import 'config/router.dart';
+import 'providers/auth_provider.dart';
+import 'providers/notification_provider.dart';
 
 void main() {
   runApp(
@@ -18,6 +20,14 @@ class GenzCinemaApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.listen(authProvider, (previous, next) {
+      if (next.user != null) {
+        ref.read(notificationListProvider.notifier).loadNotifications(next.user!.userId);
+      } else {
+        ref.read(notificationListProvider.notifier).clear();
+      }
+    });
+
     final router = ref.watch(routerProvider);
 
     return MaterialApp.router(

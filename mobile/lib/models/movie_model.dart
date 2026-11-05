@@ -31,4 +31,15 @@ class MovieModel {
         description: json['description'] as String?,
         isHot: json['isHot'] as bool? ?? true,
       );
+
+  Map<String, dynamic> toJson() => {
+        if (movieId > 0) 'movieId': movieId,
+        'title': title,
+        'category': category,
+        'rating': rating,
+        'quality': quality,
+        if (posterUrl != null) 'posterUrl': posterUrl,
+        if (description != null) 'description': description,
+        'isHot': isHot,
+      };
 }
