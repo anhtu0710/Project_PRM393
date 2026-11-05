@@ -14,9 +14,9 @@
 	</parent>
 
 	<groupId>genZ</groupId>
-	<artifactId>PRM391GenZ</artifactId>
+	<artifactId>PRM393GenZ</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>PRM391GenZ</name>
+	<name>PRM393GenZ</name>
 	<description>Backend for GenZ Cinema Hotel</description>
 
 	<properties>

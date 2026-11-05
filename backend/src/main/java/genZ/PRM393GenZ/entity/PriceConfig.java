@@ -1,0 +1,30 @@
+package genZ.PRM393GenZ.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+import java.math.BigDecimal;
+
+@Entity
+@Table(name = "priceconfig")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class PriceConfig {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "PriceConfigId")
+    private Integer priceConfigId;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "TypeRoomId", nullable = false)
+    private TypeRoom typeRoom;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "TypeBookingId", nullable = false)
+    private TypeBooking typeBooking;
+
+    @Column(name = "Price", nullable = false, precision = 18, scale = 2)
+    private BigDecimal price;
+}

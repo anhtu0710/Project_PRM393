@@ -33,7 +33,7 @@ BƯỚC 3: CẤU HÌNH BIẾN MÔI TRƯỜNG TRÊN RENDER.COM
 2. Truy cập https://render.com ➔ Tạo "Web Service" chọn Repository `backend`.
 3. Điền thông số Build:
    - Build Command: ./mvnw clean package -DskipTests
-   - Start Command: java -jar target/PRM391GenZ-0.0.1-SNAPSHOT.jar
+   - Start Command: java -jar target/PRM393GenZ-0.0.1-SNAPSHOT.jar
 4. Vào mục "Environment Variables" trên Render ➔ Bấm "Add Environment Variable" điền 3 dòng:
 
    Biến 1:
