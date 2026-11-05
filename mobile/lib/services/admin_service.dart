@@ -49,10 +49,13 @@ class AdminService {
         queryParameters: {'locked': locked});
   }
 
-  /// Thống kê: period là 'day', 'week' hoặc 'month'
-  Future<AdminStatsModel> getStats(String period) async {
-    final response =
-        await _dio.get('/admin/stats', queryParameters: {'period': period});
+  /// Thống kê: period là 'day', 'week', 'month' hoặc tùy chọn startDate, endDate
+  Future<AdminStatsModel> getStats({String? period, DateTime? startDate, DateTime? endDate}) async {
+    final response = await _dio.get('/admin/stats', queryParameters: {
+      if (period != null) 'period': period,
+      if (startDate != null) 'startDate': startDate.toIso8601String().split('T').first,
+      if (endDate != null) 'endDate': endDate.toIso8601String().split('T').first,
+    });
     return AdminStatsModel.fromJson(
         response.data['data'] as Map<String, dynamic>);
   }

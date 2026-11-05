@@ -13,8 +13,31 @@ final adminUsersProvider =
   return ref.read(adminServiceProvider).getUsers();
 });
 
-// Thống kê theo khoảng: 'day' | 'week' | 'month'
+class StatsQuery {
+  final String? period;
+  final DateTime? startDate;
+  final DateTime? endDate;
+
+  const StatsQuery({this.period, this.startDate, this.endDate});
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is StatsQuery &&
+          period == other.period &&
+          startDate == other.startDate &&
+          endDate == other.endDate;
+
+  @override
+  int get hashCode => Object.hash(period, startDate, endDate);
+}
+
+// Thống kê theo khoảng: period hoặc tùy chọn startDate & endDate
 final adminStatsProvider =
-    FutureProvider.autoDispose.family<AdminStatsModel, String>((ref, period) {
-  return ref.read(adminServiceProvider).getStats(period);
+    FutureProvider.autoDispose.family<AdminStatsModel, StatsQuery>((ref, query) {
+  return ref.read(adminServiceProvider).getStats(
+        period: query.period,
+        startDate: query.startDate,
+        endDate: query.endDate,
+      );
 });

@@ -10,10 +10,12 @@ import genZ.PRM393GenZ.repository.RoleRepository;
 import genZ.PRM393GenZ.repository.UserRepository;
 import genZ.PRM393GenZ.service.StatsService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -94,8 +96,10 @@ public class AdminController {
     // GET /api/admin/stats?period=day|week|month
     @GetMapping("/stats")
     public ResponseEntity<ApiResponse<AdminStatsResponse>> getStats(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @RequestParam(defaultValue = "day") String period) {
-        return ResponseEntity.ok(ApiResponse.success("Thống kê", statsService.getStats(period)));
+        return ResponseEntity.ok(ApiResponse.success("Thống kê", statsService.getStats(startDate, endDate, period)));
     }
 
     // ── Hàm phụ ─────────────────────────────────────────────────────────────
