@@ -55,6 +55,34 @@ class AuthService {
     }
   }
 
+  // ─── Update Profile ───────────────────────────────────────────────────
+
+  Future<UserModel> updateProfile({
+    required String userId,
+    String? fullName,
+    String? email,
+    String? phone,
+  }) async {
+    try {
+      final response = await _dio.put('/auth/profile/$userId', data: {
+        if (fullName != null && fullName.isNotEmpty) 'fullName': fullName,
+        if (email != null && email.isNotEmpty) 'email': email,
+        if (phone != null && phone.isNotEmpty) 'phone': phone,
+      });
+
+      final data = response.data['data'];
+      final token = await _storage.read(key: AppConfig.tokenKey) ?? '';
+      final updatedUser = UserModel.fromJson(data, token);
+
+      await _storage.write(
+          key: AppConfig.userKey, value: jsonEncode(updatedUser.toJson()));
+
+      return updatedUser;
+    } on DioException catch (e) {
+      throw _parseError(e);
+    }
+  }
+
   // ─── Logout ───────────────────────────────────────────────────────────
 
   Future<void> logout() async {
@@ -110,7 +138,22 @@ class AuthService {
     }
   }
 
-  // ─── Get Current User from storage ────────────────────────────────────
+  // ─── Get Current User from server / storage ────────────────────────────
+
+  Future<UserModel?> getMe() async {
+    try {
+      final response = await _dio.get('/auth/me');
+      final data = response.data['data'];
+      final token = await _storage.read(key: AppConfig.tokenKey) ?? '';
+      final user = UserModel.fromJson(data, token);
+
+      await _storage.write(
+          key: AppConfig.userKey, value: jsonEncode(user.toJson()));
+      return user;
+    } catch (_) {
+      return getCurrentUser();
+    }
+  }
 
   Future<UserModel?> getCurrentUser() async {
     final userJson = await _storage.read(key: AppConfig.userKey);

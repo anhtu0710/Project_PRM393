@@ -15,6 +15,7 @@ import '../../providers/movie_provider.dart';
 import '../../providers/notification_provider.dart';
 import '../../providers/room_provider.dart';
 import '../../widgets/app_bottom_nav_bar.dart';
+import '../../widgets/app_image.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -51,6 +52,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       if (user != null) {
         ref.read(notificationListProvider.notifier).loadNotifications(user.userId);
       }
+      ref.read(foodMenuListProvider.notifier).loadFoodMenu();
+      ref.read(movieListProvider.notifier).loadMovies();
     });
 
     _bannerTimer = Timer.periodic(const Duration(seconds: 3), (_) {
@@ -155,7 +158,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final notifState = ref.watch(notificationListProvider);
 
     final selectedHotel = hotelState.hotels.firstWhere(
-      (h) => h.hotelId == _selectedHotelId,
+      (h) => h.hotelId.trim().toLowerCase() == _selectedHotelId?.trim().toLowerCase(),
       orElse: () => const HotelModel(hotelId: '', name: 'Tất cả cơ sở', address: ''),
     );
 
@@ -513,17 +516,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               clipBehavior: Clip.hardEdge,
               child: Row(
                 children: [
-                  ClipRRect(
+                  AppImage(
+                    imageUrl: movie.posterUrl,
+                    width: 90,
+                    height: double.infinity,
+                    fit: BoxFit.cover,
                     borderRadius: const BorderRadius.horizontal(left: Radius.circular(14)),
-                    child: movie.posterUrl != null && movie.posterUrl!.isNotEmpty
-                        ? Image.network(
-                            movie.posterUrl!,
-                            width: 90,
-                            height: double.infinity,
-                            fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => _posterPlaceholder(),
-                          )
-                        : _posterPlaceholder(),
                   ),
                   Expanded(
                     child: Padding(
@@ -606,9 +604,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       );
     }
 
-    final displayRooms = _selectedHotelId == null
+    final displayRooms = _selectedHotelId == null || _selectedHotelId!.isEmpty
         ? roomState.rooms
-        : roomState.rooms.where((r) => r.hotel?.hotelId == _selectedHotelId).toList();
+        : roomState.rooms
+            .where((r) =>
+                r.hotel?.hotelId.trim().toLowerCase() ==
+                _selectedHotelId!.trim().toLowerCase())
+            .toList();
 
     if (roomState.error != null || displayRooms.isEmpty) {
       return Container(
@@ -666,13 +668,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     child: Stack(
                       fit: StackFit.expand,
                       children: [
-                        room.imageUrl != null && room.imageUrl!.isNotEmpty
-                            ? Image.network(
-                                room.imageUrl!,
-                                fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) => _buildImagePlaceholder(),
-                              )
-                            : _buildImagePlaceholder(),
+                        AppImage(
+                          imageUrl: room.imageUrl,
+                          fit: BoxFit.cover,
+                        ),
                         Positioned(
                           top: 8,
                           left: 8,
@@ -827,17 +826,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ),
               child: Row(
                 children: [
-                  ClipRRect(
+                  AppImage(
+                    imageUrl: food.imageUrl,
+                    width: 65,
+                    height: 65,
+                    fit: BoxFit.cover,
                     borderRadius: BorderRadius.circular(10),
-                    child: food.imageUrl != null && food.imageUrl!.isNotEmpty
-                        ? Image.network(
-                            food.imageUrl!,
-                            width: 65,
-                            height: 65,
-                            fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => _foodIconPlaceholder(),
-                          )
-                        : _foodIconPlaceholder(),
                   ),
                   const SizedBox(width: 10),
                   Expanded(

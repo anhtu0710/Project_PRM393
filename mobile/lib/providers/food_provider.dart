@@ -54,4 +54,37 @@ class FoodMenuNotifier extends StateNotifier<FoodMenuState> {
       );
     }
   }
+
+  Future<bool> createItem(FoodMenuModel item) async {
+    try {
+      await _service.createFoodMenu(item);
+      await loadFoodMenu();
+      return true;
+    } catch (e) {
+      state = state.copyWith(error: e.toString());
+      return false;
+    }
+  }
+
+  Future<bool> updateItem(int id, FoodMenuModel item) async {
+    try {
+      await _service.updateFoodMenu(id, item);
+      await loadFoodMenu();
+      return true;
+    } catch (e) {
+      state = state.copyWith(error: e.toString());
+      return false;
+    }
+  }
+
+  Future<bool> deleteItem(int id) async {
+    try {
+      await _service.deleteFoodMenu(id);
+      await loadFoodMenu();
+      return true;
+    } catch (e) {
+      state = state.copyWith(error: e.toString());
+      return false;
+    }
+  }
 }

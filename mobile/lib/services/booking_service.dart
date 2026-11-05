@@ -106,4 +106,13 @@ class BookingService {
     }
     return result;
   }
+
+  /// Lấy danh sách gói thuê (TypeBooking) động từ server
+  Future<List<TypeBookingModel>> getTypeBookings() async {
+    final response = await _dio.get('/type-bookings');
+    final data = response.data['data'] as List<dynamic>;
+    return data
+        .map((e) => TypeBookingModel.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
 }

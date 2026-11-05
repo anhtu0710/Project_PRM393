@@ -7,10 +7,26 @@ import '../config/app_theme.dart';
 import '../providers/auth_provider.dart';
 import '../providers/notification_provider.dart';
 
-class AppBottomNavBar extends ConsumerWidget {
+class AppBottomNavBar extends ConsumerStatefulWidget {
   final int currentIndex;
 
   const AppBottomNavBar({super.key, required this.currentIndex});
+
+  @override
+  ConsumerState<AppBottomNavBar> createState() => _AppBottomNavBarState();
+}
+
+class _AppBottomNavBarState extends ConsumerState<AppBottomNavBar> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final user = ref.read(authProvider).user;
+      if (user != null) {
+        ref.read(notificationListProvider.notifier).loadNotifications(user.userId);
+      }
+    });
+  }
 
   static const _items = [
     {
@@ -40,7 +56,7 @@ class AppBottomNavBar extends ConsumerWidget {
       _showAccountSheet(context, ref);
       return;
     }
-    if (index == currentIndex) return;
+    if (index == widget.currentIndex) return;
     final routes = ['/home', '/saved', '/rooms'];
     context.go(routes[index]);
   }
@@ -172,7 +188,7 @@ class AppBottomNavBar extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final notifState = ref.watch(notificationListProvider);
     final hasUnread = notifState.unreadCount > 0;
 
@@ -194,7 +210,7 @@ class AppBottomNavBar extends ConsumerWidget {
           padding: const EdgeInsets.symmetric(vertical: 8),
           child: Row(
             children: List.generate(_items.length, (index) {
-              final bool isSelected = index == currentIndex;
+              final bool isSelected = index == widget.currentIndex;
               final item = _items[index];
 
               return Expanded(

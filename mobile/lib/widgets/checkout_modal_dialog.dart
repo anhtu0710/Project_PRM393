@@ -11,6 +11,7 @@ import '../providers/food_provider.dart';
 import '../providers/room_provider.dart';
 import '../screens/customer/booking/booking_ui.dart';
 import '../services/booking_service.dart';
+import 'app_image.dart';
 
 class CheckoutModalDialog extends ConsumerStatefulWidget {
   final BookingModel booking;
@@ -262,20 +263,12 @@ class _CheckoutModalDialogState extends ConsumerState<CheckoutModalDialog> {
 
                               return Row(
                                 children: [
-                                  ClipRRect(
+                                  AppImage(
+                                    imageUrl: item.imageUrl,
+                                    width: 42,
+                                    height: 42,
+                                    fit: BoxFit.cover,
                                     borderRadius: BorderRadius.circular(8),
-                                    child: Image.network(
-                                      item.imageUrl ?? '',
-                                      width: 42,
-                                      height: 42,
-                                      fit: BoxFit.cover,
-                                      errorBuilder: (_, __, ___) => Container(
-                                        width: 42,
-                                        height: 42,
-                                        color: Colors.purple.shade50,
-                                        child: const Icon(Icons.restaurant, color: AppTheme.primary, size: 20),
-                                      ),
-                                    ),
                                   ),
                                   const SizedBox(width: 10),
                                   Expanded(

@@ -54,4 +54,37 @@ class MovieListNotifier extends StateNotifier<MovieListState> {
       );
     }
   }
+
+  Future<bool> createMovie(MovieModel movie) async {
+    try {
+      await _service.createMovie(movie);
+      await loadMovies();
+      return true;
+    } catch (e) {
+      state = state.copyWith(error: e.toString());
+      return false;
+    }
+  }
+
+  Future<bool> updateMovie(int id, MovieModel movie) async {
+    try {
+      await _service.updateMovie(id, movie);
+      await loadMovies();
+      return true;
+    } catch (e) {
+      state = state.copyWith(error: e.toString());
+      return false;
+    }
+  }
+
+  Future<bool> deleteMovie(int id) async {
+    try {
+      await _service.deleteMovie(id);
+      await loadMovies();
+      return true;
+    } catch (e) {
+      state = state.copyWith(error: e.toString());
+      return false;
+    }
+  }
 }

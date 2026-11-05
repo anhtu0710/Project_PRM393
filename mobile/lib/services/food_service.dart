@@ -22,4 +22,18 @@ class FoodService {
     }
     return [];
   }
+
+  Future<FoodMenuModel> createFoodMenu(FoodMenuModel item) async {
+    final response = await _dio.post('/food-menu', data: item.toJson());
+    return FoodMenuModel.fromJson(response.data['data'] as Map<String, dynamic>);
+  }
+
+  Future<FoodMenuModel> updateFoodMenu(int id, FoodMenuModel item) async {
+    final response = await _dio.put('/food-menu/$id', data: item.toJson());
+    return FoodMenuModel.fromJson(response.data['data'] as Map<String, dynamic>);
+  }
+
+  Future<void> deleteFoodMenu(int id) async {
+    await _dio.delete('/food-menu/$id');
+  }
 }

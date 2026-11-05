@@ -26,4 +26,18 @@ class MovieService {
       return [];
     }
   }
+
+  Future<MovieModel> createMovie(MovieModel movie) async {
+    final response = await _dio.post('/movies', data: movie.toJson());
+    return MovieModel.fromJson(response.data['data'] as Map<String, dynamic>);
+  }
+
+  Future<MovieModel> updateMovie(int id, MovieModel movie) async {
+    final response = await _dio.put('/movies/$id', data: movie.toJson());
+    return MovieModel.fromJson(response.data['data'] as Map<String, dynamic>);
+  }
+
+  Future<void> deleteMovie(int id) async {
+    await _dio.delete('/movies/$id');
+  }
 }
