@@ -189,9 +189,6 @@ class _AppBottomNavBarState extends ConsumerState<AppBottomNavBar> {
 
   @override
   Widget build(BuildContext context) {
-    final notifState = ref.watch(notificationListProvider);
-    final hasUnread = notifState.unreadCount > 0;
-
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -236,22 +233,7 @@ class _AppBottomNavBarState extends ConsumerState<AppBottomNavBar> {
                             else
                               Icon(item['icon'] as IconData,
                                   color: AppTheme.textGray, size: 24),
-                            if (index == 3 && hasUnread) // Badge for Account tab
-                              Positioned(
-                                right: -2,
-                                top: -2,
-                                child: Container(
-                                  padding: const EdgeInsets.all(4),
-                                  decoration: const BoxDecoration(
-                                    color: Colors.red,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  constraints: const BoxConstraints(
-                                    minWidth: 10,
-                                    minHeight: 10,
-                                  ),
-                                ),
-                              ),
+
                           ],
                         ),
                         const SizedBox(height: 4),
