@@ -32,7 +32,7 @@ class _StaffProfileScreenState extends ConsumerState<StaffProfileScreen> {
     final user = ref.read(authProvider).user;
     _initialName = user?.fullName ?? '';
     _initialEmail = user?.email ?? '';
-    _initialPhone = '0987654321';
+    _initialPhone = user?.phone ?? '';
 
     _nameController = TextEditingController(text: _initialName);
     _emailController = TextEditingController(text: _initialEmail);
@@ -147,10 +147,28 @@ class _StaffProfileScreenState extends ConsumerState<StaffProfileScreen> {
     }
   }
 
+  void _syncControllersWithUser(UserModel? user) {
+    if (!_isEditing && user != null) {
+      if (_nameController.text != user.fullName) {
+        _nameController.text = user.fullName;
+        _initialName = user.fullName;
+      }
+      if (_emailController.text != user.email) {
+        _emailController.text = user.email;
+        _initialEmail = user.email;
+      }
+      if (_phoneController.text != (user.phone ?? '')) {
+        _phoneController.text = user.phone ?? '';
+        _initialPhone = user.phone ?? '';
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
     final user = authState.user;
+    _syncControllersWithUser(user);
 
     final branchName = user?.hotelName != null && user!.hotelName!.isNotEmpty
         ? user.hotelName!
@@ -403,7 +421,10 @@ class _StaffProfileScreenState extends ConsumerState<StaffProfileScreen> {
                           'Lưu thay đổi',
                           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
                         ),
-                        onPressed: () {
+                        onPressed: () async {
+                          final currentUser = ref.read(authProvider).user;
+                          if (currentUser == null) return;
+
                           final currentName = _nameController.text.trim();
                           final currentEmail = _emailController.text.trim();
                           final currentPhone = _phoneController.text.trim();
@@ -426,23 +447,38 @@ class _StaffProfileScreenState extends ConsumerState<StaffProfileScreen> {
                             return;
                           }
 
-                          ref.read(authProvider.notifier).updateProfile(
+                          final success = await ref.read(authProvider.notifier).updateProfile(
+                                userId: currentUser.userId,
                                 fullName: currentName,
                                 email: currentEmail,
+                                phone: currentPhone,
                               );
-                          setState(() {
-                            _initialName = currentName;
-                            _initialEmail = currentEmail;
-                            _initialPhone = currentPhone;
-                            _isEditing = false;
-                          });
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Đã cập nhật thông tin cá nhân thành công!'),
-                              backgroundColor: AppTheme.primary,
-                              duration: Duration(seconds: 2),
-                            ),
-                          );
+                          if (mounted) {
+                            if (success) {
+                              setState(() {
+                                _initialName = currentName;
+                                _initialEmail = currentEmail;
+                                _initialPhone = currentPhone;
+                                _isEditing = false;
+                              });
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Đã cập nhật thông tin cá nhân thành công!'),
+                                  backgroundColor: AppTheme.primary,
+                                  duration: Duration(seconds: 2),
+                                ),
+                              );
+                            } else {
+                              final err = ref.read(authProvider).error ?? 'Cập nhật thất bại';
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(err),
+                                  backgroundColor: Colors.red,
+                                  duration: const Duration(seconds: 2),
+                                ),
+                              );
+                            }
+                          }
                         },
                       ),
                     ),

@@ -235,17 +235,16 @@ class StaffHomeScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 24),
 
-            // ── Section 1: Operations ──────────────────────────────────────
+            // ── Phần 1: Vận hành phòng & Khách hàng (3 items: 2 top + 1 full-width bottom) ──
             _buildSectionTitle('VẬN HÀNH PHÒNG & KHÁCH HÀNG'),
             const SizedBox(height: 12),
-
             Row(
               children: [
                 Expanded(
                   child: _buildMenuCard(
                     context,
                     title: 'Duyệt Booking',
-                    subtitle: 'Duyệt, Check-in / Check-out',
+                    subtitle: 'Duyệt & Check-in / Out',
                     icon: Icons.bookmark_added_rounded,
                     gradient: AppTheme.primaryGradient,
                     onTap: () => context.push('/staff/bookings'),
@@ -255,69 +254,80 @@ class StaffHomeScreen extends ConsumerWidget {
                 Expanded(
                   child: _buildMenuCard(
                     context,
-                    title: 'Sơ Đồ & Quản Lý Phòng',
-                    subtitle: 'Sơ đồ Realtime & Danh sách phòng',
+                    title: 'Sơ Đồ Phòng',
+                    subtitle: 'Sơ đồ Realtime & Danh sách',
                     icon: Icons.grid_view_rounded,
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF10B981), Color(0xFF059669)],
-                    ),
+                    gradient: const LinearGradient(colors: [Color(0xFF10B981), Color(0xFF059669)]),
                     onTap: () => context.push('/staff/room-map'),
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 12),
-
-            Row(
-              children: [
-                Expanded(
-                  child: _buildMenuCard(
-                    context,
-                    title: 'Quản Lý Chi Nhánh',
-                    subtitle: 'Danh sách 9 cơ sở GenZ Cinema',
-                    icon: Icons.storefront_rounded,
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF3B82F6), Color(0xFF1D4ED8)],
-                    ),
-                    onTap: () => context.push('/staff/hotels'),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                const Expanded(child: SizedBox()),
-              ],
+            _buildWideMenuCard(
+              context,
+              title: 'Quản Lý Chi Nhánh',
+              subtitle: 'Danh sách và thông tin 9 cơ sở GenZ Cinema',
+              icon: Icons.storefront_rounded,
+              gradient: const LinearGradient(colors: [Color(0xFF3B82F6), Color(0xFF1D4ED8)]),
+              onTap: () => context.push('/staff/hotels'),
             ),
             const SizedBox(height: 24),
 
-            // ── Section 2: Services & Config ──────────────────────────────
+            // ── Phần 2: Cấu hình bảng giá & Dịch vụ (4 items: 2x2 grid) ───────
             _buildSectionTitle('CẤU HÌNH BẢNG GIÁ & DỊCH VỤ'),
             const SizedBox(height: 12),
-
-            Row(
-              children: [
-                Expanded(
-                  child: _buildMenuCard(
-                    context,
-                    title: 'Bảng Giá Gói Thuê',
-                    subtitle: 'Cấu hình giá Combo 2h/4h/Đêm',
-                    icon: Icons.sell_rounded,
-                    gradient: AppTheme.goldGradient,
-                    onTap: () => context.push('/staff/prices'),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _buildMenuCard(
-                    context,
-                    title: 'Voucher Khuyến Mãi',
-                    subtitle: 'Mã giảm giá hệ thống',
-                    icon: Icons.confirmation_number_rounded,
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFFEC4899), Color(0xFFBE185D)],
-                    ),
-                    onTap: () => context.push('/staff/vouchers'),
-                  ),
-                ),
-              ],
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: 4,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+                childAspectRatio: 1.32,
+              ),
+              itemBuilder: (context, index) {
+                final items = [
+                  {
+                    'title': 'Quản Lý Phim Hot',
+                    'subtitle': 'Thêm, sửa, xóa phim chiếu',
+                    'icon': Icons.movie_rounded,
+                    'gradient': const LinearGradient(colors: [Color(0xFF8B5CF6), Color(0xFF6D28D9)]),
+                    'route': '/staff/movies',
+                  },
+                  {
+                    'title': 'Quản Lý F&B Menu',
+                    'subtitle': 'Đồ ăn & Thức uống',
+                    'icon': Icons.restaurant_menu_rounded,
+                    'gradient': const LinearGradient(colors: [Color(0xFFF59E0B), Color(0xFFD97706)]),
+                    'route': '/staff/food',
+                  },
+                  {
+                    'title': 'Bảng Giá Gói Thuê',
+                    'subtitle': 'Cấu hình giá Combo',
+                    'icon': Icons.sell_rounded,
+                    'gradient': AppTheme.goldGradient,
+                    'route': '/staff/prices',
+                  },
+                  {
+                    'title': 'Voucher Khuyến Mãi',
+                    'subtitle': 'Mã giảm giá hệ thống',
+                    'icon': Icons.confirmation_number_rounded,
+                    'gradient': const LinearGradient(colors: [Color(0xFFEC4899), Color(0xFFBE185D)]),
+                    'route': '/staff/vouchers',
+                  },
+                ];
+                final item = items[index];
+                return _buildMenuCard(
+                  context,
+                  title: item['title'] as String,
+                  subtitle: item['subtitle'] as String,
+                  icon: item['icon'] as IconData,
+                  gradient: item['gradient'] as LinearGradient,
+                  onTap: () => context.push(item['route'] as String),
+                );
+              },
             ),
             const SizedBox(height: 20),
           ],
@@ -402,7 +412,7 @@ class StaffHomeScreen extends ConsumerWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
@@ -417,6 +427,81 @@ class StaffHomeScreen extends ConsumerWidget {
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(9),
+              decoration: BoxDecoration(
+                gradient: gradient,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: gradient.colors.first.withOpacity(0.3),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Icon(icon, size: 20, color: Colors.white),
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                    color: AppTheme.textPrimary,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: AppTheme.textGray,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildWideMenuCard(
+    BuildContext context, {
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required LinearGradient gradient,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppTheme.cardBorder),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.03),
+              blurRadius: 8,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(10),
@@ -433,25 +518,31 @@ class StaffHomeScreen extends ConsumerWidget {
               ),
               child: Icon(icon, size: 22, color: Colors.white),
             ),
-            const SizedBox(height: 14),
-            Text(
-              title,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 14,
-                color: AppTheme.textPrimary,
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                      color: AppTheme.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: AppTheme.textGray,
+                    ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 4),
-            Text(
-              subtitle,
-              style: const TextStyle(
-                fontSize: 11,
-                color: AppTheme.textGray,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
+            const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: Colors.grey),
           ],
         ),
       ),

@@ -4,6 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../models/room_model.dart';
+import '../../providers/auth_provider.dart';
 import '../../providers/hotel_provider.dart';
 
 class StaffHotelScreen extends ConsumerStatefulWidget {
@@ -17,6 +18,11 @@ class _StaffHotelScreenState extends ConsumerState<StaffHotelScreen> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(hotelListProvider);
+    final authState = ref.watch(authProvider);
+
+    final currentUser = authState.user;
+    final isAdmin = currentUser?.role.toUpperCase() == 'ADMIN';
+    final staffHotelId = currentUser?.hotelId;
 
     return Scaffold(
       appBar: AppBar(
@@ -30,57 +36,127 @@ class _StaffHotelScreenState extends ConsumerState<StaffHotelScreen> {
       ),
       body: state.isLoading
           ? const Center(child: CircularProgressIndicator())
-          : state.hotels.isEmpty
-              ? const Center(child: Text('Chưa có chi nhánh nào'))
-              : ListView.builder(
-                  padding: const EdgeInsets.all(12),
-                  itemCount: state.hotels.length,
-                  itemBuilder: (context, index) {
-                    final hotel = state.hotels[index];
-                    return Card(
-                      margin: const EdgeInsets.only(bottom: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+          : state.error != null
+              ? Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.error_outline, size: 48, color: Colors.redAccent),
+                        const SizedBox(height: 12),
+                        Text(
+                          'Lỗi tải chi nhánh:\n${state.error}',
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(color: Colors.redAccent, fontSize: 14),
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF9462FF)),
+                          icon: const Icon(Icons.refresh, color: Colors.white),
+                          label: const Text('Thử lại', style: TextStyle(color: Colors.white)),
+                          onPressed: () => ref.read(hotelListProvider.notifier).loadHotels(),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              : state.hotels.isEmpty
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text('Chưa có chi nhánh nào trong hệ thống', style: TextStyle(color: Colors.grey)),
+                          const SizedBox(height: 12),
+                          ElevatedButton(
+                            onPressed: () => ref.read(hotelListProvider.notifier).loadHotels(),
+                            child: const Text('Tải lại'),
+                          ),
+                        ],
                       ),
-                      elevation: 2,
-                      child: ListTile(
-                        contentPadding: const EdgeInsets.all(12),
-                        leading: CircleAvatar(
-                          backgroundColor: Colors.indigo.shade100,
-                          child: const Icon(Icons.store, color: Colors.indigo),
-                        ),
-                        title: Text(
-                          hotel.name,
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const SizedBox(height: 4),
-                            Text('Mã: ${hotel.hotelId}'),
-                            Text('Địa chỉ: ${hotel.address}'),
-                            if (hotel.phone != null) Text('SĐT: ${hotel.phone}'),
-                          ],
-                        ),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.edit, color: Colors.blue),
-                              onPressed: () => _showHotelDialog(hotel: hotel),
+                    )
+                  : ListView.builder(
+                      padding: const EdgeInsets.all(12),
+                      itemCount: state.hotels.length,
+                      itemBuilder: (context, index) {
+                        final hotel = state.hotels[index];
+                        final canEdit = isAdmin || (staffHotelId != null && hotel.hotelId == staffHotelId);
+
+                        return Card(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 2,
+                          child: ListTile(
+                            contentPadding: const EdgeInsets.all(12),
+                            leading: CircleAvatar(
+                              backgroundColor: Colors.indigo.shade100,
+                              child: const Icon(Icons.store, color: Colors.indigo),
                             ),
-                            IconButton(
-                              icon: const Icon(Icons.delete, color: Colors.red),
-                              onPressed: () => _confirmDelete(hotel.hotelId),
+                            title: Text(
+                              hotel.name,
+                              style: const TextStyle(fontWeight: FontWeight.bold),
                             ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(height: 4),
+                                Text('Mã: ${hotel.hotelId}'),
+                                Text('Địa chỉ: ${hotel.address}'),
+                                if (hotel.phone != null) Text('SĐT: ${hotel.phone}'),
+                                if (!canEdit)
+                                  const Text(
+                                    '🔒 Khóa chỉnh sửa (Không thuộc cơ sở phân công)',
+                                    style: TextStyle(fontSize: 11, color: Colors.redAccent, fontStyle: FontStyle.italic),
+                                  ),
+                              ],
+                            ),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                IconButton(
+                                  icon: Icon(Icons.edit, color: canEdit ? Colors.blue : Colors.grey),
+                                  tooltip: canEdit ? 'Sửa chi nhánh' : 'Chỉ được sửa chi nhánh được phân công',
+                                  onPressed: () {
+                                    if (!canEdit) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(content: Text('Bạn chỉ có quyền chỉnh sửa chi nhánh được phân công (${currentUser?.hotelName ?? ''}).')),
+                                      );
+                                      return;
+                                    }
+                                    _showHotelDialog(hotel: hotel);
+                                  },
+                                ),
+                                IconButton(
+                                  icon: Icon(Icons.delete, color: canEdit ? Colors.red : Colors.grey),
+                                  tooltip: canEdit ? 'Xóa chi nhánh' : 'Chỉ được xóa chi nhánh được phân công',
+                                  onPressed: () {
+                                    if (!canEdit) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(content: Text('Bạn chỉ có quyền xóa chi nhánh được phân công.')),
+                                      );
+                                      return;
+                                    }
+                                    _confirmDelete(hotel.hotelId);
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _showHotelDialog(),
+        onPressed: () {
+          if (!isAdmin && staffHotelId == null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Tài khoản nhân viên chưa được gán cơ sở, không thể thêm chi nhánh.')),
+            );
+            return;
+          }
+          _showHotelDialog();
+        },
         child: const Icon(Icons.add),
       ),
     );

@@ -3,20 +3,29 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../config/app_config.dart';
+import '../../config/app_theme.dart';
 import '../../models/booking_model.dart';
 import '../../providers/booking_provider.dart';
 import '../../widgets/checkout_modal_dialog.dart';
 
-class StaffBookingScreen extends ConsumerWidget {
+class StaffBookingScreen extends ConsumerStatefulWidget {
   const StaffBookingScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<StaffBookingScreen> createState() => _StaffBookingScreenState();
+}
+
+class _StaffBookingScreenState extends ConsumerState<StaffBookingScreen> {
+  String _searchQuery = '';
+
+  @override
+  Widget build(BuildContext context) {
     final bookingsAsync = ref.watch(staffBookingsProvider);
 
     return DefaultTabController(
       length: 5,
       child: Scaffold(
+        backgroundColor: AppTheme.surface,
         appBar: AppBar(
           title: const Text('Duyệt & Vận hành Booking'),
           actions: [
@@ -25,15 +34,43 @@ class StaffBookingScreen extends ConsumerWidget {
               onPressed: () => ref.invalidate(staffBookingsProvider),
             ),
           ],
-          bottom: const TabBar(
-            isScrollable: true,
-            tabs: [
-              Tab(text: 'Chờ duyệt'),
-              Tab(text: 'Đã xác nhận'),
-              Tab(text: 'Đã Check-in'),
-              Tab(text: 'Đã xong'),
-              Tab(text: 'Đã hủy / Từ chối'),
-            ],
+          bottom: PreferredSize(
+            preferredSize: const Size.fromHeight(105),
+            child: Column(
+              children: [
+                // Thanh Search
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: TextField(
+                    decoration: InputDecoration(
+                      hintText: 'Tìm theo SĐT khách, tên phòng, mã đơn...',
+                      prefixIcon: const Icon(Icons.search, color: AppTheme.primary),
+                      filled: true,
+                      fillColor: Colors.white,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                    onChanged: (val) => setState(() => _searchQuery = val.trim().toLowerCase()),
+                  ),
+                ),
+                const TabBar(
+                  isScrollable: true,
+                  labelColor: AppTheme.primary,
+                  unselectedLabelColor: AppTheme.textGray,
+                  indicatorColor: AppTheme.primary,
+                  tabs: [
+                    Tab(text: 'Chờ duyệt'),
+                    Tab(text: 'Đã xác nhận'),
+                    Tab(text: 'Đã Check-in'),
+                    Tab(text: 'Đã xong'),
+                    Tab(text: 'Đã hủy / Từ chối'),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
         body: bookingsAsync.when(
@@ -52,19 +89,29 @@ class StaffBookingScreen extends ConsumerWidget {
             ),
           ),
           data: (bookings) {
-            final pendingList = bookings
+            final filtered = bookings.where((b) {
+              if (_searchQuery.isEmpty) return true;
+              final q = _searchQuery;
+              final phone = (b.userPhone ?? '').toLowerCase();
+              final room = b.roomId.toLowerCase();
+              final id = b.bookingId?.toString() ?? '';
+              final name = (b.userFullName ?? '').toLowerCase();
+              return phone.contains(q) || room.contains(q) || id.contains(q) || name.contains(q);
+            }).toList();
+
+            final pendingList = filtered
                 .where((b) => b.status?.toUpperCase() == AppConfig.bookingPending)
                 .toList();
-            final confirmedList = bookings
+            final confirmedList = filtered
                 .where((b) => b.status?.toUpperCase() == AppConfig.bookingConfirmed)
                 .toList();
-            final checkedInList = bookings
+            final checkedInList = filtered
                 .where((b) => b.status?.toUpperCase() == AppConfig.bookingCheckedIn)
                 .toList();
-            final completedList = bookings
+            final completedList = filtered
                 .where((b) => b.status?.toUpperCase() == AppConfig.bookingCompleted)
                 .toList();
-            final cancelledList = bookings
+            final cancelledList = filtered
                 .where((b) =>
                     b.status?.toUpperCase() == AppConfig.bookingCancelled ||
                     b.status?.toUpperCase() == AppConfig.bookingRejected)
@@ -92,10 +139,49 @@ class _BookingListView extends StatelessWidget {
 
   const _BookingListView({required this.bookings, required this.ref});
 
+  Color _statusColor(String? status) {
+    switch (status?.toUpperCase()) {
+      case AppConfig.bookingPending:
+        return Colors.orange;
+      case AppConfig.bookingConfirmed:
+        return Colors.blue;
+      case AppConfig.bookingCheckedIn:
+        return AppTheme.primary;
+      case AppConfig.bookingCompleted:
+        return AppTheme.success;
+      case AppConfig.bookingCancelled:
+      case AppConfig.bookingRejected:
+        return AppTheme.error;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  String _statusText(String? status) {
+    switch (status?.toUpperCase()) {
+      case AppConfig.bookingPending:
+        return 'Chờ duyệt';
+      case AppConfig.bookingConfirmed:
+        return 'Đã xác nhận';
+      case AppConfig.bookingCheckedIn:
+        return 'Đang ở (Check-in)';
+      case AppConfig.bookingCompleted:
+        return 'Hoàn thành';
+      case AppConfig.bookingCancelled:
+        return 'Đã hủy';
+      case AppConfig.bookingRejected:
+        return 'Bị từ chối';
+      default:
+        return status ?? '—';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (bookings.isEmpty) {
-      return const Center(child: Text('Không có booking nào'));
+      return const Center(
+        child: Text('Không có đơn đặt phòng nào', style: TextStyle(color: AppTheme.textGray)),
+      );
     }
 
     return ListView.builder(
@@ -107,10 +193,10 @@ class _BookingListView extends StatelessWidget {
 
         return Card(
           margin: const EdgeInsets.only(bottom: 12),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           elevation: 2,
           child: Padding(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -118,37 +204,83 @@ class _BookingListView extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Booking #${b.bookingId}',
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      'Mã đơn #${b.bookingId}',
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppTheme.textPrimary),
                     ),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
                         color: statusColor.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(6),
+                        borderRadius: BorderRadius.circular(20),
                         border: Border.all(color: statusColor),
                       ),
                       child: Text(
                         _statusText(b.status),
-                        style: TextStyle(color: statusColor, fontWeight: FontWeight.bold, fontSize: 12),
+                        style: TextStyle(color: statusColor, fontWeight: FontWeight.bold, fontSize: 11),
                       ),
                     ),
                   ],
                 ),
-                const Divider(),
-                Text('Phòng: ${b.roomId}', style: const TextStyle(fontWeight: FontWeight.bold)),
-                Text('Khách đặt: ${b.userFullName ?? b.userId} (${b.userPhone ?? "Không SĐT"})'),
-                Text('Nhận phòng: ${b.formattedCheckIn}'),
-                Text('Trả phòng: ${b.formattedCheckOut}'),
-                if (b.note != null && b.note!.isNotEmpty)
-                  Text('Ghi chú: ${b.note}', style: const TextStyle(fontStyle: FontStyle.italic)),
-                const SizedBox(height: 6),
-                Text(
-                  'Tổng tiền: ${b.totalPrice?.toInt() ?? 0} VNĐ',
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.deepOrange),
+                const Divider(height: 20),
+                Row(
+                  children: [
+                    const Icon(Icons.meeting_room_outlined, size: 16, color: AppTheme.primary),
+                    const SizedBox(width: 6),
+                    Text('Phòng: ${b.roomId}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                  ],
                 ),
+                const SizedBox(height: 6),
+                Row(
+                  children: [
+                    const Icon(Icons.person_outline, size: 16, color: AppTheme.textGray),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        'Khách: ${b.userFullName ?? b.userId} (${b.userPhone ?? "Không SĐT"})',
+                        style: const TextStyle(fontSize: 13, color: AppTheme.textPrimary),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Row(
+                  children: [
+                    const Icon(Icons.access_time_rounded, size: 16, color: AppTheme.textGray),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        'Thời gian: ${b.formattedCheckIn} – ${b.formattedCheckOut}',
+                        style: const TextStyle(fontSize: 12, color: AppTheme.textGray),
+                      ),
+                    ),
+                  ],
+                ),
+                if (b.note != null && b.note!.isNotEmpty) ...[
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      const Icon(Icons.note_outlined, size: 16, color: AppTheme.textGray),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          'Ghi chú: ${b.note}',
+                          style: const TextStyle(fontSize: 12, fontStyle: FontStyle.italic, color: AppTheme.textGray),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
                 const SizedBox(height: 10),
-                _buildActionButtons(context, b),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Tổng: ${b.totalPrice?.toInt() ?? 0} VNĐ',
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.deepOrange),
+                    ),
+                    _buildActionButtons(context, b, ref),
+                  ],
+                ),
               ],
             ),
           ),
@@ -157,126 +289,88 @@ class _BookingListView extends StatelessWidget {
     );
   }
 
-  Widget _buildActionButtons(BuildContext context, BookingModel b) {
-    final status = b.status?.toUpperCase();
+  Widget _buildActionButtons(BuildContext context, BookingModel b, WidgetRef ref) {
+    final status = b.status?.toUpperCase() ?? '';
 
     if (status == AppConfig.bookingPending) {
       return Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Expanded(
-            child: ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-              icon: const Icon(Icons.check, color: Colors.white),
-              label: const Text('Duyệt', style: TextStyle(color: Colors.white)),
-              onPressed: () => _updateStatus(context, b.bookingId!, AppConfig.bookingConfirmed),
+          OutlinedButton(
+            style: OutlinedButton.styleFrom(
+              foregroundColor: Colors.red,
+              side: const BorderSide(color: Colors.red),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             ),
+            onPressed: () => _updateStatus(context, b.bookingId!, AppConfig.bookingRejected, ref),
+            child: const Text('Từ chối', style: TextStyle(fontSize: 12)),
           ),
           const SizedBox(width: 8),
-          Expanded(
-            child: OutlinedButton.icon(
-              style: OutlinedButton.styleFrom(foregroundColor: Colors.red),
-              icon: const Icon(Icons.close),
-              label: const Text('Từ chối'),
-              onPressed: () => _updateStatus(context, b.bookingId!, AppConfig.bookingRejected),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.primary,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             ),
+            onPressed: () => _updateStatus(context, b.bookingId!, AppConfig.bookingConfirmed, ref),
+            child: const Text('Xác nhận', style: TextStyle(fontSize: 12, color: Colors.white)),
           ),
         ],
       );
     }
 
     if (status == AppConfig.bookingConfirmed) {
-      return Row(
-        children: [
-          Expanded(
-            child: ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
-              icon: const Icon(Icons.login, color: Colors.white),
-              label: const Text('Check-in', style: TextStyle(color: Colors.white)),
-              onPressed: () => _updateStatus(context, b.bookingId!, AppConfig.bookingCheckedIn),
-            ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: OutlinedButton.icon(
-              style: OutlinedButton.styleFrom(foregroundColor: Colors.red),
-              icon: const Icon(Icons.cancel),
-              label: const Text('Hủy'),
-              onPressed: () => _updateStatus(context, b.bookingId!, AppConfig.bookingCancelled),
-            ),
-          ),
-        ],
+      return ElevatedButton.icon(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppTheme.primary,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        ),
+        icon: const Icon(Icons.login_rounded, size: 16, color: Colors.white),
+        label: const Text('Check-in', style: TextStyle(fontSize: 12, color: Colors.white)),
+        onPressed: () => _updateStatus(context, b.bookingId!, AppConfig.bookingCheckedIn, ref),
       );
     }
 
     if (status == AppConfig.bookingCheckedIn) {
-      return SizedBox(
-        width: double.infinity,
-        child: ElevatedButton.icon(
-          style: ElevatedButton.styleFrom(backgroundColor: Colors.purple),
-          icon: const Icon(Icons.logout, color: Colors.white),
-          label: const Text('Check-out (Thu tiền)', style: TextStyle(color: Colors.white)),
-          onPressed: () async {
-            final ok = await CheckoutModalDialog.show(context, b);
-            if (ok == true) {
-              ref.invalidate(staffBookingsProvider);
-            }
-          },
+      return ElevatedButton.icon(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppTheme.success,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         ),
+        icon: const Icon(Icons.shopping_cart_checkout_rounded, size: 16, color: Colors.white),
+        label: const Text('Checkout & F&B', style: TextStyle(fontSize: 12, color: Colors.white)),
+        onPressed: () => _showCheckoutDialog(context, b),
       );
     }
 
     return const SizedBox.shrink();
   }
 
-  Future<void> _updateStatus(BuildContext context, int bookingId, String newStatus) async {
+  Future<void> _updateStatus(BuildContext context, int id, String newStatus, WidgetRef ref) async {
     try {
-      await ref.read(bookingServiceProvider).updateBookingStatus(bookingId, newStatus);
+      await ref.read(bookingServiceProvider).updateBookingStatus(id, newStatus);
       ref.invalidate(staffBookingsProvider);
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Đã cập nhật trạng thái booking thành công')),
+          const SnackBar(content: Text('Cập nhật trạng thái đơn thành công')),
         );
       }
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Có lỗi xảy ra: $e')),
+          SnackBar(content: Text('Thất bại: $e')),
         );
       }
     }
   }
 
-  Color _statusColor(String? status) {
-    switch (status?.toUpperCase()) {
-      case AppConfig.bookingPending:
-        return Colors.orange;
-      case AppConfig.bookingConfirmed:
-        return Colors.blue;
-      case AppConfig.bookingCheckedIn:
-        return Colors.purple;
-      case AppConfig.bookingCompleted:
-        return Colors.green;
-      default:
-        return Colors.red;
-    }
-  }
-
-  String _statusText(String? status) {
-    switch (status?.toUpperCase()) {
-      case AppConfig.bookingPending:
-        return 'Chờ duyệt';
-      case AppConfig.bookingConfirmed:
-        return 'Đã xác nhận';
-      case AppConfig.bookingCheckedIn:
-        return 'Đã Check-in';
-      case AppConfig.bookingCompleted:
-        return 'Hoàn thành';
-      case AppConfig.bookingRejected:
-        return 'Bị từ chối';
-      case AppConfig.bookingCancelled:
-        return 'Đã hủy';
-      default:
-        return status ?? 'Khác';
-    }
+  void _showCheckoutDialog(BuildContext context, BookingModel booking) {
+    showDialog(
+      context: context,
+      builder: (ctx) => CheckoutModalDialog(booking: booking),
+    );
   }
 }
