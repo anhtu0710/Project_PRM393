@@ -1,5 +1,7 @@
 // lib/config/app_config.dart
 
+import 'package:flutter/foundation.dart';
+
 class AppConfig {
   // ── API ─────────────────────────────────────────────────────────────
   // For Android emulator: use 10.0.2.2 instead of localhost
@@ -8,7 +10,7 @@ class AppConfig {
   //   flutter run --dart-define=API_URL=http://localhost:8080/api
   static const String baseUrl = String.fromEnvironment(
     'API_URL',
-    defaultValue: 'http://10.0.2.2:8080/api',
+    defaultValue: kIsWeb ? 'http://localhost:8080/api' : 'http://10.0.2.2:8080/api',
   );
 
   // ── JWT ──────────────────────────────────────────────────────────────
