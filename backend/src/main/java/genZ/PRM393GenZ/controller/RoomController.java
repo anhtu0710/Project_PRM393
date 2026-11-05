@@ -31,11 +31,24 @@ public class RoomController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime checkIn,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime checkOut) {
 
-        if (isBlank(keyword) && isBlank(hotelId) && isBlank(typeRoomId)
+        if (isBlank(keyword) && isBlank(typeRoomId)
                 && minPrice == null && maxPrice == null && checkIn == null && checkOut == null) {
+            if (isNotBlank(hotelId)) {
+                return ResponseEntity.ok(
+                        ApiResponse.success("Danh sách phòng theo chi nhánh", roomRepository.findByHotel_HotelId(hotelId.trim()))
+                );
+            }
             return ResponseEntity.ok(
                     ApiResponse.success("Danh sách phòng", roomRepository.findAll())
             );
+        }
+
+        if (isBlank(keyword) && isBlank(hotelId) && checkIn == null && checkOut == null && minPrice == null && maxPrice == null) {
+            if (isNotBlank(typeRoomId)) {
+                return ResponseEntity.ok(
+                        ApiResponse.success("Danh sách phòng theo loại", roomRepository.findByTypeRoom_TypeRoomId(typeRoomId.trim()))
+                );
+            }
         }
 
         LocalDateTime effectiveCheckIn = checkIn != null ? checkIn : LocalDateTime.of(2000, 1, 1, 0, 0);
@@ -104,6 +117,10 @@ public class RoomController {
 
     private boolean isBlank(String str) {
         return str == null || str.isBlank();
+    }
+
+    private boolean isNotBlank(String str) {
+        return str != null && !str.isBlank();
     }
 
     private String blankToNull(String str) {
