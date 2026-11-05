@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import '../config/app_config.dart';
+import '../utils/image_url.dart';
 
 class AppImage extends StatelessWidget {
   final String? imageUrl;
@@ -21,22 +21,6 @@ class AppImage extends StatelessWidget {
     this.placeholder,
     this.errorWidget,
   });
-
-  String _resolveImageUrl(String rawUrl) {
-    if (rawUrl.isEmpty) return '';
-    
-    if (rawUrl.startsWith('/api/')) {
-      final base = AppConfig.baseUrl.replaceAll(RegExp(r'/api/?$'), '');
-      return '$base$rawUrl';
-    }
-
-    if (rawUrl.startsWith('http://') || rawUrl.startsWith('https://')) {
-      final encoded = Uri.encodeComponent(rawUrl);
-      return '${AppConfig.baseUrl}/proxy-image?url=$encoded';
-    }
-
-    return rawUrl;
-  }
 
   Widget _defaultPlaceholder() {
     return Container(
@@ -79,7 +63,7 @@ class AppImage extends StatelessWidget {
       );
     }
 
-    final resolved = _resolveImageUrl(cleanUrl);
+    final resolved = resolveImageUrl(cleanUrl);
 
     // Tính toán memCacheWidth an toàn (tránh lỗi Infinity.toInt())
     int? cacheWidth;
