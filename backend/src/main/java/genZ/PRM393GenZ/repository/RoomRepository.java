@@ -16,26 +16,19 @@ public interface RoomRepository extends JpaRepository<Room, String> {
     List<Room> findByHotel_HotelId(String hotelId);
     List<Room> findByTypeRoom_TypeRoomId(String typeRoomId);
 
-    @Query("""
-            SELECT DISTINCT r FROM Room r
-            LEFT JOIN FETCH r.typeRoom tr
-            LEFT JOIN FETCH r.hotel h
-            WHERE (:keyword = '' OR LOWER(r.nameRoom) LIKE LOWER(CONCAT('%', :keyword, '%'))
-                   OR LOWER(tr.typeRoom) LIKE LOWER(CONCAT('%', :keyword, '%'))
-                   OR LOWER(h.name)      LIKE LOWER(CONCAT('%', :keyword, '%'))
-                   OR LOWER(h.address)   LIKE LOWER(CONCAT('%', :keyword, '%')))
-              AND (:hotelId = '' OR LOWER(TRIM(h.hotelId)) = LOWER(TRIM(:hotelId)))
-              AND (:typeRoomId = '' OR tr.typeRoomId = :typeRoomId)
-              AND (:minPrice = 0 OR tr.pricePerHour >= :minPrice)
-              AND (:maxPrice = 0 OR tr.pricePerHour <= :maxPrice)
-              AND (NOT EXISTS (
-                  SELECT b.bookingId FROM Booking b
-                  WHERE b.room = r
-                    AND b.status IN :blockingStatuses
-                    AND b.checkIn < :checkOut
-                    AND (b.checkOut IS NULL OR b.checkOut > :checkIn)
-              ))
-            """)
+    @Query(value = """
+            SELECT DISTINCT r.* FROM room r
+            LEFT JOIN typeroom tr ON tr.TypeRoomId = r.TypeRoomId
+            LEFT JOIN hotel h ON h.HotelId = r.HotelId
+            WHERE (:keyword = '' OR LOWER(r.nameRoom) LIKE LOWER(CONCAT('%', CAST(:keyword AS TEXT), '%'))
+                   OR LOWER(tr.TypeRoom) LIKE LOWER(CONCAT('%', CAST(:keyword AS TEXT), '%'))
+                   OR LOWER(h.name)      LIKE LOWER(CONCAT('%', CAST(:keyword AS TEXT), '%'))
+                   OR LOWER(h.address)   LIKE LOWER(CONCAT('%', CAST(:keyword AS TEXT), '%')))
+              AND (:hotelId = '' OR LOWER(TRIM(h.HotelId)) = LOWER(TRIM(CAST(:hotelId AS TEXT))))
+              AND (:typeRoomId = '' OR tr.TypeRoomId = CAST(:typeRoomId AS TEXT))
+              AND (:minPrice = 0 OR tr.pricePerHour >= CAST(:minPrice AS NUMERIC))
+              AND (:maxPrice = 0 OR tr.pricePerHour <= CAST(:maxPrice AS NUMERIC))
+            """, nativeQuery = true)
     List<Room> search(@Param("keyword") String keyword,
                       @Param("hotelId") String hotelId,
                       @Param("typeRoomId") String typeRoomId,
