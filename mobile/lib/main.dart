@@ -8,6 +8,11 @@ import 'providers/auth_provider.dart';
 import 'providers/notification_provider.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  // Giới hạn image cache tránh tràn bộ nhớ WebGL/Heap gây đen màn hình (Context Loss) trên Flutter Web
+  PaintingBinding.instance.imageCache.maximumSize = 100;
+  PaintingBinding.instance.imageCache.maximumSizeBytes = 50 * 1024 * 1024; // 50 MB
+
   runApp(
     const ProviderScope(
       child: GenzCinemaApp(),
