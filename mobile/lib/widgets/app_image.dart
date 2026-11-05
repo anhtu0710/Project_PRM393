@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../utils/image_url.dart';
@@ -65,25 +66,39 @@ class AppImage extends StatelessWidget {
 
     final resolved = resolveImageUrl(cleanUrl);
 
-    // Tính toán memCacheWidth an toàn (tránh lỗi Infinity.toInt())
-    int? cacheWidth;
-    if (width != null && width!.isFinite && width! > 0) {
-      cacheWidth = (width! * 2).toInt();
+    Widget imageWidget;
+    if (kIsWeb) {
+      imageWidget = Image.network(
+        resolved,
+        width: width,
+        height: height,
+        fit: fit,
+        loadingBuilder: (context, child, progress) =>
+            progress == null ? child : (placeholder ?? _defaultPlaceholder()),
+        errorBuilder: (context, error, stack) =>
+            errorWidget ?? _defaultErrorWidget(),
+      );
     } else {
-      cacheWidth = 800; // Mức mã hóa ảnh đệm mặc định an toàn cho RAM
-    }
+      // Tính toán memCacheWidth an toàn (tránh lỗi Infinity.toInt())
+      int? cacheWidth;
+      if (width != null && width!.isFinite && width! > 0) {
+        cacheWidth = (width! * 2).toInt();
+      } else {
+        cacheWidth = 800; // Mức mã hóa ảnh đệm mặc định an toàn cho RAM
+      }
 
-    Widget imageWidget = CachedNetworkImage(
-      imageUrl: resolved,
-      width: width,
-      height: height,
-      fit: fit,
-      memCacheWidth: cacheWidth,
-      placeholder: (context, url) => placeholder ?? _defaultPlaceholder(),
-      errorWidget: (context, url, error) {
-        return errorWidget ?? _defaultErrorWidget();
-      },
-    );
+      imageWidget = CachedNetworkImage(
+        imageUrl: resolved,
+        width: width,
+        height: height,
+        fit: fit,
+        memCacheWidth: cacheWidth,
+        placeholder: (context, url) => placeholder ?? _defaultPlaceholder(),
+        errorWidget: (context, url, error) {
+          return errorWidget ?? _defaultErrorWidget();
+        },
+      );
+    }
 
     if (borderRadius != null) {
       imageWidget = ClipRRect(
