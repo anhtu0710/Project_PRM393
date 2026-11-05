@@ -8,6 +8,7 @@ import '../../../models/room_model.dart';
 import '../../../models/booking_model.dart';
 import '../../../providers/booking_provider.dart';
 import '../../../providers/auth_provider.dart';
+import '../../../widgets/app_image.dart';
 
 class BookingScreen extends ConsumerStatefulWidget {
   final RoomModel room;
@@ -396,14 +397,22 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                   ],
                 ),
               ),
-              child: room.imageUrl != null && room.imageUrl!.isNotEmpty
-                  ? Image.network(room.imageUrl!, fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => const Icon(
-                          Icons.bedroom_parent_outlined,
-                          size: 32,
-                          color: AppTheme.primary))
-                  : const Icon(Icons.bedroom_parent_outlined,
-                      size: 32, color: AppTheme.primary),
+              child: AppImage(
+                imageUrl: room.imageUrl,
+                width: 72,
+                height: 72,
+                fit: BoxFit.cover,
+                errorWidget: Container(
+                  width: 72,
+                  height: 72,
+                  color: AppTheme.primary.withOpacity(0.15),
+                  child: const Icon(
+                    Icons.bedroom_parent_outlined,
+                    size: 32,
+                    color: AppTheme.primary,
+                  ),
+                ),
+              ),
             ),
           ),
           const SizedBox(width: 14),

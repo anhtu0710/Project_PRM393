@@ -97,15 +97,7 @@ class AppImage extends StatelessWidget {
       memCacheWidth: cacheWidth,
       placeholder: (context, url) => placeholder ?? _defaultPlaceholder(),
       errorWidget: (context, url, error) {
-        // Fallback trực tiếp sang URL gốc nếu proxy gặp sự cố
-        return CachedNetworkImage(
-          imageUrl: cleanUrl,
-          width: width,
-          height: height,
-          fit: fit,
-          memCacheWidth: cacheWidth,
-          errorWidget: (_, __, ___) => errorWidget ?? _defaultErrorWidget(),
-        );
+        return errorWidget ?? _defaultErrorWidget();
       },
     );
 
