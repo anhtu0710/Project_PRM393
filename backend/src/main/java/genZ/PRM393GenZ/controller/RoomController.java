@@ -5,13 +5,11 @@ import genZ.PRM393GenZ.dto.ApiResponse;
 import genZ.PRM393GenZ.entity.Room;
 import genZ.PRM393GenZ.repository.RoomRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -26,10 +24,10 @@ public class RoomController {
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) String hotelId,
             @RequestParam(required = false) String typeRoomId,
-            @RequestParam(required = false) BigDecimal minPrice,
-            @RequestParam(required = false) BigDecimal maxPrice,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime checkIn,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime checkOut) {
+            @RequestParam(required = false) String minPrice,
+            @RequestParam(required = false) String maxPrice,
+            @RequestParam(required = false) String checkIn,
+            @RequestParam(required = false) String checkOut) {
 
         List<Room> allRooms = roomRepository.findAll();
         var stream = allRooms.stream();
@@ -58,13 +56,19 @@ public class RoomController {
         }
 
         // 4. Lọc theo giá tối thiểu
-        if (minPrice != null) {
-            stream = stream.filter(r -> r.getTypeRoom() != null && r.getTypeRoom().getPricePerHour() != null && r.getTypeRoom().getPricePerHour().compareTo(minPrice) >= 0);
+        if (isNotBlank(minPrice)) {
+            try {
+                BigDecimal minP = new BigDecimal(minPrice.trim());
+                stream = stream.filter(r -> r.getTypeRoom() != null && r.getTypeRoom().getPricePerHour() != null && r.getTypeRoom().getPricePerHour().compareTo(minP) >= 0);
+            } catch (Exception ignored) {}
         }
 
         // 5. Lọc theo giá tối đa
-        if (maxPrice != null) {
-            stream = stream.filter(r -> r.getTypeRoom() != null && r.getTypeRoom().getPricePerHour() != null && r.getTypeRoom().getPricePerHour().compareTo(maxPrice) <= 0);
+        if (isNotBlank(maxPrice)) {
+            try {
+                BigDecimal maxP = new BigDecimal(maxPrice.trim());
+                stream = stream.filter(r -> r.getTypeRoom() != null && r.getTypeRoom().getPricePerHour() != null && r.getTypeRoom().getPricePerHour().compareTo(maxP) <= 0);
+            } catch (Exception ignored) {}
         }
 
         List<Room> filtered = stream.toList();
