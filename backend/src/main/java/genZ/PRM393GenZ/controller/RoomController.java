@@ -7,6 +7,7 @@ import genZ.PRM393GenZ.repository.RoomRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -20,6 +21,7 @@ public class RoomController {
     private final RoomRepository roomRepository;
 
     @GetMapping
+    @Transactional(readOnly = true)
     public ResponseEntity<ApiResponse<List<Room>>> getAllRooms(
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) String hotelId,
@@ -76,6 +78,7 @@ public class RoomController {
     }
 
     @GetMapping("/{id}")
+    @Transactional(readOnly = true)
     public ResponseEntity<ApiResponse<Room>> getRoomById(@PathVariable String id) {
         return roomRepository.findById(id)
                 .map(room -> ResponseEntity.ok(ApiResponse.success("Thông tin phòng", room)))
@@ -83,12 +86,14 @@ public class RoomController {
     }
 
     @GetMapping("/available")
+    @Transactional(readOnly = true)
     public ResponseEntity<ApiResponse<List<Room>>> getAvailableRooms() {
         List<Room> rooms = roomRepository.findByStatus(RoomStatus.AVAILABLE);
         return ResponseEntity.ok(ApiResponse.success("Phòng trống", rooms));
     }
 
     @GetMapping("/hotel/{hotelId}")
+    @Transactional(readOnly = true)
     public ResponseEntity<ApiResponse<List<Room>>> getRoomsByHotel(@PathVariable String hotelId) {
         List<Room> rooms = roomRepository.findByHotel_HotelId(hotelId);
         return ResponseEntity.ok(ApiResponse.success("Phòng theo khách sạn", rooms));

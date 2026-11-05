@@ -16,16 +16,9 @@ class RoomService {
     DateTime? checkIn,
     DateTime? checkOut,
   }) async {
-    final response = await _dio.get('/rooms', queryParameters: {
-      if (keyword != null && keyword.trim().isNotEmpty)
-        'keyword': keyword.trim(),
-      if (hotelId != null) 'hotelId': hotelId,
-      if (typeRoomId != null) 'typeRoomId': typeRoomId,
-      if (minPrice != null) 'minPrice': minPrice,
-      if (maxPrice != null) 'maxPrice': maxPrice,
-      if (checkIn != null) 'checkIn': checkIn.toIso8601String(),
-      if (checkOut != null) 'checkOut': checkOut.toIso8601String(),
-    });
+    // Luôn gọi GET /rooms không kèm query parameters (giống hệt cơ chế màn Staff),
+    // việc lọc chi nhánh/loại phòng sẽ thực hiện 100% cục bộ trên client.
+    final response = await _dio.get('/rooms');
     final data = response.data['data'] as List<dynamic>;
     return data
         .map((e) => RoomModel.fromJson(e as Map<String, dynamic>))

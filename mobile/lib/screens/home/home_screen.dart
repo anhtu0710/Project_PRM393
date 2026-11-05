@@ -136,7 +136,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         : null,
                     onTap: () {
                       setState(() => _selectedHotelId = h.hotelId);
-                      ref.read(roomListProvider.notifier).loadRooms(hotelId: h.hotelId);
+                      ref.read(roomListProvider.notifier).loadRooms();
                       Navigator.pop(ctx);
                     },
                   );
