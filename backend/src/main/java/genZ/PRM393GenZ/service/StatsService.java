@@ -27,43 +27,75 @@ public class StatsService {
     private final RoomRepository roomRepository;
     private final UserRepository userRepository;
 
-    /**
-     * period = "day"   → 7 ngày gần nhất, mỗi cột 1 ngày
-     * period = "week"  → 8 tuần gần nhất, mỗi cột 1 tuần (bắt đầu thứ Hai)
-     * period = "month" → 6 tháng gần nhất, mỗi cột 1 tháng
-     * Một booking thuộc cột nào là tính theo ngày nhận phòng (checkIn).
-     */
     public AdminStatsResponse getStats(String period) {
-        LocalDate today = LocalDate.now();
-        LocalDate rangeEnd = today.plusDays(1); // tính đến hết hôm nay
+        return getStats(null, null, period);
+    }
 
-        // 1. Chia khoảng thời gian thành các cột của biểu đồ
-        List<LocalDate> columnStarts = new ArrayList<>(); // ngày bắt đầu của từng cột
+    public AdminStatsResponse getStats(LocalDate startDate, LocalDate endDate, String period) {
+        LocalDate today = LocalDate.now();
+        LocalDate rangeStart;
+        LocalDate rangeEnd;
+
+        List<LocalDate> columnStarts = new ArrayList<>();
         List<String> labels = new ArrayList<>();
 
-        if ("month".equals(period)) {
-            LocalDate firstDayOfMonth = today.withDayOfMonth(1);
-            for (int i = 5; i >= 0; i--) {
-                LocalDate start = firstDayOfMonth.minusMonths(i);
-                columnStarts.add(start);
-                labels.add("T" + start.getMonthValue());
+        if (startDate != null && endDate != null) {
+            rangeStart = startDate;
+            rangeEnd = endDate.plusDays(1); // tính đến hết ngày kết thúc
+
+            long daysBetween = Duration.between(rangeStart.atStartOfDay(), rangeEnd.atStartOfDay()).toDays();
+            if (daysBetween > 90) {
+                LocalDate current = rangeStart.withDayOfMonth(1);
+                while (!current.isAfter(endDate)) {
+                    columnStarts.add(current);
+                    labels.add("T" + current.getMonthValue() + "/" + String.valueOf(current.getYear()).substring(2));
+                    current = current.plusMonths(1);
+                }
+            } else if (daysBetween > 14) {
+                LocalDate current = rangeStart.with(DayOfWeek.MONDAY);
+                while (!current.isAfter(endDate)) {
+                    columnStarts.add(current);
+                    labels.add(current.getDayOfMonth() + "/" + current.getMonthValue());
+                    current = current.plusWeeks(1);
+                }
+            } else {
+                LocalDate current = rangeStart;
+                while (!current.isAfter(endDate)) {
+                    columnStarts.add(current);
+                    labels.add(current.getDayOfMonth() + "/" + current.getMonthValue());
+                    current = current.plusDays(1);
+                }
             }
-        } else if ("week".equals(period)) {
-            LocalDate monday = today.with(DayOfWeek.MONDAY);
-            for (int i = 7; i >= 0; i--) {
-                LocalDate start = monday.minusWeeks(i);
-                columnStarts.add(start);
-                labels.add(start.getDayOfMonth() + "/" + start.getMonthValue());
+            if (columnStarts.isEmpty()) {
+                columnStarts.add(rangeStart);
+                labels.add(rangeStart.getDayOfMonth() + "/" + rangeStart.getMonthValue());
             }
         } else {
-            period = "day";
-            for (int i = 6; i >= 0; i--) {
-                LocalDate start = today.minusDays(i);
-                columnStarts.add(start);
-                labels.add(start.getDayOfMonth() + "/" + start.getMonthValue());
+            rangeEnd = today.plusDays(1);
+            if ("month".equals(period)) {
+                LocalDate firstDayOfMonth = today.withDayOfMonth(1);
+                for (int i = 5; i >= 0; i--) {
+                    LocalDate start = firstDayOfMonth.minusMonths(i);
+                    columnStarts.add(start);
+                    labels.add("T" + start.getMonthValue());
+                }
+            } else if ("week".equals(period)) {
+                LocalDate monday = today.with(DayOfWeek.MONDAY);
+                for (int i = 7; i >= 0; i--) {
+                    LocalDate start = monday.minusWeeks(i);
+                    columnStarts.add(start);
+                    labels.add(start.getDayOfMonth() + "/" + start.getMonthValue());
+                }
+            } else {
+                period = "day";
+                for (int i = 6; i >= 0; i--) {
+                    LocalDate start = today.minusDays(i);
+                    columnStarts.add(start);
+                    labels.add(start.getDayOfMonth() + "/" + start.getMonthValue());
+                }
             }
+            rangeStart = columnStarts.get(0);
         }
-        LocalDate rangeStart = columnStarts.get(0);
 
         // 2. Chuẩn bị chỗ cộng dồn
         BigDecimal[] revenueByColumn = new BigDecimal[columnStarts.size()];
@@ -149,7 +181,7 @@ public class StatsService {
 
         // 7. Gói kết quả
         AdminStatsResponse result = new AdminStatsResponse();
-        result.setPeriod(period);
+        result.setPeriod(period != null ? period : "custom");
         result.setTotalRevenue(totalRevenue);
         result.setTotalBookings(totalBookings);
         result.setOccupancyRate(occupancyRate);
